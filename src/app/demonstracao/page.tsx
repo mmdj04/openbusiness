@@ -2166,7 +2166,7 @@ function DashboardModule({
                   </span>
                   <div
                     className="w-full rounded-t bg-emerald-500"
-                    style={{ height: `${(d.revenue / maxRevenue) * 100}%` }}
+                    style={{ height: `${(d.revenue / maxRevenue) * 192}px` }}
                   />
                   <span className="text-muted-foreground text-xs">{d.day}</span>
                 </div>
@@ -3518,7 +3518,7 @@ function RelatoriosModule({
                 </span>
                 <div
                   className="w-full rounded-t bg-emerald-500"
-                  style={{ height: `${(d.revenue / maxRevenue) * 100}%` }}
+                  style={{ height: `${(d.revenue / maxRevenue) * 192}px` }}
                 />
                 <span className="text-muted-foreground text-xs">{d.day}</span>
               </div>
