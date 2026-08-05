@@ -41,9 +41,10 @@ import {
   Video,
   FileCheck,
   Building,
-  Sparkles,
+  Menu,
 } from "lucide-react";
 import Link from "next/link";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -567,7 +568,7 @@ const initialProntuarios: ProntuarioEntry[] = [
     date: "2026-08-04",
     professional: "Dr. Ricardo",
     type: "consulta",
-    notes: "Exames dentro da normalidade. Pressao arterial controlada.",
+    notes: "Exames dentro da normalidade. Pressão arterial controlada.",
     prescription: "Losartana 50mg - 1x ao dia",
     cid: "I10",
   },
@@ -578,7 +579,7 @@ const initialProntuarios: ProntuarioEntry[] = [
     date: "2026-08-03",
     professional: "Dra. Beatriz",
     type: "exame",
-    notes: "Raio-X do torax sem alteracoes.",
+    notes: "Raio-X do tórax sem alterações.",
     prescription: "",
     cid: "Z01.1",
   },
@@ -608,7 +609,7 @@ const initialToothRecords: ToothRecord[] = [
     },
     date: "2026-06-10",
     professional: "Dr. Ricardo",
-    notes: "Restauracao em amalgama",
+    notes: "Restauração em amalgama",
   },
   {
     toothId: 15,
@@ -622,7 +623,7 @@ const initialToothRecords: ToothRecord[] = [
     },
     date: "2026-08-01",
     professional: "Dr. Ricardo",
-    notes: "Caries profunda",
+    notes: "Cáries profunda",
   },
   {
     toothId: 16,
@@ -650,7 +651,7 @@ const initialToothRecords: ToothRecord[] = [
     },
     date: "2025-12-15",
     professional: "Dr. Ricardo",
-    notes: "Extracao realizada",
+    notes: "Extração realizada",
   },
   {
     toothId: 24,
@@ -692,7 +693,7 @@ const initialToothRecords: ToothRecord[] = [
     },
     date: "2025-10-20",
     professional: "Dr. Ricardo",
-    notes: "Extracao",
+    notes: "Extração",
   },
   {
     toothId: 35,
@@ -706,7 +707,7 @@ const initialToothRecords: ToothRecord[] = [
     },
     date: "2026-07-05",
     professional: "Dr. Ricardo",
-    notes: "Restauracao resina",
+    notes: "Restauração resina",
   },
   {
     toothId: 45,
@@ -734,7 +735,7 @@ const initialToothRecords: ToothRecord[] = [
     },
     date: "2026-04-10",
     professional: "Dr. Ricardo",
-    notes: "Restauracao ampla",
+    notes: "Restauração ampla",
   },
   {
     toothId: 48,
@@ -748,7 +749,7 @@ const initialToothRecords: ToothRecord[] = [
     },
     date: "2025-11-05",
     professional: "Dr. Ricardo",
-    notes: "Extracao de sisos",
+    notes: "Extração de sisos",
   },
 ];
 
@@ -756,17 +757,17 @@ const initialTreatmentPlan: TreatmentItem[] = [
   {
     id: 1,
     toothId: 15,
-    procedure: "Tratamento de caries - Restauracao em resina",
+    procedure: "Tratamento de cáries - Restauração em resina",
     status: "aprovado",
     value: 280,
     sessions: 1,
     completedSessions: 0,
-    notes: "Caries profunda - pode necessitar endodontia",
+    notes: "Cáries profunda - pode necessitar endodontia",
   },
   {
     id: 2,
     toothId: 24,
-    procedure: "Restauracao vestibulo-mesial em resina",
+    procedure: "Restauração vestibulo-mesial em resina",
     status: "pendente",
     value: 220,
     sessions: 1,
@@ -776,7 +777,7 @@ const initialTreatmentPlan: TreatmentItem[] = [
   {
     id: 3,
     toothId: 45,
-    procedure: "Tratamento de caries - Restauracao",
+    procedure: "Tratamento de cáries - Restauração",
     status: "em_execucao",
     value: 250,
     sessions: 2,
@@ -791,7 +792,7 @@ const initialTreatmentPlan: TreatmentItem[] = [
     value: 890,
     sessions: 2,
     completedSessions: 0,
-    notes: "Apos conclusao da endodontia",
+    notes: "Após conclusão da endodontia",
   },
 ];
 
@@ -825,7 +826,7 @@ const initialLembretes: Lembrete[] = [
     type: "exame",
     date: "2026-08-08",
     time: "11:00",
-    message: "Resultado de exame disponivel",
+    message: "Resultado de exame disponível",
     status: "confirmado",
     channel: "whatsapp",
   },
@@ -915,11 +916,11 @@ const conditionLabels: Record<string, string> = {
   endodontia: "Endodontia",
   fratura: "Fratura",
   sellador: "Sellador",
-  protese: "Protese",
+  protese: "Prótese",
   inclinado: "Inclinado",
   mancha: "Mancha",
   gengiva: "Problema gengival",
-  extracao: "Extracao",
+  extracao: "Extração",
   tratamento: "Em tratamento",
 };
 
@@ -942,15 +943,15 @@ const conditionColors: Record<string, string> = {
 };
 
 const professionalOptions = ["Dr. Ricardo", "Dra. Beatriz"];
-const serviceOptionsMedica = ["Consulta", "Retorno", "Exame", "Emergencia"];
+const serviceOptionsMedica = ["Consulta", "Retorno", "Exame", "Emergência"];
 const serviceOptionsOdonto = [
   "Consulta",
   "Limpeza",
-  "Restauracao",
+  "Restauração",
   "Endodontia",
-  "Extracao",
+  "Extração",
   "Clareamento",
-  "Protese",
+  "Prótese",
   "Ortodontia",
 ];
 
@@ -987,6 +988,7 @@ export default function DemonstracaoPage() {
   const [whatsappMessages, setWhatsappMessages] = useState<WhatsAppMessage[]>(
     initialWhatsAppMessages,
   );
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const currentSegment = segmentConfigs.find((s) => s.id === selectedSegment);
 
@@ -1017,9 +1019,9 @@ export default function DemonstracaoPage() {
     { id: "agenda", label: "Agenda", icon: Calendar },
     { id: "clientes", label: "Pacientes", icon: Users },
     { id: "financeiro", label: "Financeiro", icon: CreditCard },
-    { id: "relatorios", label: "Relatorios", icon: FileText },
+    { id: "relatorios", label: "Relatórios", icon: FileText },
     { id: "whatsapp", label: "WhatsApp", icon: MessageSquare },
-    { id: "prontuario", label: "Prontuario", icon: FileText },
+    { id: "prontuario", label: "Prontuário", icon: FileText },
     { id: "odontograma", label: "Odontograma", icon: Stethoscope },
     { id: "plano-tratamento", label: "Plano Tratamento", icon: Activity },
     { id: "lembretes", label: "Lembretes", icon: Bell },
@@ -1034,7 +1036,7 @@ export default function DemonstracaoPage() {
 
   return (
     <div className="bg-background min-h-screen">
-      <aside className="bg-card border-border fixed top-0 left-0 z-40 flex h-screen w-64 flex-col border-r">
+      <aside className="bg-card border-border fixed top-0 left-0 z-40 hidden h-screen w-64 flex-col border-r md:flex">
         <div className="border-border flex items-center gap-2 border-b p-4">
           <Stethoscope className="text-primary size-6" />
           <div>
@@ -1067,7 +1069,7 @@ export default function DemonstracaoPage() {
             size="sm"
           >
             <Bell className="size-4" />
-            Notificacoes
+            Notificações
             <Badge className="ml-auto" variant="secondary">
               3
             </Badge>
@@ -1078,23 +1080,65 @@ export default function DemonstracaoPage() {
             size="sm"
           >
             <Settings className="size-4" />
-            Configuracoes
+            Configurações
           </Button>
         </div>
       </aside>
 
-      <main className="ml-64 flex-1 overflow-hidden">
+      <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+        <SheetContent side="left" className="w-64 p-0" showCloseButton={false}>
+          <SheetTitle className="sr-only">Menu</SheetTitle>
+          <div className="border-border flex items-center gap-2 border-b p-4">
+            <Stethoscope className="text-primary size-6" />
+            <div>
+              <p className="font-semibold">{currentSegment?.businessName}</p>
+              <p className="text-muted-foreground text-xs">Nova Iguaçu, RJ</p>
+            </div>
+          </div>
+          <nav className="flex-1 space-y-1 p-3">
+            {availableModules
+              .filter((item) => enabledModules.includes(item.id))
+              .map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    setCurrentModule(item.id);
+                    setSidebarOpen(false);
+                  }}
+                  className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
+                    currentModule === item.id
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  }`}
+                >
+                  <item.icon className="size-4" />
+                  {item.label}
+                </button>
+              ))}
+          </nav>
+        </SheetContent>
+      </Sheet>
+
+      <main className="flex-1 overflow-hidden md:ml-64">
         <header className="bg-card border-border border-b">
           <div className="flex flex-wrap items-center gap-3 p-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden"
+              onClick={() => setSidebarOpen(true)}
+            >
+              <Menu className="size-5" />
+            </Button>
             <div className="min-w-0 shrink-0">
               <h1 className="text-xl font-semibold">
                 {currentModule === "dashboard" && "Painel de Controle"}
                 {currentModule === "agenda" && "Agenda"}
                 {currentModule === "clientes" && "Pacientes"}
                 {currentModule === "financeiro" && "Financeiro"}
-                {currentModule === "relatorios" && "Relatorios"}
+                {currentModule === "relatorios" && "Relatórios"}
                 {currentModule === "whatsapp" && "WhatsApp"}
-                {currentModule === "prontuario" && "Prontuario"}
+                {currentModule === "prontuario" && "Prontuário"}
                 {currentModule === "odontograma" && "Odontograma"}
                 {currentModule === "plano-tratamento" && "Plano de Tratamento"}
                 {currentModule === "lembretes" && "Lembretes"}
@@ -2289,7 +2333,7 @@ function RelatoriosModule({
         </Card>
         <Card>
           <CardContent className="p-4">
-            <p className="text-muted-foreground text-sm">Taxa de confirmacao</p>
+            <p className="text-muted-foreground text-sm">Taxa de confirmação</p>
             <p className="text-2xl font-bold text-green-600">{confirmRate}%</p>
           </CardContent>
         </Card>
@@ -2663,7 +2707,7 @@ function ProntuarioModule({
                 <p className="text-muted-foreground text-sm">Consultas hoje</p>
                 <p className="text-2xl font-bold">{todayCount}</p>
               </div>
-              <Sparkles className="size-8 text-violet-500" />
+              <Calendar className="text-muted-foreground size-8" />
             </div>
           </CardContent>
         </Card>
@@ -2683,7 +2727,7 @@ function ProntuarioModule({
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-muted-foreground text-sm">
-                  Tempo medio de consulta
+                  Tempo médio de consulta
                 </p>
                 <p className="text-2xl font-bold">24 min</p>
               </div>
@@ -2723,7 +2767,7 @@ function ProntuarioModule({
           }}
           className="gap-2"
         >
-          <FileText className="size-4" /> Novo prontuario
+          <FileText className="size-4" /> Novo prontuário
         </Button>
       </div>
 
@@ -2732,7 +2776,7 @@ function ProntuarioModule({
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>
-                {editingEntry ? "Editar prontuario" : "Novo prontuario"}
+                {editingEntry ? "Editar prontuário" : "Novo prontuário"}
               </CardTitle>
               <Button
                 variant="ghost"
@@ -2798,7 +2842,7 @@ function ProntuarioModule({
                   <option value="consulta">Consulta</option>
                   <option value="retorno">Retorno</option>
                   <option value="exame">Exame</option>
-                  <option value="emergencia">Emergencia</option>
+                  <option value="emergencia">Emergência</option>
                 </select>
               </div>
               <div>
@@ -2812,49 +2856,17 @@ function ProntuarioModule({
                 />
               </div>
               <div className="md:col-span-2">
-                <label className="text-sm font-medium">Notas clinicas</label>
+                <label className="text-sm font-medium">Notas clínicas</label>
                 <textarea
                   value={form.notes}
                   onChange={(e) => setForm({ ...form, notes: e.target.value })}
                   className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
                   rows={3}
-                  placeholder="Evolucao do paciente..."
+                  placeholder="Evolução do paciente..."
                 />
-                <div className="mt-2 flex items-center gap-2">
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    className="gap-1"
-                    onClick={() =>
-                      setForm({
-                        ...form,
-                        notes:
-                          "Paciente relata dor de cabeca ha 3 dias, intensidade moderada. Nausea ocasional. Sem febre. Pressao arterial 130/85. Exame fisico normal. Orientado a repouso e hidratacao.",
-                      })
-                    }
-                  >
-                    <Sparkles className="size-3" /> Transcrever consulta por IA
-                  </Button>
-                  <Badge className="bg-violet-100 text-[10px] text-violet-800">
-                    IA
-                  </Badge>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    className="gap-1"
-                    onClick={() => setForm({ ...form, cid: "R51" })}
-                  >
-                    <Sparkles className="size-3" /> Sugerir CID
-                  </Button>
-                  <Badge className="bg-violet-100 text-[10px] text-violet-800">
-                    IA
-                  </Badge>
-                </div>
               </div>
               <div className="md:col-span-2">
-                <label className="text-sm font-medium">Prescricao</label>
+                <label className="text-sm font-medium">Prescrição</label>
                 <textarea
                   value={form.prescription}
                   onChange={(e) =>
@@ -2921,31 +2933,12 @@ function ProntuarioModule({
                     <p className="mt-2 text-sm">{entry.notes}</p>
                     {entry.prescription && (
                       <div className="bg-muted mt-2 rounded p-2">
-                        <p className="text-xs font-medium">Prescricao:</p>
+                        <p className="text-xs font-medium">Prescrição:</p>
                         <p className="text-muted-foreground text-xs">
                           {entry.prescription}
                         </p>
                       </div>
                     )}
-                    <div className="mt-3 rounded-lg border border-violet-200 bg-violet-50 p-3">
-                      <div className="mb-1 flex items-center gap-2">
-                        <Sparkles className="size-4 text-violet-600" />
-                        <span className="text-xs font-medium text-violet-800">
-                          Resumo gerado por IA
-                        </span>
-                        <Badge className="ml-auto bg-green-100 text-[10px] text-green-800">
-                          Confianca: 94%
-                        </Badge>
-                      </div>
-                      <p className="text-muted-foreground text-xs">
-                        Paciente apresenta quadro clinico compativel com
-                        cefaleia tensional. Quadro agudo ha 3 dias com
-                        intensidade moderada. Sem sinais de alarme. Exame fisico
-                        sem alteracoes significativas. Conduta adequada:
-                        repouso, hidratacao e analgesia. Retorno em caso de
-                        piora.
-                      </p>
-                    </div>
                   </div>
                   <div className="flex gap-1">
                     <Button
@@ -3572,11 +3565,11 @@ function PlanoTratamentoModule({
                     setForm({ ...form, procedure: e.target.value })
                   }
                   className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
-                  placeholder="Ex: Restauracao em resina"
+                  placeholder="Ex: Restauração em resina"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium">Sessoes previstas</label>
+                <label className="text-sm font-medium">Sessões previstas</label>
                 <input
                   type="number"
                   value={form.sessions}
@@ -4063,7 +4056,7 @@ function TeleconsultaModule() {
         <div className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm">Prontuario da consulta</CardTitle>
+              <CardTitle className="text-sm">Prontuário da consulta</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="text-sm">
@@ -4117,8 +4110,8 @@ function DocumentosModule() {
   const documentTypes = [
     {
       id: "prescricao",
-      title: "Prescricao Digital",
-      description: "Receita medica com assinatura digital",
+      title: "Prescrição Digital",
+      description: "Receita médica com assinatura digital",
       icon: FileText,
     },
     {
@@ -4129,14 +4122,14 @@ function DocumentosModule() {
     },
     {
       id: "atestado",
-      title: "Atestado Medico",
-      description: "Declaracao de saude para afastamento",
+      title: "Atestado Médico",
+      description: "Declaração de saúde para afastamento",
       icon: Stethoscope,
     },
     {
       id: "declaracao",
-      title: "Declaracao",
-      description: "Declaracao de comparecimento ou saude",
+      title: "Declaração",
+      description: "Declaração de comparecimento ou saúde",
       icon: FileText,
     },
   ];
@@ -4144,14 +4137,14 @@ function DocumentosModule() {
   const generatedDocs = [
     {
       id: 1,
-      type: "Prescricao Digital",
+      type: "Prescrição Digital",
       patient: "Maria Silva",
       date: "05/08/2026",
       status: "assinado",
     },
     {
       id: 2,
-      type: "Atestado Medico",
+      type: "Atestado Médico",
       patient: "Joao Santos",
       date: "03/08/2026",
       status: "assinado",
@@ -4172,10 +4165,10 @@ function DocumentosModule() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm">
-                {generatingDoc === "prescricao" && "Prescricao Digital"}
+                {generatingDoc === "prescricao" && "Prescrição Digital"}
                 {generatingDoc === "consentimento" && "Termo de Consentimento"}
-                {generatingDoc === "atestado" && "Atestado Medico"}
-                {generatingDoc === "declaracao" && "Declaracao"}
+                {generatingDoc === "atestado" && "Atestado Médico"}
+                {generatingDoc === "declaracao" && "Declaração"}
               </CardTitle>
               <Button
                 variant="ghost"

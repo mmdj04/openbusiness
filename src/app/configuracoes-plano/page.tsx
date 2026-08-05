@@ -22,21 +22,8 @@ import {
   Sparkles,
   Stethoscope,
   Smile,
-  Scissors,
-  Dumbbell,
-  PawPrint,
-  Car,
-  Wrench,
   ShoppingBag,
-  UtensilsCrossed,
-  Pizza,
-  Coffee,
-  Pill,
-  Glasses,
-  Shirt,
   Building,
-  Scale,
-  Calculator,
   Users,
   BarChart3,
   Calendar,
@@ -65,7 +52,6 @@ const modulePrices: Record<string, number> = {
   assinaturas: 60,
   prontuario: 85,
   lembretes: 45,
-  "multi-unidades": 130,
 };
 
 const operationSizes = [
@@ -179,118 +165,6 @@ const segments = [
     ],
     volumes: ["agendamentos", "clientes"],
   },
-  {
-    id: "salao",
-    name: "Salão de beleza",
-    icon: Scissors,
-    modules: ["agenda", "financeiro", "crm", "whatsapp", "assinaturas"],
-    volumes: ["agendamentos", "clientes"],
-  },
-  {
-    id: "barbearia",
-    name: "Barbearia",
-    icon: Scissors,
-    modules: ["agenda", "financeiro", "crm", "whatsapp", "assinaturas"],
-    volumes: ["agendamentos", "clientes"],
-  },
-  {
-    id: "academia",
-    name: "Academia",
-    icon: Dumbbell,
-    modules: ["agenda", "financeiro", "crm", "assinaturas", "relatorios"],
-    volumes: ["clientes", "agendamentos"],
-  },
-  {
-    id: "petshop",
-    name: "Pet shop",
-    icon: PawPrint,
-    modules: ["agenda", "financeiro", "crm", "estoque", "whatsapp"],
-    volumes: ["clientes", "produtos"],
-  },
-  {
-    id: "autoescola",
-    name: "Autoescola",
-    icon: Car,
-    modules: ["agenda", "financeiro", "crm", "relatorios", "whatsapp"],
-    volumes: ["clientes", "agendamentos"],
-  },
-  {
-    id: "oficina",
-    name: "Oficina mecânica",
-    icon: Wrench,
-    modules: ["agenda", "financeiro", "crm", "estoque", "relatorios"],
-    volumes: ["clientes", "pedidos"],
-  },
-  {
-    id: "autopecas",
-    name: "Autopeças",
-    icon: ShoppingBag,
-    modules: ["financeiro", "crm", "estoque", "pdv", "relatorios"],
-    volumes: ["clientes", "pedidos", "produtos"],
-  },
-  {
-    id: "restaurante",
-    name: "Restaurante",
-    icon: UtensilsCrossed,
-    modules: ["financeiro", "pdv", "estoque", "relatorios"],
-    volumes: ["pedidos", "clientes"],
-  },
-  {
-    id: "pizzaria",
-    name: "Pizzaria",
-    icon: Pizza,
-    modules: ["financeiro", "pdv", "estoque", "whatsapp"],
-    volumes: ["pedidos", "clientes"],
-  },
-  {
-    id: "lanchonete",
-    name: "Lanchonete",
-    icon: Coffee,
-    modules: ["financeiro", "pdv", "estoque", "relatorios"],
-    volumes: ["pedidos", "clientes"],
-  },
-  {
-    id: "farmacia",
-    name: "Farmácia",
-    icon: Pill,
-    modules: ["financeiro", "crm", "estoque", "pdv", "relatorios"],
-    volumes: ["clientes", "pedidos", "produtos"],
-  },
-  {
-    id: "otica",
-    name: "Ótica",
-    icon: Glasses,
-    modules: ["financeiro", "crm", "estoque", "pdv", "relatorios"],
-    volumes: ["clientes", "pedidos", "produtos"],
-  },
-  {
-    id: "loja-roupas",
-    name: "Loja de roupas",
-    icon: Shirt,
-    modules: ["financeiro", "crm", "estoque", "pdv", "relatorios"],
-    volumes: ["clientes", "pedidos", "produtos"],
-  },
-  {
-    id: "material-construcao",
-    name: "Material de construção",
-    icon: Building,
-    modules: ["financeiro", "crm", "estoque", "pdv", "relatorios"],
-    volumes: ["clientes", "pedidos", "produtos"],
-  },
-  {
-    id: "advocacia",
-    name: "Escritório de advocacia",
-    icon: Scale,
-    modules: ["agenda", "financeiro", "crm", "relatorios", "prontuario"],
-    volumes: ["clientes"],
-  },
-  {
-    id: "contabilidade",
-    name: "Contabilidade",
-    icon: Calculator,
-    modules: ["agenda", "financeiro", "crm", "relatorios", "whatsapp"],
-    volumes: ["clientes"],
-  },
 ];
 
 const moduleLabels: Record<string, string> = {
@@ -323,11 +197,8 @@ const allModules = [
   { id: "pdv", icon: ShoppingBag, popular: false },
   { id: "crm", icon: Users, popular: true },
   { id: "relatorios", icon: BarChart3, popular: false },
-  { id: "ia", icon: Sparkles, popular: true },
-  { id: "assinaturas", icon: BarChart3, popular: false },
   { id: "prontuario", icon: Stethoscope, popular: false },
   { id: "lembretes", icon: Calendar, popular: false },
-  { id: "multi-unidades", icon: Building, popular: false },
 ];
 
 function calculatePrice(
@@ -491,7 +362,7 @@ function ConfiguracoesPlanoContent() {
   };
 
   return (
-    <div className="bg-background min-h-screen">
+    <div className="bg-background min-h-screen overflow-hidden">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8">
           <Link
@@ -512,11 +383,11 @@ function ConfiguracoesPlanoContent() {
 
         <div className="grid gap-8 lg:grid-cols-3">
           <div className="space-y-6 lg:col-span-2">
-            <div className="mb-6 flex items-center justify-between">
+            <div className="mb-6 flex items-center justify-between overflow-x-auto">
               {Array.from({ length: 6 }, (_, i) => (
                 <div key={i} className="flex items-center">
                   <div
-                    className={`flex size-8 items-center justify-center rounded-full text-sm font-bold transition-colors ${
+                    className={`flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-bold transition-colors ${
                       i + 1 === step
                         ? "bg-primary text-primary-foreground"
                         : i + 1 < step
@@ -528,7 +399,7 @@ function ConfiguracoesPlanoContent() {
                   </div>
                   {i < 5 && (
                     <div
-                      className={`mx-2 h-0.5 w-8 sm:w-12 ${
+                      className={`mx-1 h-0.5 w-4 shrink-0 sm:mx-2 sm:w-12 ${
                         i + 1 < step ? "bg-primary" : "bg-muted"
                       }`}
                     />
