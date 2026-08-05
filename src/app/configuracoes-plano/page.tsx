@@ -711,7 +711,11 @@ function ConfiguracoesPlanoContent() {
 
             {step >= 1 && step < 6 && (
               <div className="flex justify-between">
-                <Button variant="outline" onClick={() => setStep(step - 1)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setStep(step - 1)}
+                  disabled={step === 1}
+                >
                   <ArrowLeft className="mr-2 size-4" />
                   Voltar
                 </Button>
