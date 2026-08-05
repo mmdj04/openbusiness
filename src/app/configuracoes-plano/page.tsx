@@ -33,6 +33,9 @@ import {
   TrendingUp,
   Crown,
   EyeOff,
+  FileText,
+  FileCheck,
+  Activity,
 } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -52,6 +55,9 @@ const modulePrices: Record<string, number> = {
   assinaturas: 60,
   prontuario: 85,
   lembretes: 45,
+  orcamentos: 55,
+  usuarios: 40,
+  exames: 60,
 };
 
 const operationSizes = [
@@ -148,6 +154,10 @@ const segments = [
       "prontuario",
       "whatsapp",
       "lembretes",
+      "relatorios",
+      "orcamentos",
+      "usuarios",
+      "exames",
     ],
     volumes: ["agendamentos", "clientes"],
   },
@@ -162,6 +172,12 @@ const segments = [
       "prontuario",
       "whatsapp",
       "lembretes",
+      "relatorios",
+      "odontograma",
+      "plano-tratamento",
+      "orcamentos",
+      "usuarios",
+      "exames",
     ],
     volumes: ["agendamentos", "clientes"],
   },
@@ -180,6 +196,9 @@ const moduleLabels: Record<string, string> = {
   prontuario: "Prontuário eletrônico",
   lembretes: "Lembretes avançados",
   "multi-unidades": "Multi-unidades",
+  orcamentos: "Orçamentos",
+  usuarios: "Controle de usuários",
+  exames: "Solicitação de exames",
 };
 
 const volumeLabels: Record<string, string> = {
@@ -199,6 +218,11 @@ const allModules = [
   { id: "relatorios", icon: BarChart3, popular: false },
   { id: "prontuario", icon: Stethoscope, popular: false },
   { id: "lembretes", icon: Calendar, popular: false },
+  { id: "odontograma", icon: Stethoscope, popular: false },
+  { id: "plano-tratamento", icon: Activity, popular: false },
+  { id: "orcamentos", icon: FileText, popular: false },
+  { id: "usuarios", icon: Users, popular: false },
+  { id: "exames", icon: FileCheck, popular: false },
 ];
 
 function calculatePrice(

@@ -65,7 +65,10 @@ type ModuleId =
   | "plano-tratamento"
   | "teleconsulta"
   | "documentos"
-  | "convenios";
+  | "convenios"
+  | "orcamentos"
+  | "usuarios"
+  | "exames";
 
 type SegmentId =
   | "clinica-medica"
@@ -198,6 +201,39 @@ interface WhatsAppMessage {
   actionTaken?: boolean;
 }
 
+interface Orcamento {
+  id: number;
+  patientId: number;
+  patientName: string;
+  procedures: string[];
+  totalValue: number;
+  validUntil: string;
+  status: "pendente" | "aprovado" | "rejeitado" | "expirado";
+  notes: string;
+  createdAt: string;
+}
+
+interface Usuario {
+  id: number;
+  name: string;
+  email: string;
+  role: "dentista" | "medico" | "secretaria" | "admin";
+  status: "ativo" | "inativo";
+  lastAccess: string;
+}
+
+interface Exame {
+  id: number;
+  patientId: number;
+  patientName: string;
+  examType: string;
+  requestDate: string;
+  resultDate: string | null;
+  status: "solicitado" | "em_andamento" | "realizado" | "pendente";
+  resultNotes: string;
+  hasFile: boolean;
+}
+
 // ---------------------------------------------------------------------------
 // Segment Configs
 // ---------------------------------------------------------------------------
@@ -214,6 +250,9 @@ const segmentConfigs: SegmentConfig[] = [
       "whatsapp",
       "prontuario",
       "lembretes",
+      "orcamentos",
+      "usuarios",
+      "exames",
     ],
     businessName: "Clinica Saude+",
     businessType: "Clinica Medica",
@@ -232,6 +271,9 @@ const segmentConfigs: SegmentConfig[] = [
       "prontuario",
       "plano-tratamento",
       "whatsapp",
+      "orcamentos",
+      "usuarios",
+      "exames",
     ],
     businessName: "Odonto Vida",
     businessType: "Clinica Odontologica",
@@ -896,6 +938,165 @@ const initialWhatsAppMessages: WhatsAppMessage[] = [
   },
 ];
 
+const initialOrcamentos: Orcamento[] = [
+  {
+    id: 1,
+    patientId: 1,
+    patientName: "Maria Silva",
+    procedures: ["Limpeza", "Restauracao"],
+    totalValue: 420,
+    validUntil: "2026-08-30",
+    status: "pendente",
+    notes: "Paciente solicitou orcamento para tratamento periodontal",
+    createdAt: "2026-08-01",
+  },
+  {
+    id: 2,
+    patientId: 2,
+    patientName: "Joao Santos",
+    procedures: ["Clareamento"],
+    totalValue: 800,
+    validUntil: "2026-09-15",
+    status: "pendente",
+    notes: "Clareamento a laser - pacote completo",
+    createdAt: "2026-08-03",
+  },
+  {
+    id: 3,
+    patientId: 3,
+    patientName: "Ana Costa",
+    procedures: ["Extraacao", "Consulta", "Raio-X"],
+    totalValue: 250,
+    validUntil: "2026-08-20",
+    status: "aprovado",
+    notes: "Extracao do siso incluso",
+    createdAt: "2026-07-28",
+  },
+  {
+    id: 4,
+    patientId: 6,
+    patientName: "Carlos Mendes",
+    procedures: ["Limpeza", "Restauracao", "Clareamento", "Consulta"],
+    totalValue: 2350,
+    validUntil: "2026-08-01",
+    status: "expirado",
+    notes: "Tratamento completo - prazo expirado",
+    createdAt: "2026-07-01",
+  },
+  {
+    id: 5,
+    patientId: 4,
+    patientName: "Pedro Lima",
+    procedures: ["Consulta", "Limpeza"],
+    totalValue: 300,
+    validUntil: "2026-09-10",
+    status: "pendente",
+    notes: "Retorno para avaliacao periodontal",
+    createdAt: "2026-08-02",
+  },
+];
+
+const initialUsuarios: Usuario[] = [
+  {
+    id: 1,
+    name: "Dr. Ricardo Mendes",
+    email: "ricardo@clinicasaude.com.br",
+    role: "dentista",
+    status: "ativo",
+    lastAccess: "2026-08-05",
+  },
+  {
+    id: 2,
+    name: "Dra. Beatriz Lima",
+    email: "beatriz@clinicasaude.com.br",
+    role: "dentista",
+    status: "ativo",
+    lastAccess: "2026-08-04",
+  },
+  {
+    id: 3,
+    name: "Ana Souza",
+    email: "ana@clinicasaude.com.br",
+    role: "secretaria",
+    status: "ativo",
+    lastAccess: "2026-08-05",
+  },
+  {
+    id: 4,
+    name: "Carlos Pereira",
+    email: "carlos@clinicasaude.com.br",
+    role: "admin",
+    status: "ativo",
+    lastAccess: "2026-08-05",
+  },
+  {
+    id: 5,
+    name: "Dr. Fernando Alves",
+    email: "fernando@clinicasaude.com.br",
+    role: "medico",
+    status: "inativo",
+    lastAccess: "2026-07-15",
+  },
+];
+
+const initialExames: Exame[] = [
+  {
+    id: 1,
+    patientId: 1,
+    patientName: "Maria Silva",
+    examType: "Raio-X panoramica",
+    requestDate: "2026-08-01",
+    resultDate: "2026-08-03",
+    status: "realizado",
+    resultNotes: "Sem alteracoes significativas",
+    hasFile: true,
+  },
+  {
+    id: 2,
+    patientId: 2,
+    patientName: "Joao Santos",
+    examType: "Hemograma completo",
+    requestDate: "2026-08-03",
+    resultDate: null,
+    status: "solicitado",
+    resultNotes: "",
+    hasFile: false,
+  },
+  {
+    id: 3,
+    patientId: 3,
+    patientName: "Ana Costa",
+    examType: "Tomografia computadorizada",
+    requestDate: "2026-07-28",
+    resultDate: "2026-08-02",
+    status: "realizado",
+    resultNotes: "Avaliacao para implante dentario",
+    hasFile: true,
+  },
+  {
+    id: 4,
+    patientId: 4,
+    patientName: "Pedro Lima",
+    examType: "Panoramica dental",
+    requestDate: "2026-08-04",
+    resultDate: null,
+    status: "em_andamento",
+    resultNotes: "",
+    hasFile: false,
+  },
+  {
+    id: 5,
+    patientId: 6,
+    patientName: "Carlos Mendes",
+    examType: "Exame de sangue",
+    requestDate: "2026-07-20",
+    resultDate: null,
+    status: "pendente",
+    resultNotes: "Aguardando coleta",
+    hasFile: false,
+  },
+];
+
 const weeklyData = [
   { day: "Seg", revenue: 3200, appointments: 12 },
   { day: "Ter", revenue: 4100, appointments: 15 },
@@ -972,6 +1173,9 @@ export default function DemonstracaoPage() {
     "whatsapp",
     "prontuario",
     "lembretes",
+    "orcamentos",
+    "usuarios",
+    "exames",
   ]);
 
   // Dynamic data
@@ -988,6 +1192,9 @@ export default function DemonstracaoPage() {
   const [whatsappMessages, setWhatsappMessages] = useState<WhatsAppMessage[]>(
     initialWhatsAppMessages,
   );
+  const [orcamentos, setOrcamentos] = useState<Orcamento[]>(initialOrcamentos);
+  const [usuarios, setUsuarios] = useState<Usuario[]>(initialUsuarios);
+  const [exames, setExames] = useState<Exame[]>(initialExames);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const currentSegment = segmentConfigs.find((s) => s.id === selectedSegment);
@@ -1030,6 +1237,9 @@ export default function DemonstracaoPage() {
     { id: "teleconsulta", label: "Teleconsulta", icon: Video },
     { id: "documentos", label: "Documentos", icon: FileCheck },
     { id: "convenios", label: "Convenios", icon: Building },
+    { id: "orcamentos", label: "Orcamentos", icon: FileText },
+    { id: "usuarios", label: "Usuarios", icon: Users },
+    { id: "exames", label: "Exames", icon: FileCheck },
   ];
 
   const maxRevenue = Math.max(...weeklyData.map((d) => d.revenue));
@@ -1147,6 +1357,9 @@ export default function DemonstracaoPage() {
                 {currentModule === "teleconsulta" && "Teleconsulta"}
                 {currentModule === "documentos" && "Documentos"}
                 {currentModule === "convenios" && "Convenios"}
+                {currentModule === "orcamentos" && "Orcamentos"}
+                {currentModule === "usuarios" && "Usuarios"}
+                {currentModule === "exames" && "Exames"}
               </h1>
               <p className="text-muted-foreground text-xs">
                 {new Date().toLocaleDateString("pt-BR", {
@@ -1284,6 +1497,23 @@ export default function DemonstracaoPage() {
           {currentModule === "teleconsulta" && <TeleconsultaModule />}
           {currentModule === "documentos" && <DocumentosModule />}
           {currentModule === "convenios" && <ConveniosModule />}
+          {currentModule === "orcamentos" && (
+            <OrcamentosModule
+              orcamentos={orcamentos}
+              setOrcamentos={setOrcamentos}
+              patients={patients}
+            />
+          )}
+          {currentModule === "usuarios" && (
+            <UsuariosModule usuarios={usuarios} setUsuarios={setUsuarios} />
+          )}
+          {currentModule === "exames" && (
+            <ExamesModule
+              exames={exames}
+              setExames={setExames}
+              patients={patients}
+            />
+          )}
         </div>
       </main>
     </div>
@@ -4423,6 +4653,857 @@ function ConveniosModule() {
           </div>
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Orcamentos Module
+// ---------------------------------------------------------------------------
+
+function OrcamentosModule({
+  orcamentos,
+  setOrcamentos,
+  patients,
+}: {
+  orcamentos: Orcamento[];
+  setOrcamentos: React.Dispatch<React.SetStateAction<Orcamento[]>>;
+  patients: Patient[];
+}) {
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({
+    patientId: "",
+    procedures: "",
+    totalValue: "",
+    validUntil: "",
+    notes: "",
+  });
+
+  const totalValue = orcamentos.reduce((s, o) => s + o.totalValue, 0);
+  const pendentes = orcamentos.filter((o) => o.status === "pendente").length;
+  const aprovados = orcamentos.filter((o) => o.status === "aprovado").length;
+
+  const handleSave = () => {
+    const patient = patients.find((p) => p.id === Number(form.patientId));
+    if (!patient) return;
+    setOrcamentos((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        patientId: patient.id,
+        patientName: patient.name,
+        procedures: form.procedures
+          .split(",")
+          .map((p) => p.trim())
+          .filter(Boolean),
+        totalValue: Number(form.totalValue),
+        validUntil: form.validUntil,
+        status: "pendente" as const,
+        notes: form.notes,
+        createdAt: new Date().toISOString().split("T")[0],
+      },
+    ]);
+    setShowForm(false);
+    setForm({
+      patientId: "",
+      procedures: "",
+      totalValue: "",
+      validUntil: "",
+      notes: "",
+    });
+  };
+
+  const handleStatus = (id: number, status: "aprovado" | "rejeitado") => {
+    setOrcamentos((prev) =>
+      prev.map((o) => (o.id === id ? { ...o, status } : o)),
+    );
+  };
+
+  const handleDelete = (id: number) => {
+    setOrcamentos((prev) => prev.filter((o) => o.id !== id));
+  };
+
+  const statusColor: Record<string, string> = {
+    pendente: "bg-orange-100 text-orange-700",
+    aprovado: "bg-green-100 text-green-700",
+    rejeitado: "bg-red-100 text-red-700",
+    expirado: "bg-zinc-100 text-zinc-700",
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-4">
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Total</p>
+            <p className="text-2xl font-bold">{orcamentos.length}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Pendentes</p>
+            <p className="text-2xl font-bold text-orange-500">{pendentes}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Aprovados</p>
+            <p className="text-2xl font-bold text-green-600">{aprovados}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Valor total</p>
+            <p className="text-2xl font-bold">
+              R$ {totalValue.toLocaleString("pt-BR")}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="flex items-center justify-between">
+        <p className="text-muted-foreground text-sm">
+          {orcamentos.length} orcamentos
+        </p>
+        <Button
+          onClick={() => {
+            setForm({
+              patientId: "",
+              procedures: "",
+              totalValue: "",
+              validUntil: "",
+              notes: "",
+            });
+            setShowForm(true);
+          }}
+          className="gap-2"
+        >
+          <Plus className="size-4" /> Novo orcamento
+        </Button>
+      </div>
+
+      {showForm && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Novo orcamento</CardTitle>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowForm(false)}
+              >
+                <X className="size-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <label className="text-sm font-medium">Paciente</label>
+                <select
+                  value={form.patientId}
+                  onChange={(e) =>
+                    setForm({ ...form, patientId: e.target.value })
+                  }
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                >
+                  <option value="">Selecionar...</option>
+                  {patients
+                    .filter((p) => p.status === "ativo")
+                    .map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Valor (R$)</label>
+                <input
+                  type="number"
+                  value={form.totalValue}
+                  onChange={(e) =>
+                    setForm({ ...form, totalValue: e.target.value })
+                  }
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                  placeholder="0"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="text-sm font-medium">
+                  Procedimentos (separados por virgula)
+                </label>
+                <input
+                  type="text"
+                  value={form.procedures}
+                  onChange={(e) =>
+                    setForm({ ...form, procedures: e.target.value })
+                  }
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                  placeholder="Limpeza, Restauracao, Clareamento"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">
+                  Validade do orcamento
+                </label>
+                <input
+                  type="date"
+                  value={form.validUntil}
+                  onChange={(e) =>
+                    setForm({ ...form, validUntil: e.target.value })
+                  }
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Observacoes</label>
+                <input
+                  type="text"
+                  value={form.notes}
+                  onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                />
+              </div>
+            </div>
+            <div className="mt-4 flex gap-2">
+              <Button
+                onClick={handleSave}
+                disabled={
+                  !form.patientId ||
+                  !form.procedures ||
+                  !form.totalValue ||
+                  !form.validUntil
+                }
+              >
+                <Save className="mr-2 size-4" /> Criar
+              </Button>
+              <Button variant="outline" onClick={() => setShowForm(false)}>
+                Cancelar
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="space-y-3">
+        {orcamentos.map((o) => (
+          <Card key={o.id}>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium">{o.patientName}</p>
+                    <Badge className={statusColor[o.status]}>{o.status}</Badge>
+                  </div>
+                  <div className="mt-1 flex flex-wrap gap-1">
+                    {o.procedures.map((proc, i) => (
+                      <Badge key={i} variant="outline" className="text-xs">
+                        {proc}
+                      </Badge>
+                    ))}
+                  </div>
+                  {o.notes && (
+                    <p className="text-muted-foreground mt-1 text-sm">
+                      {o.notes}
+                    </p>
+                  )}
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <p className="text-lg font-bold">
+                      R$ {o.totalValue.toLocaleString("pt-BR")}
+                    </p>
+                    <p className="text-muted-foreground text-xs">
+                      Valido ate{" "}
+                      {new Date(o.validUntil + "T00:00:00").toLocaleDateString(
+                        "pt-BR",
+                      )}
+                    </p>
+                  </div>
+                  {o.status === "pendente" && (
+                    <>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="gap-1 text-green-600"
+                        onClick={() => handleStatus(o.id, "aprovado")}
+                      >
+                        <Check className="size-3" /> Aprovar
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="gap-1 text-red-600"
+                        onClick={() => handleStatus(o.id, "rejeitado")}
+                      >
+                        <X className="size-3" /> Rejeitar
+                      </Button>
+                    </>
+                  )}
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => handleDelete(o.id)}
+                  >
+                    <Trash2 className="size-3" />
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Usuarios Module
+// ---------------------------------------------------------------------------
+
+function UsuariosModule({
+  usuarios,
+  setUsuarios,
+}: {
+  usuarios: Usuario[];
+  setUsuarios: React.Dispatch<React.SetStateAction<Usuario[]>>;
+}) {
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    role: "dentista" as Usuario["role"],
+  });
+
+  const total = usuarios.length;
+  const ativos = usuarios.filter((u) => u.status === "ativo").length;
+  const dentistas = usuarios.filter((u) => u.role === "dentista").length;
+  const secretarias = usuarios.filter((u) => u.role === "secretaria").length;
+
+  const handleSave = () => {
+    if (!form.name || !form.email) return;
+    setUsuarios((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        name: form.name,
+        email: form.email,
+        role: form.role,
+        status: "ativo" as const,
+        lastAccess: new Date().toISOString().split("T")[0],
+      },
+    ]);
+    setShowForm(false);
+    setForm({ name: "", email: "", role: "dentista" });
+  };
+
+  const toggleStatus = (id: number) => {
+    setUsuarios((prev) =>
+      prev.map((u) =>
+        u.id === id
+          ? { ...u, status: u.status === "ativo" ? "inativo" : "ativo" }
+          : u,
+      ),
+    );
+  };
+
+  const handleDelete = (id: number) => {
+    setUsuarios((prev) => prev.filter((u) => u.id !== id));
+  };
+
+  const roleColor: Record<string, string> = {
+    dentista: "bg-blue-100 text-blue-700",
+    medico: "bg-purple-100 text-purple-700",
+    secretaria: "bg-pink-100 text-pink-700",
+    admin: "bg-amber-100 text-amber-700",
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-4">
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Total</p>
+            <p className="text-2xl font-bold">{total}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Ativos</p>
+            <p className="text-2xl font-bold text-green-600">{ativos}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Dentistas</p>
+            <p className="text-2xl font-bold text-blue-600">{dentistas}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Secretarias</p>
+            <p className="text-2xl font-bold text-pink-600">{secretarias}</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="flex items-center justify-between">
+        <p className="text-muted-foreground text-sm">
+          {usuarios.length} usuarios
+        </p>
+        <Button
+          onClick={() => {
+            setForm({ name: "", email: "", role: "dentista" });
+            setShowForm(true);
+          }}
+          className="gap-2"
+        >
+          <UserPlus className="size-4" /> Novo usuario
+        </Button>
+      </div>
+
+      {showForm && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Novo usuario</CardTitle>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowForm(false)}
+              >
+                <X className="size-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-3">
+              <div>
+                <label className="text-sm font-medium">Nome</label>
+                <input
+                  type="text"
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                  placeholder="Nome completo"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Email</label>
+                <input
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                  placeholder="email@clinica.com.br"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Funcao</label>
+                <select
+                  value={form.role}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      role: e.target.value as Usuario["role"],
+                    })
+                  }
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                >
+                  <option value="dentista">Dentista</option>
+                  <option value="medico">Medico</option>
+                  <option value="secretaria">Secretaria</option>
+                  <option value="admin">Administrador</option>
+                </select>
+              </div>
+            </div>
+            <div className="mt-4 flex gap-2">
+              <Button onClick={handleSave} disabled={!form.name || !form.email}>
+                <Save className="mr-2 size-4" /> Criar
+              </Button>
+              <Button variant="outline" onClick={() => setShowForm(false)}>
+                Cancelar
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="space-y-3">
+        {usuarios.map((u) => (
+          <Card key={u.id}>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="bg-primary/10 flex size-10 items-center justify-center rounded-full">
+                    <Users className="text-primary size-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium">{u.name}</p>
+                      <Badge className={roleColor[u.role]}>{u.role}</Badge>
+                      <Badge
+                        variant={u.status === "ativo" ? "default" : "secondary"}
+                      >
+                        {u.status}
+                      </Badge>
+                    </div>
+                    <p className="text-muted-foreground mt-1 text-sm">
+                      {u.email}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <p className="text-sm">Ultimo acesso</p>
+                    <p className="text-muted-foreground text-xs">
+                      {new Date(u.lastAccess + "T00:00:00").toLocaleDateString(
+                        "pt-BR",
+                      )}
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className={
+                      u.status === "ativo"
+                        ? "text-orange-600"
+                        : "text-green-600"
+                    }
+                    onClick={() => toggleStatus(u.id)}
+                  >
+                    {u.status === "ativo" ? "Desativar" : "Ativar"}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => handleDelete(u.id)}
+                  >
+                    <Trash2 className="size-3" />
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Exames Module
+// ---------------------------------------------------------------------------
+
+function ExamesModule({
+  exames,
+  setExames,
+  patients,
+}: {
+  exames: Exame[];
+  setExames: React.Dispatch<React.SetStateAction<Exame[]>>;
+  patients: Patient[];
+}) {
+  const [showForm, setShowForm] = useState(false);
+  const [showResultForm, setShowResultForm] = useState<number | null>(null);
+  const [resultNotes, setResultNotes] = useState("");
+  const [form, setForm] = useState({
+    patientId: "",
+    examType: "",
+    notes: "",
+  });
+
+  const total = exames.length;
+  const solicitados = exames.filter((e) => e.status === "solicitado").length;
+  const realizados = exames.filter((e) => e.status === "realizado").length;
+  const pendentes = exames.filter((e) => e.status === "pendente").length;
+
+  const handleSave = () => {
+    const patient = patients.find((p) => p.id === Number(form.patientId));
+    if (!patient) return;
+    setExames((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        patientId: patient.id,
+        patientName: patient.name,
+        examType: form.examType,
+        requestDate: new Date().toISOString().split("T")[0],
+        resultDate: null,
+        status: "solicitado" as const,
+        resultNotes: form.notes,
+        hasFile: false,
+      },
+    ]);
+    setShowForm(false);
+    setForm({ patientId: "", examType: "", notes: "" });
+  };
+
+  const handleRegisterResult = (id: number) => {
+    setExames((prev) =>
+      prev.map((e) =>
+        e.id === id
+          ? {
+              ...e,
+              status: "realizado" as const,
+              resultDate: new Date().toISOString().split("T")[0],
+              resultNotes: resultNotes || e.resultNotes,
+              hasFile: true,
+            }
+          : e,
+      ),
+    );
+    setShowResultForm(null);
+    setResultNotes("");
+  };
+
+  const handleDelete = (id: number) => {
+    setExames((prev) => prev.filter((e) => e.id !== id));
+  };
+
+  const statusColor: Record<string, string> = {
+    solicitado: "bg-blue-100 text-blue-700",
+    em_andamento: "bg-orange-100 text-orange-700",
+    realizado: "bg-green-100 text-green-700",
+    pendente: "bg-zinc-100 text-zinc-700",
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-4">
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Total</p>
+            <p className="text-2xl font-bold">{total}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Solicitados</p>
+            <p className="text-2xl font-bold text-blue-500">{solicitados}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Realizados</p>
+            <p className="text-2xl font-bold text-green-600">{realizados}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Pendentes</p>
+            <p className="text-2xl font-bold text-orange-500">{pendentes}</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="flex items-center justify-between">
+        <p className="text-muted-foreground text-sm">{exames.length} exames</p>
+        <Button
+          onClick={() => {
+            setForm({ patientId: "", examType: "", notes: "" });
+            setShowForm(true);
+          }}
+          className="gap-2"
+        >
+          <Plus className="size-4" /> Solicitar exame
+        </Button>
+      </div>
+
+      {showForm && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Solicitar exame</CardTitle>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowForm(false)}
+              >
+                <X className="size-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <label className="text-sm font-medium">Paciente</label>
+                <select
+                  value={form.patientId}
+                  onChange={(e) =>
+                    setForm({ ...form, patientId: e.target.value })
+                  }
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                >
+                  <option value="">Selecionar...</option>
+                  {patients
+                    .filter((p) => p.status === "ativo")
+                    .map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Tipo de exame</label>
+                <input
+                  type="text"
+                  value={form.examType}
+                  onChange={(e) =>
+                    setForm({ ...form, examType: e.target.value })
+                  }
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                  placeholder="Raio-X, Hemograma, Tomografia..."
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="text-sm font-medium">Observacoes</label>
+                <input
+                  type="text"
+                  value={form.notes}
+                  onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                />
+              </div>
+            </div>
+            <div className="mt-4 flex gap-2">
+              <Button
+                onClick={handleSave}
+                disabled={!form.patientId || !form.examType}
+              >
+                <Save className="mr-2 size-4" /> Solicitar
+              </Button>
+              <Button variant="outline" onClick={() => setShowForm(false)}>
+                Cancelar
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {showResultForm !== null && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Registrar resultado</CardTitle>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setShowResultForm(null);
+                  setResultNotes("");
+                }}
+              >
+                <X className="size-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div>
+              <label className="text-sm font-medium">Resultado do exame</label>
+              <textarea
+                value={resultNotes}
+                onChange={(e) => setResultNotes(e.target.value)}
+                className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                rows={3}
+                placeholder="Descreva o resultado do exame..."
+              />
+            </div>
+            <div className="mt-4 flex gap-2">
+              <Button onClick={() => handleRegisterResult(showResultForm)}>
+                <Save className="mr-2 size-4" /> Registrar resultado
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowResultForm(null);
+                  setResultNotes("");
+                }}
+              >
+                Cancelar
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="space-y-3">
+        {exames.map((e) => (
+          <Card key={e.id}>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="bg-primary/10 flex size-10 items-center justify-center rounded-full">
+                    <FileCheck className="text-primary size-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium">{e.patientName}</p>
+                      <Badge className={statusColor[e.status]}>
+                        {e.status.replace("_", " ")}
+                      </Badge>
+                      {e.hasFile && (
+                        <Badge variant="outline" className="text-xs">
+                          Arquivo
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-muted-foreground mt-1 text-sm">
+                      {e.examType}
+                    </p>
+                    {e.resultNotes && (
+                      <p className="text-muted-foreground mt-1 text-xs">
+                        {e.resultNotes}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <p className="text-sm">
+                      Solicitado:{" "}
+                      {new Date(e.requestDate + "T00:00:00").toLocaleDateString(
+                        "pt-BR",
+                      )}
+                    </p>
+                    {e.resultDate && (
+                      <p className="text-muted-foreground text-xs">
+                        Resultado:{" "}
+                        {new Date(
+                          e.resultDate + "T00:00:00",
+                        ).toLocaleDateString("pt-BR")}
+                      </p>
+                    )}
+                  </div>
+                  {(e.status === "solicitado" ||
+                    e.status === "em_andamento") && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-1"
+                      onClick={() => {
+                        setResultNotes(e.resultNotes);
+                        setShowResultForm(e.id);
+                      }}
+                    >
+                      <Edit className="size-3" /> Registrar resultado
+                    </Button>
+                  )}
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => handleDelete(e.id)}
+                  >
+                    <Trash2 className="size-3" />
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
