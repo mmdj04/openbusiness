@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -43,6 +43,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -1301,6 +1302,15 @@ export default function DemonstracaoPage() {
   const [exames, setExames] = useState<Exame[]>(initialExames);
   const [permissoes, setPermissoes] = useState<Permissao[]>(initialPermissoes);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (contentRef.current) {
+      contentRef.current.scrollTop = 0;
+    }
+  }, [currentModule]);
 
   const currentSegment = segmentConfigs.find((s) => s.id === selectedSegment);
 
@@ -1382,6 +1392,7 @@ export default function DemonstracaoPage() {
             variant="outline"
             className="w-full justify-start gap-2"
             size="sm"
+            onClick={() => setNotificationsOpen(true)}
           >
             <Bell className="size-4" />
             Notificações
@@ -1393,6 +1404,7 @@ export default function DemonstracaoPage() {
             variant="outline"
             className="w-full justify-start gap-2"
             size="sm"
+            onClick={() => setSettingsOpen(true)}
           >
             <Settings className="size-4" />
             Configurações
@@ -1431,6 +1443,35 @@ export default function DemonstracaoPage() {
                 </button>
               ))}
           </nav>
+          <div className="border-border space-y-2 border-t p-3">
+            <Button
+              variant="outline"
+              className="w-full justify-start gap-2"
+              size="sm"
+              onClick={() => {
+                setNotificationsOpen(true);
+                setSidebarOpen(false);
+              }}
+            >
+              <Bell className="size-4" />
+              Notificações
+              <Badge className="ml-auto" variant="secondary">
+                3
+              </Badge>
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full justify-start gap-2"
+              size="sm"
+              onClick={() => {
+                setSettingsOpen(true);
+                setSidebarOpen(false);
+              }}
+            >
+              <Settings className="size-4" />
+              Configurações
+            </Button>
+          </div>
         </SheetContent>
       </Sheet>
 
@@ -1528,7 +1569,7 @@ export default function DemonstracaoPage() {
           </div>
         </header>
 
-        <div className="flex-1 overflow-auto p-6">
+        <div ref={contentRef} className="flex-1 overflow-auto p-6">
           {currentModule === "dashboard" && (
             <DashboardModule
               appointments={appointments}
@@ -1625,6 +1666,75 @@ export default function DemonstracaoPage() {
           )}
         </div>
       </main>
+
+      {/* Notifications Panel */}
+      <Dialog open={notificationsOpen} onOpenChange={setNotificationsOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogTitle>Notificações</DialogTitle>
+          <div className="space-y-3">
+            <div className="flex items-start gap-3 rounded-lg border p-3">
+              <Bell className="mt-0.5 size-4 text-yellow-500" />
+              <div>
+                <p className="text-sm font-medium">Lembrete de consulta</p>
+                <p className="text-muted-foreground text-xs">
+                  Maria Silva - Amanhã às 10:00
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 rounded-lg border p-3">
+              <Bell className="mt-0.5 size-4 text-blue-500" />
+              <div>
+                <p className="text-sm font-medium">
+                  Resultado de exame disponível
+                </p>
+                <p className="text-muted-foreground text-xs">
+                  Ana Costa - Raio-X panorâmica
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 rounded-lg border p-3">
+              <Bell className="mt-0.5 size-4 text-green-500" />
+              <div>
+                <p className="text-sm font-medium">Pagamento confirmado</p>
+                <p className="text-muted-foreground text-xs">
+                  Joao Santos - R$ 250,00
+                </p>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Settings Panel */}
+      <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogTitle>Configurações</DialogTitle>
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm font-medium">Clínica</p>
+              <p className="text-muted-foreground text-xs">
+                {currentSegment?.businessName} - Nova Iguaçu, RJ
+              </p>
+            </div>
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Módulos ativos</p>
+              <div className="flex flex-wrap gap-1">
+                {enabledModules.map((mod) => (
+                  <Badge key={mod} variant="secondary" className="text-xs">
+                    {mod}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Segmento</p>
+              <p className="text-muted-foreground text-xs capitalize">
+                {selectedSegment?.replace("-", " ")}
+              </p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
