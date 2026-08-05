@@ -8,62 +8,18 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Check } from "lucide-react";
+import { Check, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
-const plans = [
-  {
-    name: "Básico",
-    description: "Para quem está começando",
-    price: "R$ 397",
-    period: "/mês",
-    highlight: false,
-    features: [
-      "Até 3 módulos",
-      "1 usuário",
-      "Suporte por email",
-      "Backup semanal",
-      "Relatórios básicos",
-    ],
-    cta: "Começar agora",
-  },
-  {
-    name: "Profissional",
-    description: "Para negócios em crescimento",
-    price: "R$ 597",
-    period: "/mês",
-    highlight: true,
-    badge: "Mais popular",
-    features: [
-      "Até 6 módulos",
-      "5 usuários",
-      "Suporte prioritário",
-      "Backup diário",
-      "Relatórios avançados",
-      "WhatsApp integrado",
-      "App mobile",
-    ],
-    cta: "Começar agora",
-  },
-  {
-    name: "Completo",
-    description: "Para quem quer tudo",
-    price: "R$ 897",
-    period: "/mês",
-    highlight: false,
-    features: [
-      "Todos os módulos",
-      "Usuários ilimitados",
-      "Suporte 24/7",
-      "Backup em tempo real",
-      "Relatórios personalizados",
-      "WhatsApp integrado",
-      "App mobile",
-      "Multi-unidades",
-      "API personalizada",
-    ],
-    cta: "Começar agora",
-  },
+const features = [
+  "Módulos sob demanda",
+  "Usuários ilimitados",
+  "Suporte prioritário",
+  "Backup diário",
+  "Relatórios avançados",
+  "WhatsApp integrado",
+  "App mobile incluso",
+  "Cancele quando quiser",
 ];
 
 export function Pricing() {
@@ -78,63 +34,59 @@ export function Pricing() {
             Invista na gestão do seu negócio
           </h2>
           <p className="text-muted-foreground mt-4 text-lg">
-            Planos simples, sem surpresas. Cancele quando quiser.
+            Um plano flexível que cresce com o seu negócio.
           </p>
         </div>
 
-        <div className="mx-auto mt-16 grid max-w-5xl gap-8 lg:grid-cols-3">
-          {plans.map((plan) => (
-            <Card
-              key={plan.name}
-              className={`relative flex flex-col ${
-                plan.highlight
-                  ? "border-primary ring-primary/20 mt-4 overflow-visible shadow-lg ring-1"
-                  : ""
-              }`}
-            >
-              {plan.badge && (
-                <div className="absolute -top-3 left-1/2 z-10 -translate-x-1/2">
-                  <Badge className="px-3">{plan.badge}</Badge>
-                </div>
-              )}
+        <div className="mx-auto mt-16 max-w-lg">
+          <Card className="border-primary ring-primary/20 overflow-visible shadow-lg ring-1">
+            <div className="absolute -top-3 left-1/2 z-10 -translate-x-1/2">
+              <Badge className="px-3">Plano único</Badge>
+            </div>
 
-              <CardHeader className="text-center">
-                <CardTitle className="text-xl">{plan.name}</CardTitle>
-                <CardDescription>{plan.description}</CardDescription>
-                <div className="mt-4">
-                  <span className="text-foreground text-4xl font-bold">
-                    {plan.price}
+            <CardHeader className="text-center">
+              <CardTitle className="text-xl">OpenBaaS</CardTitle>
+              <CardDescription>
+                Escolha apenas os módulos que precisa
+              </CardDescription>
+              <div className="mt-4">
+                <span className="text-muted-foreground text-sm line-through">
+                  R$ 1.489,90
+                </span>
+                <div className="flex items-baseline justify-center gap-1">
+                  <span className="text-foreground text-5xl font-bold">
+                    R$ 397
                   </span>
-                  <span className="text-muted-foreground">{plan.period}</span>
+                  <span className="text-muted-foreground">/mês</span>
                 </div>
-              </CardHeader>
+                <p className="text-muted-foreground mt-2 text-sm">
+                  Valor com 3 módulos inclusos
+                </p>
+              </div>
+            </CardHeader>
 
-              <CardContent className="flex-1">
-                <ul className="space-y-3">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-2">
-                      <Check className="text-primary mt-0.5 size-4 shrink-0" />
-                      <span className="text-muted-foreground text-sm">
-                        {feature}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
+            <CardContent className="flex-1">
+              <ul className="space-y-3">
+                {features.map((feature) => (
+                  <li key={feature} className="flex items-start gap-2">
+                    <Check className="text-primary mt-0.5 size-4 shrink-0" />
+                    <span className="text-muted-foreground text-sm">
+                      {feature}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
 
-              <CardFooter>
-                <Link href="/configuracoes-plano" className="w-full">
-                  <Button
-                    className="w-full"
-                    variant={plan.highlight ? "default" : "outline"}
-                    size="lg"
-                  >
-                    {plan.cta}
-                  </Button>
-                </Link>
-              </CardFooter>
-            </Card>
-          ))}
+            <CardFooter>
+              <Link href="/configuracoes-plano" className="w-full">
+                <Button className="w-full" size="lg">
+                  Configurar meu plano
+                  <ArrowRight className="ml-2 size-4" />
+                </Button>
+              </Link>
+            </CardFooter>
+          </Card>
         </div>
 
         <p className="text-muted-foreground mt-8 text-center text-sm">
