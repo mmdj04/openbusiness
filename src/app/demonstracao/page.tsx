@@ -2155,18 +2155,18 @@ function DashboardModule({
             <CardTitle>Faturamento semanal</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex h-52 items-end gap-2">
+            <div className="flex h-56 items-end justify-center gap-3">
               {weeklyData.map((d) => (
                 <div
                   key={d.day}
-                  className="flex flex-1 flex-col items-center gap-1"
+                  className="flex w-12 flex-col items-center gap-1"
                 >
                   <span className="text-muted-foreground text-xs">
                     R$ {d.revenue}
                   </span>
                   <div
                     className="w-full rounded-t bg-emerald-500"
-                    style={{ height: `${(d.revenue / maxRevenue) * 140}px` }}
+                    style={{ height: `${(d.revenue / maxRevenue) * 120}px` }}
                   />
                   <span className="text-muted-foreground text-xs">{d.day}</span>
                 </div>
@@ -3507,18 +3507,18 @@ function RelatoriosModule({
           <CardTitle>Faturamento semanal</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex h-52 items-end gap-2">
+          <div className="flex h-56 items-end justify-center gap-3">
             {weeklyData.map((d) => (
               <div
                 key={d.day}
-                className="flex flex-1 flex-col items-center gap-1"
+                className="flex w-12 flex-col items-center gap-1"
               >
                 <span className="text-muted-foreground text-xs">
                   R$ {d.revenue}
                 </span>
                 <div
                   className="w-full rounded-t bg-emerald-500"
-                  style={{ height: `${(d.revenue / maxRevenue) * 140}px` }}
+                  style={{ height: `${(d.revenue / maxRevenue) * 120}px` }}
                 />
                 <span className="text-muted-foreground text-xs">{d.day}</span>
               </div>
