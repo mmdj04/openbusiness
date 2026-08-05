@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { ArrowRight, Building2, Check, Shield, Zap, Users } from "lucide-react";
+import Link from "next/link";
 
 export function Hero() {
   return (
@@ -34,16 +35,16 @@ export function Hero() {
               Comece agora
               <ArrowRight className="size-4" />
             </a>
-            <a
-              href="#solutions"
+            <Link
+              href="/demonstracao"
               className={buttonVariants({
                 variant: "outline",
                 size: "lg",
                 className: "gap-2 px-8 text-base",
               })}
             >
-              Ver soluções
-            </a>
+              Ver demonstração
+            </Link>
           </div>
 
           <div className="text-muted-foreground mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-sm">
