@@ -46,6 +46,7 @@ import {
   Headphones,
   TrendingUp,
   Crown,
+  EyeOff,
 } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -409,6 +410,15 @@ function getPriceTier(price: number): {
   };
 }
 
+function CensoredLine() {
+  return (
+    <div className="text-muted-foreground flex items-center gap-2">
+      <EyeOff className="size-4" />
+      <div className="bg-muted h-4 w-32 rounded" />
+    </div>
+  );
+}
+
 function ConfiguracoesPlanoContent() {
   const searchParams = useSearchParams();
   const segmentParam = searchParams.get("segmento");
@@ -483,7 +493,7 @@ function ConfiguracoesPlanoContent() {
 
   return (
     <div className="bg-background min-h-screen">
-      <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8">
           <Link
             href="/#pricing"
@@ -501,410 +511,554 @@ function ConfiguracoesPlanoContent() {
           </p>
         </div>
 
-        <div className="mb-8 flex items-center justify-between">
-          {Array.from({ length: 6 }, (_, i) => (
-            <div key={i} className="flex items-center">
-              <div
-                className={`flex size-8 items-center justify-center rounded-full text-sm font-bold transition-colors ${
-                  i + 1 === step
-                    ? "bg-primary text-primary-foreground"
-                    : i + 1 < step
-                      ? "bg-primary/20 text-primary"
-                      : "bg-muted text-muted-foreground"
-                }`}
-              >
-                {i + 1 < step ? <Check className="size-4" /> : i + 1}
-              </div>
-              {i < 5 && (
-                <div
-                  className={`mx-2 h-0.5 w-8 sm:w-12 ${
-                    i + 1 < step ? "bg-primary" : "bg-muted"
-                  }`}
-                />
-              )}
-            </div>
-          ))}
-        </div>
-
-        {step === 1 && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Qual é o seu negócio?</CardTitle>
-              <CardDescription>
-                Selecione seu segmento para recomendar os melhores módulos.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {segments.map((segment) => (
-                  <button
-                    key={segment.id}
-                    onClick={() => handleSegmentSelect(segment.id)}
-                    className={`flex items-center gap-3 rounded-lg border p-4 text-left transition-all ${
-                      selectedSegment === segment.id
-                        ? "bg-primary/5 border-primary/30 ring-primary/20 ring-1"
-                        : "bg-muted/30 hover:bg-muted/50 hover:shadow-sm"
+        <div className="grid gap-8 lg:grid-cols-3">
+          <div className="space-y-6 lg:col-span-2">
+            <div className="mb-6 flex items-center justify-between">
+              {Array.from({ length: 6 }, (_, i) => (
+                <div key={i} className="flex items-center">
+                  <div
+                    className={`flex size-8 items-center justify-center rounded-full text-sm font-bold transition-colors ${
+                      i + 1 === step
+                        ? "bg-primary text-primary-foreground"
+                        : i + 1 < step
+                          ? "bg-primary/20 text-primary"
+                          : "bg-muted text-muted-foreground"
                     }`}
                   >
-                    <segment.icon className="text-muted-foreground size-5" />
-                    <span className="font-medium">{segment.name}</span>
-                  </button>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {step === 2 && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Qual é o tamanho da operação?</CardTitle>
-              <CardDescription>
-                Empresas maiores precisam de mais recursos e suporte dedicado.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {operationSizes.map((size) => (
-                  <button
-                    key={size.id}
-                    onClick={() => {
-                      setOperationSize(size.id);
-                      setStep(3);
-                    }}
-                    className={`flex w-full items-center gap-4 rounded-lg border p-4 text-left transition-all ${
-                      operationSize === size.id
-                        ? "bg-primary/5 border-primary/30 ring-primary/20 ring-1"
-                        : "bg-muted/30 hover:bg-muted/50 hover:shadow-sm"
-                    }`}
-                  >
-                    <span className="text-2xl">{size.icon}</span>
-                    <div className="flex-1">
-                      <span className="font-medium">{size.label}</span>
-                      <p className="text-muted-foreground text-sm">
-                        {size.description}
-                      </p>
-                    </div>
-                    <span className="text-muted-foreground text-sm">
-                      {size.multiplier === 1.0
-                        ? "Base"
-                        : `+${Math.round((size.multiplier - 1) * 100)}%`}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {step === 3 && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Quantas pessoas vão usar o sistema?</CardTitle>
-              <CardDescription>
-                O número de usuários ativos influencia o valor final.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {userTiers.map((tier) => (
-                  <button
-                    key={tier.id}
-                    onClick={() => {
-                      setUserCount(tier.id);
-                      setStep(4);
-                    }}
-                    className={`flex flex-col items-start rounded-lg border p-4 text-left transition-all ${
-                      userCount === tier.id
-                        ? "bg-primary/5 border-primary/30 ring-primary/20 ring-1"
-                        : "bg-muted/30 hover:bg-muted/50 hover:shadow-sm"
-                    }`}
-                  >
-                    <span className="text-lg font-bold">{tier.label}</span>
-                    <span className="text-muted-foreground text-sm">
-                      {tier.description}
-                    </span>
-                    {tier.surcharge > 0 && (
-                      <span className="text-primary mt-1 text-sm">
-                        +R$ {tier.surcharge}/mês
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {step === 4 && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Quais problemas você quer resolver?</CardTitle>
-              <CardDescription>
-                Selecione todos os módulos que fazem sentido para o seu negócio.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {allModules.map((module) => {
-                  const isSelected = selectedModules.includes(module.id);
-                  return (
+                    {i + 1 < step ? <Check className="size-4" /> : i + 1}
+                  </div>
+                  {i < 5 && (
                     <div
-                      key={module.id}
-                      className={`rounded-lg border p-4 transition-colors ${
-                        isSelected
-                          ? "bg-primary/5 border-primary/30"
-                          : "bg-muted/30 hover:bg-muted/50"
+                      className={`mx-2 h-0.5 w-8 sm:w-12 ${
+                        i + 1 < step ? "bg-primary" : "bg-muted"
                       }`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <Checkbox
-                          id={module.id}
-                          checked={isSelected}
-                          onCheckedChange={() => toggleModule(module.id)}
-                          className="mt-0.5"
-                        />
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {step === 1 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Qual é o seu negócio?</CardTitle>
+                  <CardDescription>
+                    Selecione seu segmento para recomendar os melhores módulos.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    {segments.map((segment) => (
+                      <button
+                        key={segment.id}
+                        onClick={() => handleSegmentSelect(segment.id)}
+                        className={`flex items-center gap-3 rounded-lg border p-4 text-left transition-all ${
+                          selectedSegment === segment.id
+                            ? "bg-primary/5 border-primary/30 ring-primary/20 ring-1"
+                            : "bg-muted/30 hover:bg-muted/50 hover:shadow-sm"
+                        }`}
+                      >
+                        <segment.icon className="text-muted-foreground size-5" />
+                        <span className="font-medium">{segment.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {step === 2 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Qual é o tamanho da operação?</CardTitle>
+                  <CardDescription>
+                    Empresas maiores precisam de mais recursos e suporte
+                    dedicado.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {operationSizes.map((size) => (
+                      <button
+                        key={size.id}
+                        onClick={() => {
+                          setOperationSize(size.id);
+                          setStep(3);
+                        }}
+                        className={`flex w-full items-center gap-4 rounded-lg border p-4 text-left transition-all ${
+                          operationSize === size.id
+                            ? "bg-primary/5 border-primary/30 ring-primary/20 ring-1"
+                            : "bg-muted/30 hover:bg-muted/50 hover:shadow-sm"
+                        }`}
+                      >
+                        <span className="text-2xl">{size.icon}</span>
                         <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <Label
-                              htmlFor={module.id}
-                              className="cursor-pointer font-medium"
-                            >
-                              {moduleLabels[module.id]}
-                            </Label>
-                            {module.popular && (
-                              <Badge
-                                variant="secondary"
-                                className="bg-primary/10 text-primary text-xs"
-                              >
-                                <Sparkles className="mr-1 size-3" />
-                                Popular
-                              </Badge>
-                            )}
-                          </div>
-                          <p className="text-primary mt-1 text-sm">
-                            + R$ {modulePrices[module.id]}/mês
+                          <span className="font-medium">{size.label}</span>
+                          <p className="text-muted-foreground text-sm">
+                            {size.description}
                           </p>
                         </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+                        <span className="text-muted-foreground text-sm">
+                          {size.multiplier === 1.0
+                            ? "Base"
+                            : `+${Math.round((size.multiplier - 1) * 100)}%`}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-        {step === 5 && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Qual o volume mensal?</CardTitle>
-              <CardDescription>
-                O volume de uso ajuda a dimensionar o plano ideal para você.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {relevantVolumes.map((vol) => (
-                <div key={vol}>
-                  <Label className="text-sm font-medium">
-                    {volumeLabels[vol]}
-                  </Label>
-                  <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-                    {volumeTiers[vol as keyof typeof volumeTiers].map(
-                      (tier) => (
-                        <button
-                          key={tier.label}
-                          onClick={() =>
-                            setVolumes((prev) => ({
-                              ...prev,
-                              [vol]: tier.label,
-                            }))
-                          }
-                          className={`rounded-lg border p-3 text-left text-sm transition-all ${
-                            volumes[vol] === tier.label
-                              ? "bg-primary/5 border-primary/30 ring-primary/20 ring-1"
+            {step === 3 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Quantas pessoas vão usar o sistema?</CardTitle>
+                  <CardDescription>
+                    O número de usuários ativos influencia o valor final.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {userTiers.map((tier) => (
+                      <button
+                        key={tier.id}
+                        onClick={() => {
+                          setUserCount(tier.id);
+                          setStep(4);
+                        }}
+                        className={`flex flex-col items-start rounded-lg border p-4 text-left transition-all ${
+                          userCount === tier.id
+                            ? "bg-primary/5 border-primary/30 ring-primary/20 ring-1"
+                            : "bg-muted/30 hover:bg-muted/50 hover:shadow-sm"
+                        }`}
+                      >
+                        <span className="text-lg font-bold">{tier.label}</span>
+                        <span className="text-muted-foreground text-sm">
+                          {tier.description}
+                        </span>
+                        {tier.surcharge > 0 && (
+                          <span className="text-primary mt-1 text-sm">
+                            +R$ {tier.surcharge}/mês
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {step === 4 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Quais problemas você quer resolver?</CardTitle>
+                  <CardDescription>
+                    Selecione todos os módulos que fazem sentido para o seu
+                    negócio.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {allModules.map((module) => {
+                      const isSelected = selectedModules.includes(module.id);
+                      return (
+                        <div
+                          key={module.id}
+                          className={`rounded-lg border p-4 transition-colors ${
+                            isSelected
+                              ? "bg-primary/5 border-primary/30"
                               : "bg-muted/30 hover:bg-muted/50"
                           }`}
                         >
-                          <span className="font-medium">{tier.label}</span>
-                          <span className="text-muted-foreground mt-1 block text-xs">
-                            Uso {tier.usage}
+                          <div className="flex items-start gap-3">
+                            <Checkbox
+                              id={module.id}
+                              checked={isSelected}
+                              onCheckedChange={() => toggleModule(module.id)}
+                              className="mt-0.5"
+                            />
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <Label
+                                  htmlFor={module.id}
+                                  className="cursor-pointer font-medium"
+                                >
+                                  {moduleLabels[module.id]}
+                                </Label>
+                                {module.popular && (
+                                  <Badge
+                                    variant="secondary"
+                                    className="bg-primary/10 text-primary text-xs"
+                                  >
+                                    <Sparkles className="mr-1 size-3" />
+                                    Popular
+                                  </Badge>
+                                )}
+                              </div>
+                              <p className="text-primary mt-1 text-sm">
+                                + R$ {modulePrices[module.id]}/mês
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {step === 5 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Qual o volume mensal?</CardTitle>
+                  <CardDescription>
+                    O volume de uso ajuda a dimensionar o plano ideal para você.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {relevantVolumes.map((vol) => (
+                    <div key={vol}>
+                      <Label className="text-sm font-medium">
+                        {volumeLabels[vol]}
+                      </Label>
+                      <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                        {volumeTiers[vol as keyof typeof volumeTiers].map(
+                          (tier) => (
+                            <button
+                              key={tier.label}
+                              onClick={() =>
+                                setVolumes((prev) => ({
+                                  ...prev,
+                                  [vol]: tier.label,
+                                }))
+                              }
+                              className={`rounded-lg border p-3 text-left text-sm transition-all ${
+                                volumes[vol] === tier.label
+                                  ? "bg-primary/5 border-primary/30 ring-primary/20 ring-1"
+                                  : "bg-muted/30 hover:bg-muted/50"
+                              }`}
+                            >
+                              <span className="font-medium">{tier.label}</span>
+                              <span className="text-muted-foreground mt-1 block text-xs">
+                                Uso {tier.usage}
+                              </span>
+                              {tier.surcharge > 0 && (
+                                <span className="text-primary mt-1 block text-xs">
+                                  +R$ {tier.surcharge}/mês
+                                </span>
+                              )}
+                            </button>
+                          ),
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+
+            {step === 6 && (
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center gap-3">
+                    <div className={`${priceTier.color}`}>{priceTier.icon}</div>
+                    <div>
+                      <CardTitle>{priceTier.label}</CardTitle>
+                      <CardDescription>
+                        Calculado especialmente para o seu negócio
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="rounded-lg border p-4">
+                    <h3 className="mb-3 font-semibold">Módulos incluídos:</h3>
+                    <div className="space-y-2">
+                      {selectedModules.map((moduleId) => (
+                        <div key={moduleId} className="flex items-center gap-2">
+                          <Check className="text-primary size-4" />
+                          <span>{moduleLabels[moduleId]}</span>
+                          <span className="text-muted-foreground ml-auto text-sm">
+                            + R$ {modulePrices[moduleId]}
                           </span>
-                          {tier.surcharge > 0 && (
-                            <span className="text-primary mt-1 block text-xs">
-                              +R$ {tier.surcharge}/mês
-                            </span>
-                          )}
-                        </button>
-                      ),
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg border p-4">
+                    <h3 className="mb-3 font-semibold">
+                      Detalhamento do valor:
+                    </h3>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">
+                          Plano base
+                        </span>
+                        <span>R$ {breakdown.base}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">
+                          Módulos ({selectedModules.length})
+                        </span>
+                        <span>+ R$ {breakdown.modulos}</span>
+                      </div>
+                      {breakdown.porte > 0 && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">
+                            Porte da operação
+                          </span>
+                          <span>+ R$ {breakdown.porte}</span>
+                        </div>
+                      )}
+                      {breakdown.usuarios > 0 && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">
+                            Usuários
+                          </span>
+                          <span>+ R$ {breakdown.usuarios}</span>
+                        </div>
+                      )}
+                      {breakdown.volume > 0 && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Volume</span>
+                          <span>+ R$ {breakdown.volume}</span>
+                        </div>
+                      )}
+                      {breakdown.suporte > 0 && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">
+                            Suporte prioritário
+                          </span>
+                          <span>+ R$ {breakdown.suporte}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 rounded-lg border p-4">
+                    <Checkbox
+                      id="suporte"
+                      checked={supportPremium}
+                      onCheckedChange={(checked) =>
+                        setSupportPremium(checked === true)
+                      }
+                    />
+                    <div className="flex-1">
+                      <Label
+                        htmlFor="suporte"
+                        className="cursor-pointer font-medium"
+                      >
+                        <Headphones className="mr-1 inline size-4" />
+                        Suporte prioritário 24/7
+                      </Label>
+                      <p className="text-primary text-sm">+ R$ 200/mês</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {step > 1 && step < 6 && (
+              <div className="flex justify-between">
+                <Button variant="outline" onClick={() => setStep(step - 1)}>
+                  <ArrowLeft className="mr-2 size-4" />
+                  Voltar
+                </Button>
+                <Button
+                  onClick={() => setStep(step + 1)}
+                  disabled={!canProceed()}
+                >
+                  Próximo
+                  <ArrowRight className="ml-2 size-4" />
+                </Button>
+              </div>
+            )}
+
+            {step === 6 && (
+              <div className="flex gap-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setStep(1)}
+                  className="flex-1"
+                >
+                  Recomeçar
+                </Button>
+                <Button className="flex-1" size="lg">
+                  <Lock className="mr-2 size-4" />
+                  Finalizar assinatura
+                </Button>
+              </div>
+            )}
+          </div>
+
+          <div className="lg:col-span-1">
+            <Card className="sticky top-8">
+              <CardHeader>
+                <CardTitle>Resumo do pedido</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Segmento</span>
+                    {step >= 1 && selectedSegment ? (
+                      <span className="font-medium">
+                        {currentSegment?.name}
+                      </span>
+                    ) : (
+                      <CensoredLine />
                     )}
                   </div>
                 </div>
-              ))}
-            </CardContent>
-          </Card>
-        )}
 
-        {step === 6 && (
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <div className={`${priceTier.color}`}>{priceTier.icon}</div>
-                <div>
-                  <CardTitle>{priceTier.label}</CardTitle>
-                  <CardDescription>
-                    Calculado especialmente para o seu negócio
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="rounded-lg border p-4">
-                <h3 className="mb-3 font-semibold">Módulos incluídos:</h3>
+                <Separator />
+
                 <div className="space-y-2">
-                  {selectedModules.map((moduleId) => (
-                    <div key={moduleId} className="flex items-center gap-2">
-                      <Check className="text-primary size-4" />
-                      <span>{moduleLabels[moduleId]}</span>
-                      <span className="text-muted-foreground ml-auto text-sm">
-                        + R$ {modulePrices[moduleId]}
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Porte</span>
+                    {step >= 2 && operationSize ? (
+                      <span className="font-medium">
+                        {operationSizes.find((s) => s.id === operationSize)
+                          ?.label || ""}
                       </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="rounded-lg border p-4">
-                <h3 className="mb-3 font-semibold">Detalhamento do valor:</h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Plano base</span>
-                    <span>R$ {breakdown.base}</span>
+                    ) : (
+                      <CensoredLine />
+                    )}
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">
-                      Módulos ({selectedModules.length})
-                    </span>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Usuários</span>
+                    {step >= 3 && userCount ? (
+                      <span className="font-medium">
+                        {userCount} {userCount === "1" ? "pessoa" : "pessoas"}
+                      </span>
+                    ) : (
+                      <CensoredLine />
+                    )}
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-2">
+                  <span className="text-muted-foreground text-sm">Módulos</span>
+                  {step >= 4 && selectedModules.length > 0 ? (
+                    <div className="space-y-1">
+                      {selectedModules.map((moduleId) => (
+                        <div
+                          key={moduleId}
+                          className="flex items-center justify-between text-sm"
+                        >
+                          <span>{moduleLabels[moduleId]}</span>
+                          <span className="text-muted-foreground">
+                            +R$ {modulePrices[moduleId]}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <CensoredLine />
+                      <CensoredLine />
+                      <CensoredLine />
+                    </div>
+                  )}
+                </div>
+
+                <Separator />
+
+                <div className="space-y-2">
+                  <span className="text-muted-foreground text-sm">Volume</span>
+                  {step >= 5 && Object.keys(volumes).length > 0 ? (
+                    <div className="space-y-1">
+                      {Object.entries(volumes).map(([key, value]) => (
+                        <div
+                          key={key}
+                          className="flex items-center justify-between text-sm"
+                        >
+                          <span>{volumeLabels[key]}</span>
+                          <span className="text-muted-foreground">{value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <CensoredLine />
+                      <CensoredLine />
+                    </div>
+                  )}
+                </div>
+
+                <Separator />
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Plano base</span>
+                    <span>R$ {BASE_PRICE}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Módulos</span>
                     <span>+ R$ {breakdown.modulos}</span>
                   </div>
                   {breakdown.porte > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">
-                        Porte da operação
-                      </span>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Porte</span>
                       <span>+ R$ {breakdown.porte}</span>
                     </div>
                   )}
                   {breakdown.usuarios > 0 && (
-                    <div className="flex justify-between">
+                    <div className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">Usuários</span>
                       <span>+ R$ {breakdown.usuarios}</span>
                     </div>
                   )}
                   {breakdown.volume > 0 && (
-                    <div className="flex justify-between">
+                    <div className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">Volume</span>
                       <span>+ R$ {breakdown.volume}</span>
                     </div>
                   )}
-                  {breakdown.suporte > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">
-                        Suporte prioritário
-                      </span>
-                      <span>+ R$ {breakdown.suporte}</span>
-                    </div>
-                  )}
                 </div>
-              </div>
 
-              <div className="flex items-center gap-3 rounded-lg border p-4">
-                <Checkbox
-                  id="suporte"
-                  checked={supportPremium}
-                  onCheckedChange={(checked) =>
-                    setSupportPremium(checked === true)
-                  }
-                />
-                <div className="flex-1">
-                  <Label
-                    htmlFor="suporte"
-                    className="cursor-pointer font-medium"
-                  >
-                    <Headphones className="mr-1 inline size-4" />
-                    Suporte prioritário 24/7
-                  </Label>
-                  <p className="text-primary text-sm">+ R$ 200/mês</p>
+                <Separator />
+
+                <div className="bg-muted/50 rounded-lg p-4 text-center">
+                  <p className="text-muted-foreground text-sm">Total mensal</p>
+                  <p className="text-foreground mt-1 text-3xl font-bold">
+                    R$ {formatPrice(totalPrice)}
+                  </p>
+                  <p className="text-muted-foreground text-xs">/mês</p>
                 </div>
-              </div>
 
-              <Separator />
-
-              <div className="bg-muted/50 rounded-lg p-6 text-center">
-                <p className="text-muted-foreground text-sm">
-                  Seu investimento mensal
-                </p>
-                <p className="text-foreground mt-2 text-4xl font-bold">
-                  R$ {formatPrice(totalPrice)}
-                </p>
-                <p className="text-muted-foreground mt-1 text-sm">/mês</p>
-                <p className="text-muted-foreground mt-2 text-xs">
-                  Sem surpresas. Cancele quando quiser.
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm">
-                  <Check className="text-primary size-4" />
-                  <span>Sem taxa de setup</span>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Check className="text-primary size-4" />
+                    <span>Sem taxa de setup</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Check className="text-primary size-4" />
+                    <span>Cancele quando quiser</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Check className="text-primary size-4" />
+                    <span>Backup automático incluso</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <Check className="text-primary size-4" />
-                  <span>Cancele quando quiser</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <Check className="text-primary size-4" />
-                  <span>Backup automático incluso</span>
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter className="flex flex-col gap-4">
-              <Button className="w-full" size="lg">
-                <Lock className="mr-2 size-4" />
-                Finalizar assinatura
-              </Button>
-              <div className="text-muted-foreground flex items-center justify-center gap-2 text-xs">
-                <Shield className="size-3" />
-                <span>Pagamento seguro e criptografado</span>
-              </div>
-            </CardFooter>
-          </Card>
-        )}
 
-        {step > 1 && step < 6 && (
-          <div className="mt-6 flex justify-between">
-            <Button variant="outline" onClick={() => setStep(step - 1)}>
-              <ArrowLeft className="mr-2 size-4" />
-              Voltar
-            </Button>
-            <Button onClick={() => setStep(step + 1)} disabled={!canProceed()}>
-              Próximo
-              <ArrowRight className="ml-2 size-4" />
-            </Button>
+                <div className="text-muted-foreground flex items-center justify-center gap-2 text-xs">
+                  <Shield className="size-3" />
+                  <span>Pagamento seguro e criptografado</span>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        )}
-
-        {step === 6 && (
-          <div className="mt-6">
-            <Button
-              variant="outline"
-              onClick={() => setStep(1)}
-              className="w-full"
-            >
-              Recomeçar
-            </Button>
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );
