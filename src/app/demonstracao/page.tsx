@@ -263,8 +263,8 @@ export default function DemonstracaoPage() {
   const maxRevenue = Math.max(...weeklyData.map((d) => d.revenue));
 
   return (
-    <div className="bg-background flex min-h-screen">
-      <aside className="bg-card border-border flex w-64 flex-col border-r">
+    <div className="bg-background min-h-screen">
+      <aside className="bg-card border-border fixed top-0 left-0 z-40 flex h-screen w-64 flex-col border-r">
         <div className="border-border flex items-center gap-2 border-b p-4">
           <Stethoscope className="text-primary size-6" />
           <div>
@@ -331,7 +331,7 @@ export default function DemonstracaoPage() {
         </div>
       </aside>
 
-      <main className="flex-1 overflow-auto">
+      <main className="ml-64 flex-1 overflow-auto">
         <header className="bg-card border-border flex items-center justify-between border-b p-4">
           <div>
             <h1 className="text-xl font-semibold">
