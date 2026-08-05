@@ -79,5 +79,9 @@
     "prettier-plugin-tailwindcss": "^0.8.1",
     "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3"
+  },
+  "overrides": {
+    "inflight": "npm:inflight@^2.0.0",
+    "glob": "npm:glob@^13.0.6"
   }
 }

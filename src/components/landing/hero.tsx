@@ -5,7 +5,7 @@ import { ArrowRight, Building2, Check, Shield, Zap, Users } from "lucide-react";
 export function Hero() {
   return (
     <section className="bg-background relative overflow-hidden border-b">
-      <div className="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
+      <div className="relative mx-auto max-w-7xl px-4 pt-32 pb-24 sm:px-6 sm:pt-40 sm:pb-32 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <Badge variant="secondary" className="mb-6 gap-1.5 px-4 py-1.5">
             <Zap className="size-3.5" />
