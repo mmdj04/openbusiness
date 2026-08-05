@@ -2148,73 +2148,71 @@ function DashboardModule({
         </CardContent>
       </Card>
 
-      {/* Chart + Upcoming Appointments */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Faturamento semanal</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex h-48 items-end justify-center gap-3">
-              {weeklyData.map((d) => (
-                <div key={d.day} className="flex w-12 flex-col items-center">
-                  <span className="text-muted-foreground text-xs">
-                    R$ {d.revenue}
-                  </span>
-                  <div
-                    className="mt-1 w-full rounded-t bg-emerald-500"
-                    style={{ height: `${(d.revenue / maxRevenue) * 100}px` }}
-                  />
-                  <span className="text-muted-foreground mt-1 text-xs">
-                    {d.day}
-                  </span>
+      <Card>
+        <CardHeader>
+          <CardTitle>Faturamento semanal</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex h-48 items-end justify-center gap-3">
+            {weeklyData.map((d) => (
+              <div key={d.day} className="flex w-16 flex-col items-center">
+                <span className="text-muted-foreground text-xs">
+                  R$ {d.revenue}
+                </span>
+                <div
+                  className="mt-1 w-full rounded-t bg-emerald-500"
+                  style={{ height: `${(d.revenue / maxRevenue) * 130}px` }}
+                />
+                <span className="text-muted-foreground mt-1 text-xs">
+                  {d.day}
+                </span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Proximas consultas</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {appointments
+              .filter(
+                (a) =>
+                  a.status !== "realizado" &&
+                  a.status !== "cancelado" &&
+                  a.status !== "faltou",
+              )
+              .slice(0, 5)
+              .map((a) => (
+                <div
+                  key={a.id}
+                  className="flex items-center justify-between rounded-lg border p-3"
+                >
+                  <div>
+                    <p className="font-medium">{a.patientName}</p>
+                    <p className="text-muted-foreground text-xs">
+                      {a.service} - {a.professional}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm">{a.time}</p>
+                    <Badge
+                      variant={
+                        a.status === "confirmado" ? "default" : "secondary"
+                      }
+                      className="text-xs"
+                    >
+                      {a.status}
+                    </Badge>
+                  </div>
                 </div>
               ))}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Proximas consultas</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {appointments
-                .filter(
-                  (a) =>
-                    a.status !== "realizado" &&
-                    a.status !== "cancelado" &&
-                    a.status !== "faltou",
-                )
-                .slice(0, 5)
-                .map((a) => (
-                  <div
-                    key={a.id}
-                    className="flex items-center justify-between rounded-lg border p-3"
-                  >
-                    <div>
-                      <p className="font-medium">{a.patientName}</p>
-                      <p className="text-muted-foreground text-xs">
-                        {a.service} - {a.professional}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm">{a.time}</p>
-                      <Badge
-                        variant={
-                          a.status === "confirmado" ? "default" : "secondary"
-                        }
-                        className="text-xs"
-                      >
-                        {a.status}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
