@@ -1,3 +1,5 @@
+"use client";
+
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -41,7 +43,7 @@ const modulePrices: Record<string, number> = {
 const solutions = [
   {
     icon: Stethoscope,
-    title: "Clínicas médicas",
+    title: "Clinicas medicas",
     benefit: "Menos faltas, mais pacientes atendidos",
     modules: [
       "agenda",
@@ -52,10 +54,11 @@ const solutions = [
       "lembretes",
     ],
     segment: "clinica-medica",
+    available: true,
   },
   {
     icon: Smile,
-    title: "Clínicas odontológicas",
+    title: "Clinicas odontologicas",
     benefit: "Agenda lotada e pacientes felizes",
     modules: [
       "agenda",
@@ -66,13 +69,15 @@ const solutions = [
       "lembretes",
     ],
     segment: "clinica-odontologica",
+    available: true,
   },
   {
     icon: Scissors,
-    title: "Salões de beleza",
-    benefit: "Fila de espera e fidelidade automática",
+    title: "Saloes de beleza",
+    benefit: "Fila de espera e fidelidade automatica",
     modules: ["agenda", "financeiro", "crm", "whatsapp", "assinaturas"],
     segment: "salao",
+    available: false,
   },
   {
     icon: Scissors,
@@ -80,76 +85,87 @@ const solutions = [
     benefit: "Assinaturas recorrentes e agenda cheia",
     modules: ["agenda", "financeiro", "crm", "whatsapp", "assinaturas"],
     segment: "barbearia",
+    available: false,
   },
   {
     icon: Dumbbell,
     title: "Academias",
-    benefit: "Controle total de alunos e pagamentos",
-    modules: ["agenda", "financeiro", "crm", "assinaturas", "relatorios"],
+    benefit: "Matriculas online e controle de acesso",
+    modules: ["agenda", "financeiro", "crm", "whatsapp", "assinaturas"],
     segment: "academia",
+    available: false,
   },
   {
     icon: PawPrint,
-    title: "Pet shops",
-    benefit: "Agendamentos organizados e clientes fiéis",
-    modules: ["agenda", "financeiro", "crm", "estoque", "whatsapp"],
-    segment: "petshop",
+    title: "Pet shops e clinicas veterinarias",
+    benefit: "Tutores fiéis e agenda sempre lotada",
+    modules: ["agenda", "financeiro", "crm", "prontuario", "whatsapp"],
+    segment: "pet",
+    available: false,
   },
   {
     icon: Car,
-    title: "Autoescolas",
-    benefit: "Horários otimizados e alunos satisfeitos",
-    modules: ["agenda", "financeiro", "crm", "relatorios", "whatsapp"],
-    segment: "autoescola",
+    title: "Oficinas e concessionarias",
+    benefit: "OS rapidas e clientes satisfeitos",
+    modules: ["agenda", "financeiro", "crm", "estoque", "relatorios"],
+    segment: "oficina",
+    available: false,
   },
   {
     icon: Wrench,
-    title: "Oficinas mecânicas",
-    benefit: "Ordens de serviço sem papel e estoque controlado",
+    title: "Mecanicas de carros",
+    benefit: "Controle total e sem surpresas",
     modules: ["agenda", "financeiro", "crm", "estoque", "relatorios"],
-    segment: "oficina",
+    segment: "mecanica",
+    available: false,
   },
   {
     icon: ShoppingBag,
-    title: "Autopeças",
-    benefit: "Estoque correto e vendas organizadas",
+    title: "Lojas de varejo",
+    benefit: "Estoque organizado e vendas crescem",
     modules: ["financeiro", "crm", "estoque", "pdv", "relatorios"],
-    segment: "autopecas",
+    segment: "varejo",
+    available: false,
   },
   {
     icon: UtensilsCrossed,
     title: "Restaurantes",
-    benefit: "Pedidos sem erro e caixa organizado",
-    modules: ["financeiro", "pdv", "estoque", "relatorios"],
+    benefit: "Pedidos certos e sem fila",
+    modules: ["financeiro", "crm", "estoque", "pdv", "relatorios", "whatsapp"],
     segment: "restaurante",
+    available: false,
   },
   {
     icon: Pizza,
-    title: "Pizzarias",
-    benefit: "Delivery rápido e clientes repetem",
-    modules: ["financeiro", "pdv", "estoque", "whatsapp"],
+    title: "Pizzarias e lanchonetes",
+    benefit: "Pedidos certos e entrega no prazo",
+    modules: ["financeiro", "crm", "estoque", "pdv", "relatorios", "whatsapp"],
     segment: "pizzaria",
+    available: false,
   },
   {
     icon: Coffee,
-    title: "Lanchonetes",
-    benefit: "Delivery próprio e pedidos organizados",
-    modules: ["financeiro", "pdv", "estoque", "relatorios"],
-    segment: "lanchonete",
+    title: "Cafeterias e padarias",
+    benefit: "Fila menor e faturamento maior",
+    modules: ["financeiro", "crm", "estoque", "pdv", "relatorios"],
+    segment: "cafeteria",
+    available: false,
   },
   {
     icon: Pill,
-    title: "Farmácias",
-    benefit: "Estoque sempre disponível e vendas rastreadas",
+    title: "Farmacias",
+    benefit: "Estoque sempre disponivel e vendas rastreadas",
     modules: ["financeiro", "crm", "estoque", "pdv", "relatorios"],
     segment: "farmacia",
+    available: false,
   },
   {
     icon: Glasses,
-    title: "Óticas",
+    title: "Oticass",
     benefit: "Clientes cadastrados e vendas aumentam",
     modules: ["financeiro", "crm", "estoque", "pdv", "relatorios"],
     segment: "otica",
+    available: false,
   },
   {
     icon: Shirt,
@@ -157,20 +173,23 @@ const solutions = [
     benefit: "Estoque organizado e vendas crescem",
     modules: ["financeiro", "crm", "estoque", "pdv", "relatorios"],
     segment: "loja-roupas",
+    available: false,
   },
   {
     icon: Building,
-    title: "Material de construção",
-    benefit: "Orçamentos rápidos e entregas no prazo",
+    title: "Material de construcao",
+    benefit: "Orcamentos rapidos e entregas no prazo",
     modules: ["financeiro", "crm", "estoque", "pdv", "relatorios"],
     segment: "material-construcao",
+    available: false,
   },
   {
     icon: Scale,
-    title: "Escritórios de advocacia",
+    title: "Escritorios de advocacia",
     benefit: "Processos organizados e prazos em dia",
     modules: ["agenda", "financeiro", "crm", "relatorios", "prontuario"],
     segment: "advocacia",
+    available: false,
   },
   {
     icon: Calculator,
@@ -178,6 +197,7 @@ const solutions = [
     benefit: "Vencimentos controlados e clientes satisfeitos",
     modules: ["agenda", "financeiro", "crm", "relatorios", "whatsapp"],
     segment: "contabilidade",
+    available: false,
   },
 ];
 
@@ -213,12 +233,32 @@ export function Solutions() {
             return (
               <Link
                 key={solution.title}
-                href={`/configuracoes-plano?segmento=${solution.segment}`}
+                href={
+                  solution.available
+                    ? `/configuracoes-plano?segmento=${solution.segment}`
+                    : "#"
+                }
+                onClick={(e) => {
+                  if (!solution.available) e.preventDefault();
+                }}
               >
-                <Card className="group hover:ring-primary/20 relative h-full overflow-hidden transition-all hover:shadow-md hover:ring-1">
+                <Card
+                  className={`group relative h-full overflow-hidden transition-all ${
+                    solution.available
+                      ? "hover:ring-primary/20 hover:shadow-md hover:ring-1"
+                      : "opacity-60"
+                  }`}
+                >
                   <CardHeader className="pb-3">
-                    <div className="bg-primary/10 mb-2 flex size-10 items-center justify-center rounded-lg">
-                      <solution.icon className="text-primary size-5" />
+                    <div className="flex items-center justify-between">
+                      <div className="bg-primary/10 mb-2 flex size-10 items-center justify-center rounded-lg">
+                        <solution.icon className="text-primary size-5" />
+                      </div>
+                      {!solution.available && (
+                        <Badge variant="secondary" className="text-xs">
+                          Em desenvolvimento
+                        </Badge>
+                      )}
                     </div>
                     <CardTitle className="text-base">
                       {solution.title}
@@ -229,7 +269,7 @@ export function Solutions() {
                       {solution.benefit}
                     </p>
                     <div className="text-primary text-sm font-semibold">
-                      A partir de R$ {formatPrice(total)}/mês
+                      A partir de R$ {formatPrice(total)}/mes
                     </div>
                   </CardContent>
                 </Card>

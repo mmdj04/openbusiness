@@ -49,9 +49,29 @@ type Module =
   | "whatsapp"
   | "estoque"
   | "prontuario"
-  | "pdv";
+  | "pdv"
+  | "odontograma"
+  | "lembretes";
 
-type Segment = "clinica" | "salao" | "restaurante" | "personalizado";
+type Segment =
+  | "clinica-medica"
+  | "clinica-odontologica"
+  | "salao"
+  | "restaurante"
+  | "personalizado"
+  | "academia"
+  | "pet"
+  | "hotel"
+  | "escola"
+  | "contabil"
+  | "advocacia"
+  | "imobiliaria"
+  | "consultoria"
+  | "marketing"
+  | "engenharia"
+  | "farmacia"
+  | "otica"
+  | "veterinaria";
 
 interface SegmentConfig {
   id: Segment;
@@ -59,70 +79,167 @@ interface SegmentConfig {
   modules: Module[];
   businessName: string;
   businessType: string;
+  available: boolean;
 }
 
 const segmentConfigs: SegmentConfig[] = [
   {
-    id: "clinica",
-    name: "Clínica Médica",
+    id: "clinica-medica",
+    name: "Clinica Medica",
     modules: [
       "dashboard",
       "agenda",
       "clientes",
-      "financeiro",
       "relatorios",
       "whatsapp",
       "prontuario",
     ],
-    businessName: "Clínica Saúde+",
-    businessType: "Clínica Médica",
+    businessName: "Clinica Saude+",
+    businessType: "Clinica Medica",
+    available: true,
   },
   {
-    id: "salao",
-    name: "Salão de Beleza",
+    id: "clinica-odontologica",
+    name: "Clinica Odontologica",
     modules: [
       "dashboard",
       "agenda",
-      "clientes",
       "financeiro",
       "relatorios",
-      "whatsapp",
-      "estoque",
+      "odontograma",
+      "lembretes",
     ],
+    businessName: "Odonto Vida",
+    businessType: "Clinica Odontologica",
+    available: true,
+  },
+  {
+    id: "salao",
+    name: "Salao de Beleza",
+    modules: ["dashboard", "agenda", "clientes", "financeiro"],
     businessName: "Studio Beleza",
-    businessType: "Salão de Beleza",
+    businessType: "Salao de Beleza",
+    available: false,
   },
   {
     id: "restaurante",
     name: "Restaurante",
-    modules: [
-      "dashboard",
-      "clientes",
-      "financeiro",
-      "relatorios",
-      "whatsapp",
-      "estoque",
-      "pdv",
-    ],
+    modules: ["dashboard", "clientes", "financeiro"],
     businessName: "Sabor & Arte",
     businessType: "Restaurante",
+    available: false,
+  },
+  {
+    id: "academia",
+    name: "Academia",
+    modules: ["dashboard", "clientes"],
+    businessName: "Fitness Center",
+    businessType: "Academia",
+    available: false,
+  },
+  {
+    id: "pet",
+    name: "Pet Shop",
+    modules: ["dashboard", "clientes"],
+    businessName: "Pet Love",
+    businessType: "Pet Shop",
+    available: false,
+  },
+  {
+    id: "hotel",
+    name: "Hotel",
+    modules: ["dashboard", "clientes"],
+    businessName: "Hotel Premium",
+    businessType: "Hotel",
+    available: false,
+  },
+  {
+    id: "escola",
+    name: "Escola",
+    modules: ["dashboard", "clientes"],
+    businessName: "Educacao Total",
+    businessType: "Escola",
+    available: false,
+  },
+  {
+    id: "contabil",
+    name: "Contabil",
+    modules: ["dashboard", "clientes"],
+    businessName: "Contabil Express",
+    businessType: "Contabil",
+    available: false,
+  },
+  {
+    id: "advocacia",
+    name: "Advocacia",
+    modules: ["dashboard", "clientes"],
+    businessName: "Advocacia Justa",
+    businessType: "Advocacia",
+    available: false,
+  },
+  {
+    id: "imobiliaria",
+    name: "Imobiliaria",
+    modules: ["dashboard", "clientes"],
+    businessName: "Imovel Certo",
+    businessType: "Imobiliaria",
+    available: false,
+  },
+  {
+    id: "consultoria",
+    name: "Consultoria",
+    modules: ["dashboard", "clientes"],
+    businessName: "Consultoria Pro",
+    businessType: "Consultoria",
+    available: false,
+  },
+  {
+    id: "marketing",
+    name: "Agencia de Marketing",
+    modules: ["dashboard", "clientes"],
+    businessName: "Marketing Digital",
+    businessType: "Agencia de Marketing",
+    available: false,
+  },
+  {
+    id: "engenharia",
+    name: "Engenharia",
+    modules: ["dashboard", "clientes"],
+    businessName: "Engenharia Total",
+    businessType: "Engenharia",
+    available: false,
+  },
+  {
+    id: "farmacia",
+    name: "Farmacia",
+    modules: ["dashboard", "clientes"],
+    businessName: "Farmacia Vida",
+    businessType: "Farmacia",
+    available: false,
+  },
+  {
+    id: "otica",
+    name: "Otica",
+    modules: ["dashboard", "clientes"],
+    businessName: "Otica Visual",
+    businessType: "Otica",
+    available: false,
+  },
+  {
+    id: "veterinaria",
+    name: "Veterinaria",
+    modules: ["dashboard", "clientes"],
+    businessName: "Vet Care",
+    businessType: "Veterinaria",
+    available: false,
   },
   {
     id: "personalizado",
     name: "Personalizado",
-    modules: [
-      "dashboard",
-      "agenda",
-      "clientes",
-      "financeiro",
-      "relatorios",
-      "whatsapp",
-      "estoque",
-      "prontuario",
-      "pdv",
-    ],
-    businessName: "Meu Negócio",
+    modules: ["dashboard", "agenda", "clientes", "financeiro", "relatorios"],
+    businessName: "Meu Negocio",
     businessType: "Personalizado",
+    available: false,
   },
 ];
 
@@ -346,7 +463,8 @@ const weeklyData = [
 export default function DemonstracaoPage() {
   const [currentModule, setCurrentModule] = useState<Module>("dashboard");
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [selectedSegment, setSelectedSegment] = useState<Segment>("clinica");
+  const [selectedSegment, setSelectedSegment] =
+    useState<Segment>("clinica-medica");
   const [enabledModules, setEnabledModules] = useState<Module[]>([
     "dashboard",
     "agenda",
@@ -384,11 +502,13 @@ export default function DemonstracaoPage() {
     { id: "agenda", label: "Agenda", icon: Calendar },
     { id: "clientes", label: "Clientes", icon: Users },
     { id: "financeiro", label: "Financeiro", icon: CreditCard },
-    { id: "relatorios", label: "Relatórios", icon: FileText },
+    { id: "relatorios", label: "Relatorios", icon: FileText },
     { id: "whatsapp", label: "WhatsApp", icon: MessageSquare },
     { id: "estoque", label: "Estoque", icon: Package },
-    { id: "prontuario", label: "Prontuário", icon: FileText },
+    { id: "prontuario", label: "Prontuario", icon: FileText },
     { id: "pdv", label: "PDV", icon: ShoppingCart },
+    { id: "odontograma", label: "Odontograma", icon: Stethoscope },
+    { id: "lembretes", label: "Lembretes", icon: Bell },
   ];
 
   const maxRevenue = Math.max(...weeklyData.map((d) => d.revenue));
@@ -466,8 +586,10 @@ export default function DemonstracaoPage() {
                 {currentModule === "relatorios" && "Relatórios"}
                 {currentModule === "whatsapp" && "WhatsApp"}
                 {currentModule === "estoque" && "Estoque"}
-                {currentModule === "prontuario" && "Prontuário"}
+                {currentModule === "prontuario" && "Prontuario"}
                 {currentModule === "pdv" && "PDV"}
+                {currentModule === "odontograma" && "Odontograma"}
+                {currentModule === "lembretes" && "Lembretes"}
               </h1>
               <p className="text-muted-foreground text-xs">
                 {new Date().toLocaleDateString("pt-BR", {
@@ -487,8 +609,9 @@ export default function DemonstracaoPage() {
               className="bg-muted rounded border px-2 py-1.5 text-sm"
             >
               {segmentConfigs.map((seg) => (
-                <option key={seg.id} value={seg.id}>
+                <option key={seg.id} value={seg.id} disabled={!seg.available}>
                   {seg.name}
+                  {!seg.available ? " (Em desenvolvimento)" : ""}
                 </option>
               ))}
             </select>
@@ -550,6 +673,8 @@ export default function DemonstracaoPage() {
           {currentModule === "estoque" && <EstoqueModule />}
           {currentModule === "prontuario" && <ProntuarioModule />}
           {currentModule === "pdv" && <PDVModule />}
+          {currentModule === "odontograma" && <OdontogramaModule />}
+          {currentModule === "lembretes" && <LembretesModule />}
         </div>
       </main>
     </div>
@@ -1694,6 +1819,322 @@ function PDVModule() {
           </CardContent>
         </Card>
       </div>
+    </div>
+  );
+}
+
+function OdontogramaModule() {
+  const teeth: {
+    id: number;
+    name: string;
+    status: "saudavel" | "tratado" | "caries" | "ausente";
+  }[] = [
+    { id: 11, name: "11", status: "saudavel" },
+    { id: 12, name: "12", status: "tratado" },
+    { id: 13, name: "13", status: "saudavel" },
+    { id: 14, name: "14", status: "saudavel" },
+    { id: 15, name: "15", status: "caries" },
+    { id: 16, name: "16", status: "tratado" },
+    { id: 17, name: "17", status: "saudavel" },
+    { id: 18, name: "18", status: "ausente" },
+    { id: 21, name: "21", status: "saudavel" },
+    { id: 22, name: "22", status: "saudavel" },
+    { id: 23, name: "23", status: "saudavel" },
+    { id: 24, name: "24", status: "caries" },
+    { id: 25, name: "25", status: "saudavel" },
+    { id: 26, name: "26", status: "saudavel" },
+    { id: 27, name: "27", status: "tratado" },
+    { id: 28, name: "28", status: "ausente" },
+    { id: 31, name: "31", status: "saudavel" },
+    { id: 32, name: "32", status: "saudavel" },
+    { id: 33, name: "33", status: "saudavel" },
+    { id: 34, name: "34", status: "saudavel" },
+    { id: 35, name: "35", status: "tratado" },
+    { id: 36, name: "36", status: "saudavel" },
+    { id: 37, name: "37", status: "saudavel" },
+    { id: 38, name: "38", status: "ausente" },
+    { id: 41, name: "41", status: "saudavel" },
+    { id: 42, name: "42", status: "saudavel" },
+    { id: 43, name: "43", status: "saudavel" },
+    { id: 44, name: "44", status: "saudavel" },
+    { id: 45, name: "45", status: "caries" },
+    { id: 46, name: "46", status: "saudavel" },
+    { id: 47, name: "47", status: "tratado" },
+    { id: 48, name: "48", status: "ausente" },
+  ];
+
+  const statusColors: Record<string, string> = {
+    saudavel: "bg-green-500",
+    tratado: "bg-blue-500",
+    caries: "bg-red-500",
+    ausente: "bg-muted",
+  };
+
+  const statusLabels: Record<string, string> = {
+    saudavel: "Saudavel",
+    tratado: "Tratado",
+    caries: "Caries",
+    ausente: "Ausente",
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-4">
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Total de dentes</p>
+            <p className="text-2xl font-bold">32</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Saudaveis</p>
+            <p className="text-2xl font-bold text-green-600">22</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Em tratamento</p>
+            <p className="text-2xl font-bold text-blue-600">4</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Com caries</p>
+            <p className="text-2xl font-bold text-red-600">3</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>Odontograma — Maria Silva</CardTitle>
+            <Button size="sm" className="gap-2">
+              <Edit className="size-4" />
+              Atualizar
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="mb-4 flex flex-wrap gap-4">
+            {Object.entries(statusLabels).map(([key, label]) => (
+              <div key={key} className="flex items-center gap-2 text-sm">
+                <div className={`size-3 rounded-full ${statusColors[key]}`} />
+                <span>{label}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="space-y-3">
+            <p className="text-muted-foreground text-sm font-medium">
+              Arcada Superior
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {teeth
+                .filter((t) => t.id >= 11 && t.id <= 18)
+                .map((tooth) => (
+                  <button
+                    key={tooth.id}
+                    className={`hover:ring-primary/50 flex size-10 items-center justify-center rounded-lg border text-xs font-medium text-white transition-colors hover:ring-2 ${statusColors[tooth.status]}`}
+                    title={`${tooth.name} — ${statusLabels[tooth.status]}`}
+                  >
+                    {tooth.name}
+                  </button>
+                ))}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {teeth
+                .filter((t) => t.id >= 21 && t.id <= 28)
+                .map((tooth) => (
+                  <button
+                    key={tooth.id}
+                    className={`hover:ring-primary/50 flex size-10 items-center justify-center rounded-lg border text-xs font-medium text-white transition-colors hover:ring-2 ${statusColors[tooth.status]}`}
+                    title={`${tooth.name} — ${statusLabels[tooth.status]}`}
+                  >
+                    {tooth.name}
+                  </button>
+                ))}
+            </div>
+
+            <p className="text-muted-foreground mt-4 text-sm font-medium">
+              Arcada Inferior
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {teeth
+                .filter((t) => t.id >= 31 && t.id <= 38)
+                .map((tooth) => (
+                  <button
+                    key={tooth.id}
+                    className={`hover:ring-primary/50 flex size-10 items-center justify-center rounded-lg border text-xs font-medium text-white transition-colors hover:ring-2 ${statusColors[tooth.status]}`}
+                    title={`${tooth.name} — ${statusLabels[tooth.status]}`}
+                  >
+                    {tooth.name}
+                  </button>
+                ))}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {teeth
+                .filter((t) => t.id >= 41 && t.id <= 48)
+                .map((tooth) => (
+                  <button
+                    key={tooth.id}
+                    className={`hover:ring-primary/50 flex size-10 items-center justify-center rounded-lg border text-xs font-medium text-white transition-colors hover:ring-2 ${statusColors[tooth.status]}`}
+                    title={`${tooth.name} — ${statusLabels[tooth.status]}`}
+                  >
+                    {tooth.name}
+                  </button>
+                ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function LembretesModule() {
+  const reminders = [
+    {
+      id: 1,
+      patient: "Maria Silva",
+      type: "retorno",
+      date: "2026-08-15",
+      time: "09:00",
+      message: "Retorno para controle de periodontite",
+      status: "pendente",
+      channel: "whatsapp",
+    },
+    {
+      id: 2,
+      patient: "Joao Santos",
+      type: "limpeza",
+      date: "2026-08-10",
+      time: "14:30",
+      message: "Lembrete de limpeza semestral",
+      status: "enviado",
+      channel: "sms",
+    },
+    {
+      id: 3,
+      patient: "Ana Costa",
+      type: "protese",
+      date: "2026-08-20",
+      time: "10:00",
+      message: "Ajuste de protese — 3a sessao",
+      status: "pendente",
+      channel: "whatsapp",
+    },
+    {
+      id: 4,
+      patient: "Pedro Lima",
+      type: "avaliacao",
+      date: "2026-08-08",
+      time: "11:00",
+      message: "Avaliacao ortodontica inicial",
+      status: "confirmado",
+      channel: "whatsapp",
+    },
+    {
+      id: 5,
+      patient: "Fernanda Alves",
+      type: "clareamento",
+      date: "2026-08-12",
+      time: "16:00",
+      message: "2a sessao de clareamento",
+      status: "enviado",
+      channel: "email",
+    },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-4">
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Hoje</p>
+            <p className="text-2xl font-bold">3</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Pendentes</p>
+            <p className="text-2xl font-bold text-orange-500">2</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Enviados</p>
+            <p className="text-2xl font-bold text-blue-500">2</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Confirmados</p>
+            <p className="text-2xl font-bold text-green-600">1</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>Lembretes</CardTitle>
+            <Button size="sm" className="gap-2">
+              <Plus className="size-4" />
+              Novo lembrete
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {reminders.map((reminder) => (
+              <div
+                key={reminder.id}
+                className="flex items-center justify-between rounded-lg border p-4"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="bg-primary/10 flex size-10 items-center justify-center rounded-full">
+                    <Bell className="text-primary size-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium">{reminder.patient}</p>
+                      <Badge variant="outline" className="text-xs">
+                        {reminder.type}
+                      </Badge>
+                    </div>
+                    <p className="text-muted-foreground mt-1 text-sm">
+                      {reminder.message}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <p className="text-sm">
+                      {new Date(reminder.date).toLocaleDateString("pt-BR")}
+                    </p>
+                    <p className="text-muted-foreground text-xs">
+                      {reminder.time}
+                    </p>
+                  </div>
+                  <Badge
+                    variant={
+                      reminder.status === "pendente"
+                        ? "secondary"
+                        : reminder.status === "enviado"
+                          ? "default"
+                          : "outline"
+                    }
+                  >
+                    {reminder.status}
+                  </Badge>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
