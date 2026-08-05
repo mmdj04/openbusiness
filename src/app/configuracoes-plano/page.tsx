@@ -339,7 +339,6 @@ function ConfiguracoesPlanoContent() {
       });
       setVolumes(initialVolumes);
     }
-    setStep(2);
   };
 
   const canProceed = () => {
@@ -451,10 +450,7 @@ function ConfiguracoesPlanoContent() {
                     {operationSizes.map((size) => (
                       <button
                         key={size.id}
-                        onClick={() => {
-                          setOperationSize(size.id);
-                          setStep(3);
-                        }}
+                        onClick={() => setOperationSize(size.id)}
                         className={`flex w-full items-center gap-4 rounded-lg border p-4 text-left transition-all ${
                           operationSize === size.id
                             ? "bg-primary/5 border-primary/30 ring-primary/20 ring-1"
@@ -468,11 +464,6 @@ function ConfiguracoesPlanoContent() {
                             {size.description}
                           </p>
                         </div>
-                        <span className="text-muted-foreground text-sm">
-                          {size.multiplier === 1.0
-                            ? "Base"
-                            : `+${Math.round((size.multiplier - 1) * 100)}%`}
-                        </span>
                       </button>
                     ))}
                   </div>
@@ -493,10 +484,7 @@ function ConfiguracoesPlanoContent() {
                     {userTiers.map((tier) => (
                       <button
                         key={tier.id}
-                        onClick={() => {
-                          setUserCount(tier.id);
-                          setStep(4);
-                        }}
+                        onClick={() => setUserCount(tier.id)}
                         className={`flex flex-col items-start rounded-lg border p-4 text-left transition-all ${
                           userCount === tier.id
                             ? "bg-primary/5 border-primary/30 ring-primary/20 ring-1"
@@ -507,11 +495,6 @@ function ConfiguracoesPlanoContent() {
                         <span className="text-muted-foreground text-sm">
                           {tier.description}
                         </span>
-                        {tier.surcharge > 0 && (
-                          <span className="text-primary mt-1 text-sm">
-                            +R$ {tier.surcharge}/mês
-                          </span>
-                        )}
                       </button>
                     ))}
                   </div>
@@ -614,11 +597,6 @@ function ConfiguracoesPlanoContent() {
                               <span className="text-muted-foreground mt-1 block text-xs">
                                 Uso {tier.usage}
                               </span>
-                              {tier.surcharge > 0 && (
-                                <span className="text-primary mt-1 block text-xs">
-                                  +R$ {tier.surcharge}/mês
-                                </span>
-                              )}
                             </button>
                           ),
                         )}
@@ -867,44 +845,65 @@ function ConfiguracoesPlanoContent() {
 
                 <Separator />
 
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Plano base</span>
-                    <span>R$ {BASE_PRICE}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Módulos</span>
-                    <span>+ R$ {breakdown.modulos}</span>
-                  </div>
-                  {breakdown.porte > 0 && (
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Porte</span>
-                      <span>+ R$ {breakdown.porte}</span>
+                {step >= 6 ? (
+                  <div className="space-y-3">
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">
+                          Plano base
+                        </span>
+                        <span>R$ {BASE_PRICE}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">
+                          Módulos ({selectedModules.length})
+                        </span>
+                        <span>+ R$ {breakdown.modulos}</span>
+                      </div>
+                      {breakdown.porte > 0 && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">
+                            Porte da operação
+                          </span>
+                          <span>+ R$ {breakdown.porte}</span>
+                        </div>
+                      )}
+                      {breakdown.usuarios > 0 && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">
+                            Usuários
+                          </span>
+                          <span>+ R$ {breakdown.usuarios}</span>
+                        </div>
+                      )}
+                      {breakdown.volume > 0 && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Volume</span>
+                          <span>+ R$ {breakdown.volume}</span>
+                        </div>
+                      )}
                     </div>
-                  )}
-                  {breakdown.usuarios > 0 && (
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Usuários</span>
-                      <span>+ R$ {breakdown.usuarios}</span>
-                    </div>
-                  )}
-                  {breakdown.volume > 0 && (
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Volume</span>
-                      <span>+ R$ {breakdown.volume}</span>
-                    </div>
-                  )}
-                </div>
 
-                <Separator />
+                    <Separator />
 
-                <div className="bg-muted/50 rounded-lg p-4 text-center">
-                  <p className="text-muted-foreground text-sm">Total mensal</p>
-                  <p className="text-foreground mt-1 text-3xl font-bold">
-                    R$ {formatPrice(totalPrice)}
-                  </p>
-                  <p className="text-muted-foreground text-xs">/mês</p>
-                </div>
+                    <div className="bg-muted/50 rounded-lg p-4 text-center">
+                      <p className="text-muted-foreground text-sm">
+                        Total mensal
+                      </p>
+                      <p className="text-foreground mt-1 text-3xl font-bold">
+                        R$ {formatPrice(totalPrice)}
+                      </p>
+                      <p className="text-muted-foreground text-xs">/mês</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-muted/50 rounded-lg p-4 text-center">
+                    <p className="text-muted-foreground text-sm">
+                      Total mensal
+                    </p>
+                    <CensoredLine />
+                  </div>
+                )}
 
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-sm">
