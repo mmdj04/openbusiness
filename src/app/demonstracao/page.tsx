@@ -25,7 +25,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Phone,
-  TrendingUp,
   ArrowUpRight,
   ArrowDownRight,
   Eye,
