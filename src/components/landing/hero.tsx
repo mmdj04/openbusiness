@@ -4,26 +4,22 @@ import { ArrowRight, Building2, Check, Shield, Zap, Users } from "lucide-react";
 
 export function Hero() {
   return (
-    <section className="from-background via-background to-muted/30 relative overflow-hidden border-b bg-gradient-to-b">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,hsl(var(--primary)/0.08),transparent)]" />
-
+    <section className="bg-background relative overflow-hidden border-b">
       <div className="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <Badge variant="secondary" className="mb-6 gap-1.5 px-4 py-1.5">
             <Zap className="size-3.5" />
-            Plataforma completa para seu negócio
+            Plataforma completa para seu negocio
           </Badge>
 
           <h1 className="text-foreground text-4xl font-bold tracking-tight sm:text-6xl lg:text-7xl">
-            Gestão do seu negócio{" "}
-            <span className="from-primary/80 via-primary to-primary/60 bg-gradient-to-r bg-clip-text text-transparent">
-              simples e poderosa
-            </span>
+            Gestao do seu negocio{" "}
+            <span className="text-primary">simples e poderosa</span>
           </h1>
 
           <p className="text-muted-foreground mt-6 text-lg leading-8 sm:text-xl">
-            Sistemas prontos para clínicas, salões, restaurantes, academias e
-            muito mais. Ative apenas os módulos que precisa. Sem complicação,
+            Sistemas prontos para clinicas, saloes, restaurantes, academias e
+            muito mais. Ative apenas os modulos que precisa. Sem complicacao,
             sem mensalidades escondidas.
           </p>
 
@@ -46,7 +42,7 @@ export function Hero() {
                 className: "gap-2 px-8 text-base",
               })}
             >
-              Ver soluções
+              Ver solucoes
             </a>
           </div>
 
@@ -68,14 +64,14 @@ export function Hero() {
 
         <div className="mx-auto mt-20 grid max-w-4xl grid-cols-2 gap-4 sm:grid-cols-4">
           {[
-            { icon: Building2, label: "Negócios ativos", value: "2.400+" },
+            { icon: Building2, label: "Negocios ativos", value: "2.400+" },
             { icon: Users, label: "Clientes atendidos", value: "18.000+" },
             { icon: Shield, label: "Uptime garantido", value: "99,9%" },
             { icon: Zap, label: "Tempo de setup", value: "< 24h" },
           ].map((stat) => (
             <div
               key={stat.label}
-              className="bg-card/50 rounded-xl border p-4 text-center backdrop-blur-sm"
+              className="border-border bg-card rounded-xl border p-4 text-center"
             >
               <stat.icon className="text-muted-foreground mx-auto mb-2 size-5" />
               <div className="text-foreground text-2xl font-bold">
