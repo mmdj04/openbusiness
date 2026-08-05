@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "OpenBaaS - Open Source Backend as a Service",
+  title: "OpenBusiness - Gestão simples para seu negócio",
   description:
     "Plataforma open-source de Backend as a Service construida com Next.js, TypeScript e shadcn/ui",
 };

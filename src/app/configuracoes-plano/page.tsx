@@ -27,101 +27,63 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+const BASE_PRICE = 497;
+
 const modules = [
-  {
-    id: "agenda",
-    name: "Agenda",
-    description: "Agendamento de compromissos e horários",
-    price: 49,
-    included: true,
-    popular: true,
-  },
-  {
-    id: "clientes",
-    name: "Clientes",
-    description: "Cadastro e gestão de clientes",
-    price: 39,
-    included: true,
-    popular: true,
-  },
-  {
-    id: "financeiro",
-    name: "Financeiro",
-    description: "Contas a pagar, receber e fluxo de caixa",
-    price: 69,
-    included: true,
-    popular: true,
-  },
   {
     id: "estoque",
     name: "Estoque",
     description: "Controle de produtos e entradas/saídas",
-    price: 144,
-    included: false,
+    price: 59,
     popular: false,
   },
   {
     id: "relatorios",
-    name: "Relatórios",
+    name: "Relatórios avançados",
     description: "Dashboards e indicadores do negócio",
-    price: 114,
-    included: false,
+    price: 79,
     popular: false,
   },
   {
     id: "whatsapp",
-    name: "WhatsApp",
+    name: "WhatsApp integrado",
     description: "Envio automático de mensagens e lembretes",
-    price: 174,
-    included: false,
+    price: 99,
     popular: true,
   },
   {
     id: "prontuario",
-    name: "Prontuário",
-    description: "Prontuário eletrônico para clínicas",
-    price: 194,
-    included: false,
-    popular: false,
-  },
-  {
-    id: "lembretes",
-    name: "Lembretes",
-    description: "Notificações automáticas para clientes",
-    price: 82,
-    included: false,
+    name: "Prontuário eletrônico",
+    description: "Prontuário digital para clínicas e consultórios",
+    price: 129,
     popular: false,
   },
   {
     id: "pdv",
-    name: "PDV",
-    description: "Ponto de venda integrado",
-    price: 214,
-    included: false,
+    name: "PDV integrado",
+    description: "Ponto de venda completo",
+    price: 149,
     popular: false,
   },
   {
     id: "entregas",
-    name: "Entregas",
+    name: "Entregas e rastreio",
     description: "Rastreamento de entregas e motoboys",
-    price: 154,
-    included: false,
+    price: 99,
     popular: false,
   },
   {
     id: "assinaturas",
-    name: "Assinaturas",
+    name: "Assinaturas e planos",
     description: "Cobrança recorrente e planos",
-    price: 144,
-    included: false,
+    price: 89,
     popular: false,
   },
   {
     id: "app-mobile",
     name: "App mobile",
-    description: "Acesso pelo celular para clientes e equipe",
-    price: 264,
-    included: false,
+    description: "Aplicativo para clientes e equipe",
+    price: 199,
     popular: true,
   },
 ];
@@ -147,19 +109,11 @@ const paymentMethods = [
   },
 ];
 
-const BASE_PRICE = 397;
-const MAX_PRICE = 1489.9;
-
 export default function ConfiguracoesPlanoPage() {
-  const [selectedModules, setSelectedModules] = useState<string[]>(
-    modules.filter((m) => m.included).map((m) => m.id),
-  );
+  const [selectedModules, setSelectedModules] = useState<string[]>([]);
   const [paymentMethod, setPaymentMethod] = useState("credit");
 
   const toggleModule = (moduleId: string) => {
-    const selectedModule = modules.find((m) => m.id === moduleId);
-    if (selectedModule?.included) return;
-
     setSelectedModules((prev) =>
       prev.includes(moduleId)
         ? prev.filter((id) => id !== moduleId)
@@ -167,20 +121,14 @@ export default function ConfiguracoesPlanoPage() {
     );
   };
 
-  const extraModules = modules.filter(
-    (m) => selectedModules.includes(m.id) && !m.included,
+  const selectedModulesList = modules.filter((m) =>
+    selectedModules.includes(m.id),
   );
-  const extraModulesValue = extraModules.reduce((sum, m) => sum + m.price, 0);
-
-  const rawTotal = BASE_PRICE + extraModulesValue;
-  const hasDiscount = rawTotal > MAX_PRICE;
-  const discountAmount = hasDiscount
-    ? Math.round((rawTotal - MAX_PRICE) * 100) / 100
-    : 0;
-  const discountPercentage = hasDiscount
-    ? Math.round((discountAmount / rawTotal) * 100)
-    : 0;
-  const finalPrice = Math.round(Math.min(rawTotal, MAX_PRICE) * 100) / 100;
+  const extraModulesValue = selectedModulesList.reduce(
+    (sum, m) => sum + m.price,
+    0,
+  );
+  const finalPrice = BASE_PRICE + extraModulesValue;
 
   return (
     <div className="bg-background min-h-screen">
@@ -197,7 +145,7 @@ export default function ConfiguracoesPlanoPage() {
             Configurar seu plano
           </h1>
           <p className="text-muted-foreground mt-2">
-            Personalize seu plano selecionando os módulos que precisa
+            Personalize seu plano adicionando os módulos que precisa
           </p>
         </div>
 
@@ -209,22 +157,17 @@ export default function ConfiguracoesPlanoPage() {
                   <span className="bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-full text-sm font-bold">
                     1
                   </span>
-                  Seus módulos
+                  Módulos adicionais
                 </CardTitle>
                 <CardDescription>
-                  3 módulos já inclusos no plano. Adicione mais para
-                  personalizar.
+                  Seu plano já inclui Agenda, Clientes e Financeiro. Adicione
+                  mais funcionalidades conforme sua necessidade.
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4 sm:grid-cols-2">
                   {modules.map((module) => {
                     const isSelected = selectedModules.includes(module.id);
-                    const discountedPrice = hasDiscount
-                      ? Math.round(
-                          module.price * (1 - discountPercentage / 100),
-                        )
-                      : module.price;
 
                     return (
                       <div
@@ -233,14 +176,13 @@ export default function ConfiguracoesPlanoPage() {
                           isSelected
                             ? "bg-primary/5 border-primary/30"
                             : "bg-muted/30 hover:bg-muted/50"
-                        } ${module.included ? "opacity-75" : ""}`}
+                        }`}
                       >
                         <div className="flex items-start gap-3">
                           <Checkbox
                             id={module.id}
                             checked={isSelected}
                             onCheckedChange={() => toggleModule(module.id)}
-                            disabled={module.included}
                             className="mt-0.5"
                           />
                           <div className="flex-1">
@@ -251,12 +193,7 @@ export default function ConfiguracoesPlanoPage() {
                               >
                                 {module.name}
                               </Label>
-                              {module.included && (
-                                <Badge variant="secondary" className="text-xs">
-                                  Incluso
-                                </Badge>
-                              )}
-                              {module.popular && !module.included && (
+                              {module.popular && (
                                 <Badge
                                   variant="secondary"
                                   className="bg-primary/10 text-primary text-xs"
@@ -269,18 +206,9 @@ export default function ConfiguracoesPlanoPage() {
                             <p className="text-muted-foreground mt-1 text-sm">
                               {module.description}
                             </p>
-                            {!module.included && (
-                              <div className="mt-2 flex items-center gap-2">
-                                {hasDiscount && (
-                                  <span className="text-muted-foreground text-sm line-through">
-                                    R$ {module.price}
-                                  </span>
-                                )}
-                                <span className="text-primary text-sm font-medium">
-                                  R$ {discountedPrice}/mês
-                                </span>
-                              </div>
-                            )}
+                            <p className="text-primary mt-2 text-sm font-medium">
+                              + R$ {module.price}/mês
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -343,18 +271,21 @@ export default function ConfiguracoesPlanoPage() {
                 <CardTitle>Resumo do pedido</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">
-                    Plano base (3 módulos)
-                  </span>
-                  <span className="font-medium">R$ {BASE_PRICE}/mês</span>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Plano base</span>
+                    <span className="font-medium">R$ {BASE_PRICE}/mês</span>
+                  </div>
+                  <p className="text-muted-foreground text-xs">
+                    Agenda + Clientes + Financeiro
+                  </p>
                 </div>
 
-                {extraModules.length > 0 && (
+                {selectedModulesList.length > 0 && (
                   <>
                     <Separator />
                     <div className="space-y-2">
-                      {extraModules.map((module) => (
+                      {selectedModulesList.map((module) => (
                         <div
                           key={module.id}
                           className="flex items-center justify-between text-sm"
@@ -367,45 +298,15 @@ export default function ConfiguracoesPlanoPage() {
                           </span>
                         </div>
                       ))}
-                      <div className="flex items-center justify-between text-sm font-medium">
-                        <span className="text-muted-foreground">
-                          Subtotal módulos
-                        </span>
-                        <span>R$ {extraModulesValue}</span>
-                      </div>
                     </div>
                   </>
                 )}
 
                 <Separator />
 
-                {hasDiscount && (
-                  <div className="rounded-lg bg-green-500/10 p-3">
-                    <div className="flex items-center gap-2">
-                      <Zap className="size-4 text-green-600 dark:text-green-400" />
-                      <span className="text-sm font-medium text-green-600 dark:text-green-400">
-                        Desconto por volume aplicado!
-                      </span>
-                    </div>
-                    <p className="mt-1 text-xs text-green-600 dark:text-green-400">
-                      Quanto mais módulos, maior o desconto. Você está
-                      economizando R$ {Math.round(discountAmount)}/mês
-                    </p>
-                  </div>
-                )}
-
-                <div className="space-y-1">
-                  {hasDiscount && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground text-sm line-through">
-                        R$ {rawTotal}/mês
-                      </span>
-                    </div>
-                  )}
-                  <div className="flex items-center justify-between text-lg font-bold">
-                    <span>Total</span>
-                    <span>R$ {finalPrice}/mês</span>
-                  </div>
+                <div className="flex items-center justify-between text-lg font-bold">
+                  <span>Total</span>
+                  <span>R$ {finalPrice}/mês</span>
                 </div>
 
                 <div className="bg-muted/50 mt-4 rounded-lg p-3">
@@ -420,6 +321,14 @@ export default function ConfiguracoesPlanoPage() {
                   <div className="mt-2 flex items-center gap-2 text-sm">
                     <Check className="text-primary size-4" />
                     <span>Suporte técnico incluso</span>
+                  </div>
+                  <div className="mt-2 flex items-center gap-2 text-sm">
+                    <Check className="text-primary size-4" />
+                    <span>Backup automático</span>
+                  </div>
+                  <div className="mt-2 flex items-center gap-2 text-sm">
+                    <Check className="text-primary size-4" />
+                    <span>Usuários ilimitados</span>
                   </div>
                 </div>
               </CardContent>

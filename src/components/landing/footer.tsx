@@ -13,7 +13,9 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
           <div className="lg:col-span-2">
-            <div className="text-foreground text-xl font-bold">OpenBaaS</div>
+            <div className="text-foreground text-xl font-bold">
+              OpenBusiness
+            </div>
             <p className="text-muted-foreground mt-3 max-w-xs text-sm leading-relaxed">
               A plataforma completa para gerenciar seu negócio. Sistemas prontos
               para clínicas, salões, restaurantes e muito mais.
@@ -45,7 +47,7 @@ export function Footer() {
 
         <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
           <p className="text-muted-foreground text-xs">
-            &copy; {new Date().getFullYear()} OpenBaaS. Todos os direitos
+            &copy; {new Date().getFullYear()} OpenBusiness. Todos os direitos
             reservados.
           </p>
           <p className="text-muted-foreground text-xs">

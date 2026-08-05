@@ -12,14 +12,15 @@ import { Check, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 const features = [
-  "Módulos sob demanda",
-  "Usuários ilimitados",
-  "Suporte prioritário",
-  "Backup diário",
-  "Relatórios avançados",
+  "Agenda inteligente",
+  "CRM e gestão de clientes",
+  "Financeiro completo",
   "WhatsApp integrado",
-  "App mobile incluso",
-  "Cancele quando quiser",
+  "Relatórios básicos",
+  "Backup automático",
+  "Usuários ilimitados",
+  "Suporte técnico incluso",
+  "App mobile ou PWA",
 ];
 
 export function Pricing() {
@@ -31,10 +32,11 @@ export function Pricing() {
             Planos e preços
           </Badge>
           <h2 className="text-foreground text-3xl font-bold tracking-tight sm:text-4xl">
-            Invista na gestão do seu negócio
+            Menos faltas, mais clientes, mais lucro
           </h2>
           <p className="text-muted-foreground mt-4 text-lg">
-            Um plano flexível que cresce com o seu negócio.
+            Um plano que resolve problemas reais do seu negócio. Cancele quando
+            quiser.
           </p>
         </div>
 
@@ -45,22 +47,22 @@ export function Pricing() {
             </div>
 
             <CardHeader className="text-center">
-              <CardTitle className="text-xl">OpenBaaS</CardTitle>
+              <CardTitle className="text-xl">OpenBusiness</CardTitle>
               <CardDescription>
-                Escolha apenas os módulos que precisa
+                Tudo que seu negócio precisa em um só lugar
               </CardDescription>
               <div className="mt-4">
                 <span className="text-muted-foreground text-sm line-through">
-                  R$ 1.489,90
+                  R$ 997
                 </span>
                 <div className="flex items-baseline justify-center gap-1">
                   <span className="text-foreground text-5xl font-bold">
-                    R$ 397
+                    R$ 497
                   </span>
                   <span className="text-muted-foreground">/mês</span>
                 </div>
                 <p className="text-muted-foreground mt-2 text-sm">
-                  Valor com 3 módulos inclusos
+                  3 módulos inclusos. Adicione mais conforme necessidade.
                 </p>
               </div>
             </CardHeader>

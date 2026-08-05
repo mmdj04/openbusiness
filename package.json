@@ -2,7 +2,7 @@
   "name": "openbaas",
   "version": "0.1.0",
   "private": true,
-  "description": "OpenBaaS - Open Source Backend as a Service",
+  "description": "OpenBusiness - Plataforma de gestão para pequenos negócios",
   "license": "MIT",
   "scripts": {
     "dev": "next dev",

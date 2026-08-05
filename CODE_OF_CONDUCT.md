@@ -1,4 +1,4 @@
-# Código de Conduta do OpenBaaS
+# Código de Conduta do OpenBusiness
 
 ## Nosso Compromisso
 

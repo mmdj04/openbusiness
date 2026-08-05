@@ -1,11 +1,11 @@
-# Como Contribuir com o OpenBaaS
+# Como Contribuir com o OpenBusiness
 
-Obrigado por estar interessado em contribuir com o OpenBaaS! Toda contribuição é bem-vinda.
+Obrigado por estar interessado em contribuir com o OpenBusiness! Toda contribuição é bem-vinda.
 
 ## Como Começar
 
 1. Faça um fork do repositório
-2. Clone o fork: `git clone https://github.com/mmdj04/openbaas.git`
+2. Clone o fork: `git clone https://github.com/mmdj04/openbusiness.git`
 3. Crie uma branch para sua feature: `git checkout -b feature/nome-da-feature`
 4. Instale as dependências: `npm install`
 5. Rode o desenvolvimento: `npm run dev`
@@ -21,8 +21,6 @@ npm run lint         # Verificar lint
 npm run lint:fix     # Corrigir lint automaticamente
 npm run format       # Formatar código com Prettier
 npm run typecheck    # Verificar tipos TypeScript
-npm run test         # Rodar testes unitários
-npm run test:e2e     # Rodar testes E2E
 npm run validate     # Rodar todas as verificações
 ```
 
@@ -73,4 +71,4 @@ Leia nosso [Código de Conduta](CODE_OF_CONDUCT.md) antes de contribuir.
 
 ## Perguntas?
 
-Abra uma [Discussion](https://github.com/mmdj04/openbaas/discussions) no GitHub.
+Abra uma [Discussion](https://github.com/mmdj04/openbusiness/discussions) no GitHub.

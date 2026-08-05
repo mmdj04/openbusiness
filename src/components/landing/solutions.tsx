@@ -26,122 +26,122 @@ const solutions = [
   {
     icon: Stethoscope,
     title: "Clínicas médicas",
-    modules: ["Agenda", "Prontuário", "WhatsApp", "Financeiro"],
-    price: "R$ 500–900",
+    benefit: "Menos faltas, mais pacientes atendidos",
+    price: "R$ 497–900",
   },
   {
     icon: Smile,
     title: "Clínicas odontológicas",
-    modules: ["Agenda", "Ficha do paciente", "Lembretes"],
-    price: "R$ 500–900",
+    benefit: "Agenda lotada e pacientes felizes",
+    price: "R$ 497–900",
   },
   {
     icon: Scissors,
     title: "Salões de beleza",
-    modules: ["Agendamento", "Fidelidade", "Caixa"],
-    price: "R$ 500",
+    benefit: "Fila de espera e fidelidade automática",
+    price: "R$ 497–700",
   },
   {
     icon: Scissors,
     title: "Barbearias",
-    modules: ["Agendamento", "Assinaturas", "Caixa"],
-    price: "R$ 500",
+    benefit: "Assinaturas recorrentes e agenda cheia",
+    price: "R$ 497–700",
   },
   {
     icon: Dumbbell,
     title: "Academias",
-    modules: ["Controle de alunos", "Pagamentos"],
-    price: "R$ 500",
+    benefit: "Controle total de alunos e pagamentos",
+    price: "R$ 497–700",
   },
   {
     icon: PawPrint,
     title: "Pet shops",
-    modules: ["Agendamento banho/tosa", "Cadastro de pets"],
-    price: "R$ 500",
+    benefit: "Agendamentos organizados e clientes fiéis",
+    price: "R$ 497–700",
   },
   {
     icon: Car,
     title: "Autoescolas",
-    modules: ["Agenda de aulas", "Controle de alunos"],
-    price: "R$ 500",
+    benefit: "Horários otimizados e alunos satisfeitos",
+    price: "R$ 497–700",
   },
   {
     icon: Wrench,
     title: "Oficinas mecânicas",
-    modules: ["Ordens de serviço", "Estoque", "Orçamento"],
-    price: "R$ 500",
+    benefit: "Ordens de serviço sem papel e estoque controlado",
+    price: "R$ 497–900",
   },
   {
     icon: ShoppingBag,
     title: "Autopeças",
-    modules: ["Estoque", "Vendas", "Orçamento"],
-    price: "R$ 500",
+    benefit: "Estoque correto e vendas organizadas",
+    price: "R$ 497–700",
   },
   {
     icon: UtensilsCrossed,
     title: "Restaurantes",
-    modules: ["Pedidos", "Mesas", "Financeiro"],
-    price: "R$ 500",
+    benefit: "Pedidos sem erro e caixa organizado",
+    price: "R$ 497–900",
   },
   {
     icon: Pizza,
     title: "Pizzarias",
-    modules: ["Pedidos", "Entrega", "Clientes"],
-    price: "R$ 500",
+    benefit: "Delivery rápido e clientes repetem",
+    price: "R$ 497–700",
   },
   {
     icon: Coffee,
     title: "Lanchonetes",
-    modules: ["Delivery próprio", "Painel de pedidos"],
-    price: "R$ 500",
+    benefit: "Delivery próprio e pedidos organizados",
+    price: "R$ 497–700",
   },
   {
     icon: Pill,
     title: "Farmácias",
-    modules: ["Estoque", "Vendas", "Clientes"],
-    price: "R$ 500",
+    benefit: "Estoque sempre disponível e vendas rastreadas",
+    price: "R$ 497–700",
   },
   {
     icon: Glasses,
     title: "Óticas",
-    modules: ["Cadastro de clientes", "Receitas", "Vendas"],
-    price: "R$ 500",
+    benefit: "Clientes cadastrados e vendas aumentam",
+    price: "R$ 497–700",
   },
   {
     icon: Shirt,
     title: "Lojas de roupas",
-    modules: ["Estoque", "Vendas", "Catálogo"],
-    price: "R$ 500",
+    benefit: "Estoque organizado e vendas crescem",
+    price: "R$ 497–700",
   },
   {
     icon: BookOpen,
     title: "Papelarias",
-    modules: ["Estoque", "PDV"],
-    price: "R$ 500",
+    benefit: "Estoque correto e PDV ágil",
+    price: "R$ 497–700",
   },
   {
     icon: Building,
     title: "Material de construção",
-    modules: ["Orçamentos", "Estoque", "Entregas"],
-    price: "R$ 500",
+    benefit: "Orçamentos rápidos e entregas no prazo",
+    price: "R$ 497–900",
   },
   {
     icon: Home,
     title: "Imobiliárias",
-    modules: ["CRM", "Imóveis", "Visitas"],
-    price: "R$ 500–1.000",
+    benefit: "Mais visitas agendadas e negócios fechados",
+    price: "R$ 497–1.000",
   },
   {
     icon: Scale,
     title: "Escritórios de advocacia",
-    modules: ["Processos", "Agenda", "Documentos"],
-    price: "R$ 500",
+    benefit: "Processos organizados e prazos em dia",
+    price: "R$ 497–900",
   },
   {
     icon: Calculator,
     title: "Contabilidades",
-    modules: ["Gestão de clientes", "Documentos", "Vencimentos"],
-    price: "R$ 500",
+    benefit: "Vencimentos controlados e clientes satisfeitos",
+    price: "R$ 497–700",
   },
 ];
 
@@ -154,11 +154,11 @@ export function Solutions() {
             Soluções por segmento
           </Badge>
           <h2 className="text-foreground text-3xl font-bold tracking-tight sm:text-4xl">
-            Um sistema para cada tipo de negócio
+            Cada negócio resolve problemas diferentes
           </h2>
           <p className="text-muted-foreground mt-4 text-lg">
-            Escolha a solução ideal para o seu segmento. Cada sistema vem com os
-            módulos necessários para o seu dia a dia.
+            Não vendemos módulos. Entregamos resultados que fazem seu negócio
+            crescer.
           </p>
         </div>
 
@@ -175,15 +175,11 @@ export function Solutions() {
                 <CardTitle className="text-base">{solution.title}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="flex flex-wrap gap-1.5">
-                  {solution.modules.map((mod) => (
-                    <Badge key={mod} variant="secondary" className="text-xs">
-                      {mod}
-                    </Badge>
-                  ))}
-                </div>
+                <p className="text-muted-foreground text-sm">
+                  {solution.benefit}
+                </p>
                 <div className="text-primary text-sm font-semibold">
-                  {solution.price}/mês
+                  A partir de {solution.price}/mês
                 </div>
               </CardContent>
             </Card>

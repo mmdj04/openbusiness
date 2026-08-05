@@ -9,18 +9,18 @@ export function Hero() {
         <div className="mx-auto max-w-3xl text-center">
           <Badge variant="secondary" className="mb-6 gap-1.5 px-4 py-1.5">
             <Zap className="size-3.5" />
-            Plataforma completa para seu negócio
+            Gestão completa para seu negócio
           </Badge>
 
           <h1 className="text-foreground text-4xl font-bold tracking-tight sm:text-6xl lg:text-7xl">
-            Gestão do seu negócio{" "}
-            <span className="text-primary">simples e poderosa</span>
+            Menos faltas, menos erros,{" "}
+            <span className="text-primary">mais lucro</span>
           </h1>
 
           <p className="text-muted-foreground mt-6 text-lg leading-8 sm:text-xl">
-            Sistemas prontos para clínicas, salões, restaurantes, academias e
-            muito mais. Ative apenas os módulos que precisa. Sem complicação,
-            sem mensalidades escondidas.
+            Agenda inteligente, WhatsApp automático, financeiro organizado e
+            muito mais. Tudo em um só lugar para clínicas, salões, restaurantes
+            e qualquer negócio.
           </p>
 
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
@@ -53,7 +53,7 @@ export function Hero() {
             </div>
             <div className="flex items-center gap-2">
               <Check className="text-primary size-4" />
-              Suporte incluso
+              Suporte técnico incluso
             </div>
             <div className="flex items-center gap-2">
               <Check className="text-primary size-4" />

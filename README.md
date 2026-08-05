@@ -1,11 +1,11 @@
 <div align="center">
 
-# OpenBaaS
+# OpenBusiness
 
-**Open Source Backend as a Service**
+**Gestão completa para pequenos negócios**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![CI](https://github.com/mmdj04/openbaas/actions/workflows/ci.yml/badge.svg)](https://github.com/mmdj04/openbaas/actions)
+[![CI](https://github.com/mmdj04/openbusiness/actions/workflows/ci.yml/badge.svg)](https://github.com/mmdj04/openbusiness/actions)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Commit Convention](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
@@ -13,9 +13,9 @@
 
 ---
 
-## Sobre o OpenBaaS
+## Sobre o OpenBusiness
 
-O OpenBaaS é uma plataforma open-source de Backend as a Service construída com tecnologias modernas. Fornece uma API completa para autenticação, gerenciamento de dados e muito mais.
+O OpenBusiness é uma plataforma de gestão para pequenos negócios construída com tecnologias modernas. Resolve problemas reais como faltas, erros e falta de organização.
 
 ## Stack Tecnológica
 
@@ -26,26 +26,20 @@ O OpenBaaS é uma plataforma open-source de Backend as a Service construída com
 | [Tailwind CSS 4](https://tailwindcss.com/)    | Utility-first CSS                |
 | [shadcn/ui](https://ui.shadcn.com/)           | Componentes UI acessíveis        |
 | [Recharts](https://recharts.org/)             | Biblioteca de gráficos           |
-| [Zustand](https://zustand-demo.pmnd.rs/)      | Gerenciamento de estado          |
-| [Axios](https://axios-http.com/)              | Cliente HTTP                     |
-| [date-fns](https://date-fns.org/)             | Utilitários de data              |
 | [Geist](https://github.com/vercel/geist-font) | Fonte tipográfica local (woff2)  |
 
 ## Funcionalidades
 
-- Autenticação completa (Login, Registro, Recuperação de Senha)
-- CRUD de recursos
-- API RESTful
-- Testes unitários e E2E
-- CI/CD com GitHub Actions (gratuito)
-- Deploy automático na Vercel
-- Design responsivo
-- Tema claro/escuro
-- Acessibilidade (WCAG 2.1)
-- 59 componentes shadcn/ui
-- 27 blocks (dashboard, sidebar, login, signup)
-- Gráficos (Area, Bar, Line, Pie, Radar, Radial)
-- Skills shadcn/ui para assistentes de IA
+- Agenda inteligente com lembretes
+- CRM e gestão de clientes
+- Financeiro completo
+- WhatsApp integrado
+- Relatórios e dashboards
+- Backup automático
+- Usuários ilimitados
+- Suporte técnico incluso
+- App mobile ou PWA
+- Módulos adicionais sob demanda
 
 ## Pré-requisitos
 
@@ -56,10 +50,10 @@ O OpenBaaS é uma plataforma open-source de Backend as a Service construída com
 
 ```bash
 # Clone o repositório
-git clone https://github.com/mmdj04/openbaas.git
+git clone https://github.com/mmdj04/openbusiness.git
 
 # Entre na pasta do projeto
-cd openbaas
+cd openbusiness
 
 # Instale as dependências
 npm install
@@ -81,14 +75,12 @@ Acesse [http://localhost:3000](http://localhost:3000)
 | `npm run lint:fix`  | Corrigir lint               |
 | `npm run format`    | Formatar com Prettier       |
 | `npm run typecheck` | Verificar tipos             |
-| `npm run test`      | Testes unitários            |
-| `npm run test:e2e`  | Testes E2E                  |
 | `npm run validate`  | Rodar todas as verificações |
 
 ## Estrutura do Projeto
 
 ```
-openbaas/
+openbusiness/
 ├── .agents/
 │   └── skills/           # Skills shadcn/ui para IA
 ├── .github/
