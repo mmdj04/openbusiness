@@ -403,72 +403,75 @@ export default function DemonstracaoPage() {
       </aside>
 
       <main className="ml-64 flex-1 overflow-auto">
-        <header className="bg-card border-border flex items-center justify-between border-b p-4">
-          <div>
-            <h1 className="text-xl font-semibold">
-              {currentModule === "dashboard" && "Painel de Controle"}
-              {currentModule === "agenda" && "Agenda"}
-              {currentModule === "clientes" && "Clientes"}
-              {currentModule === "financeiro" && "Financeiro"}
-              {currentModule === "relatorios" && "Relatórios"}
-            </h1>
-            <p className="text-muted-foreground text-sm">
-              {new Date().toLocaleDateString("pt-BR", {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-            </p>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <span className="text-muted-foreground text-sm">Segmento:</span>
-              <select
-                value={selectedSegment}
-                onChange={(e) => handleSegmentChange(e.target.value as Segment)}
-                className="bg-muted rounded-lg border px-3 py-1.5 text-sm"
-              >
-                {segmentConfigs.map((seg) => (
-                  <option key={seg.id} value={seg.id}>
-                    {seg.name}
-                  </option>
-                ))}
-              </select>
+        <header className="bg-card border-border border-b">
+          <div className="flex items-center justify-between p-4">
+            <div>
+              <h1 className="text-xl font-semibold">
+                {currentModule === "dashboard" && "Painel de Controle"}
+                {currentModule === "agenda" && "Agenda"}
+                {currentModule === "clientes" && "Clientes"}
+                {currentModule === "financeiro" && "Financeiro"}
+                {currentModule === "relatorios" && "Relatórios"}
+              </h1>
+              <p className="text-muted-foreground text-sm">
+                {new Date().toLocaleDateString("pt-BR", {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </p>
             </div>
-            <Separator orientation="vertical" className="h-6" />
-            <div className="flex items-center gap-2">
-              <span className="text-muted-foreground text-sm">Módulos:</span>
-              <div className="flex gap-1">
-                {availableModules.map((mod) => (
-                  <Button
-                    key={mod.id}
-                    variant={
-                      enabledModules.includes(mod.id) ? "default" : "outline"
-                    }
-                    size="sm"
-                    onClick={() => toggleModule(mod.id)}
-                    className="h-7 px-2 text-xs"
-                  >
-                    {mod.label}
-                  </Button>
-                ))}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground text-xs">Segmento:</span>
+                <select
+                  value={selectedSegment}
+                  onChange={(e) =>
+                    handleSegmentChange(e.target.value as Segment)
+                  }
+                  className="bg-muted rounded border px-2 py-1 text-sm"
+                >
+                  {segmentConfigs.map((seg) => (
+                    <option key={seg.id} value={seg.id}>
+                      {seg.name}
+                    </option>
+                  ))}
+                </select>
               </div>
+              <Separator orientation="vertical" className="h-6" />
+              <div className="relative">
+                <Search className="text-muted-foreground absolute top-1/2 left-2 size-3.5 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Buscar..."
+                  className="bg-muted rounded border py-1.5 pr-3 pl-8 text-sm"
+                />
+              </div>
+              <Link href="/demonstracao">
+                <Button variant="outline" size="sm">
+                  Sair da Demo
+                </Button>
+              </Link>
             </div>
-            <Separator orientation="vertical" className="h-6" />
-            <div className="relative">
-              <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder="Buscar..."
-                className="bg-muted focus:ring-primary/20 rounded-lg py-2 pr-4 pl-9 text-sm outline-none focus:ring-2"
-              />
+          </div>
+          <div className="flex items-center gap-2 border-t px-4 py-2">
+            <span className="text-muted-foreground text-xs">Módulos:</span>
+            <div className="flex flex-wrap gap-1">
+              {availableModules.map((mod) => (
+                <Button
+                  key={mod.id}
+                  variant={
+                    enabledModules.includes(mod.id) ? "default" : "outline"
+                  }
+                  size="sm"
+                  onClick={() => toggleModule(mod.id)}
+                  className="h-6 px-2 text-xs"
+                >
+                  {mod.label}
+                </Button>
+              ))}
             </div>
-            <Link href="/demonstracao">
-              <Button variant="outline" size="sm">
-                Sair da Demo
-              </Button>
-            </Link>
           </div>
         </header>
 
