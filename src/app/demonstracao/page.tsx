@@ -402,9 +402,9 @@ export default function DemonstracaoPage() {
         </div>
       </aside>
 
-      <main className="ml-64 flex-1 overflow-auto">
+      <main className="ml-64 flex-1 overflow-hidden">
         <header className="bg-card border-border border-b">
-          <div className="flex items-center justify-between gap-4 p-4">
+          <div className="flex flex-wrap items-center gap-3 p-4">
             <div className="min-w-0 shrink-0">
               <h1 className="text-xl font-semibold">
                 {currentModule === "dashboard" && "Painel de Controle"}
@@ -413,50 +413,49 @@ export default function DemonstracaoPage() {
                 {currentModule === "financeiro" && "Financeiro"}
                 {currentModule === "relatorios" && "Relatórios"}
               </h1>
-              <p className="text-muted-foreground text-sm">
+              <p className="text-muted-foreground text-xs">
                 {new Date().toLocaleDateString("pt-BR", {
-                  weekday: "long",
+                  weekday: "short",
+                  day: "2-digit",
+                  month: "short",
                   year: "numeric",
-                  month: "long",
-                  day: "numeric",
                 })}
               </p>
             </div>
-            <div className="flex flex-1 items-center justify-end gap-3">
-              <div className="flex items-center gap-2">
-                <span className="text-muted-foreground text-xs whitespace-nowrap">
-                  Segmento:
-                </span>
-                <select
-                  value={selectedSegment}
-                  onChange={(e) =>
-                    handleSegmentChange(e.target.value as Segment)
-                  }
-                  className="bg-muted rounded border px-2 py-1 text-sm"
-                >
-                  {segmentConfigs.map((seg) => (
-                    <option key={seg.id} value={seg.id}>
-                      {seg.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="relative">
-                <Search className="text-muted-foreground absolute top-1/2 left-2 size-3.5 -translate-y-1/2" />
-                <input
-                  type="text"
-                  placeholder="Buscar..."
-                  className="bg-muted rounded border py-1.5 pr-3 pl-8 text-sm"
-                />
-              </div>
-              <Link href="/demonstracao">
-                <Button variant="outline" size="sm">
-                  Sair da Demo
-                </Button>
-              </Link>
+
+            <div className="bg-border h-6 w-px" />
+
+            <select
+              value={selectedSegment}
+              onChange={(e) => handleSegmentChange(e.target.value as Segment)}
+              className="bg-muted rounded border px-2 py-1 text-sm"
+            >
+              {segmentConfigs.map((seg) => (
+                <option key={seg.id} value={seg.id}>
+                  {seg.name}
+                </option>
+              ))}
+            </select>
+
+            <div className="bg-border h-6 w-px" />
+
+            <div className="relative">
+              <Search className="text-muted-foreground absolute top-1/2 left-2 size-3.5 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Buscar..."
+                className="bg-muted w-32 rounded border py-1.5 pr-2 pl-7 text-sm"
+              />
             </div>
+
+            <Link href="/demonstracao">
+              <Button variant="outline" size="sm" className="shrink-0">
+                Sair da Demo
+              </Button>
+            </Link>
           </div>
-          <div className="flex items-center gap-2 border-t px-4 py-2">
+
+          <div className="flex flex-wrap items-center gap-2 border-t px-4 py-2">
             <span className="text-muted-foreground text-xs">Módulos:</span>
             <div className="flex flex-wrap gap-1">
               {availableModules.map((mod) => (
@@ -476,7 +475,7 @@ export default function DemonstracaoPage() {
           </div>
         </header>
 
-        <div className="p-6">
+        <div className="flex-1 overflow-auto p-6">
           {currentModule === "dashboard" && <DashboardModule />}
           {currentModule === "agenda" && (
             <AgendaModule
