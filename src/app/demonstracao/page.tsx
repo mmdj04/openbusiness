@@ -404,8 +404,8 @@ export default function DemonstracaoPage() {
 
       <main className="ml-64 flex-1 overflow-auto">
         <header className="bg-card border-border border-b">
-          <div className="flex items-center justify-between p-4">
-            <div>
+          <div className="flex items-center justify-between gap-4 p-4">
+            <div className="min-w-0 shrink-0">
               <h1 className="text-xl font-semibold">
                 {currentModule === "dashboard" && "Painel de Controle"}
                 {currentModule === "agenda" && "Agenda"}
@@ -422,9 +422,11 @@ export default function DemonstracaoPage() {
                 })}
               </p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-1 items-center justify-end gap-3">
               <div className="flex items-center gap-2">
-                <span className="text-muted-foreground text-xs">Segmento:</span>
+                <span className="text-muted-foreground text-xs whitespace-nowrap">
+                  Segmento:
+                </span>
                 <select
                   value={selectedSegment}
                   onChange={(e) =>
@@ -439,7 +441,6 @@ export default function DemonstracaoPage() {
                   ))}
                 </select>
               </div>
-              <Separator orientation="vertical" className="h-6" />
               <div className="relative">
                 <Search className="text-muted-foreground absolute top-1/2 left-2 size-3.5 -translate-y-1/2" />
                 <input
