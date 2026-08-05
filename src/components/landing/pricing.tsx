@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Check } from "lucide-react";
+import Link from "next/link";
 
 const plans = [
   {
@@ -122,13 +123,15 @@ export function Pricing() {
               </CardContent>
 
               <CardFooter>
-                <Button
-                  className="w-full"
-                  variant={plan.highlight ? "default" : "outline"}
-                  size="lg"
-                >
-                  {plan.cta}
-                </Button>
+                <Link href="/configuracoes-plano" className="w-full">
+                  <Button
+                    className="w-full"
+                    variant={plan.highlight ? "default" : "outline"}
+                    size="lg"
+                  >
+                    {plan.cta}
+                  </Button>
+                </Link>
               </CardFooter>
             </Card>
           ))}
