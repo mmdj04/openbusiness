@@ -39,6 +39,47 @@ import Link from "next/link";
 
 type Module = "dashboard" | "agenda" | "clientes" | "financeiro" | "relatorios";
 
+type Segment = "clinica" | "salao" | "restaurante" | "personalizado";
+
+interface SegmentConfig {
+  id: Segment;
+  name: string;
+  modules: Module[];
+  businessName: string;
+  businessType: string;
+}
+
+const segmentConfigs: SegmentConfig[] = [
+  {
+    id: "clinica",
+    name: "Clínica Médica",
+    modules: ["dashboard", "agenda", "clientes", "financeiro", "relatorios"],
+    businessName: "Clínica Saúde+",
+    businessType: "Clínica Médica",
+  },
+  {
+    id: "salao",
+    name: "Salão de Beleza",
+    modules: ["dashboard", "agenda", "clientes", "financeiro"],
+    businessName: "Studio Beleza",
+    businessType: "Salão de Beleza",
+  },
+  {
+    id: "restaurante",
+    name: "Restaurante",
+    modules: ["dashboard", "clientes", "financeiro", "relatorios"],
+    businessName: "Sabor & Arte",
+    businessType: "Restaurante",
+  },
+  {
+    id: "personalizado",
+    name: "Personalizado",
+    modules: ["dashboard", "agenda", "clientes", "financeiro", "relatorios"],
+    businessName: "Meu Negócio",
+    businessType: "Personalizado",
+  },
+];
+
 const clients = [
   {
     id: 1,
@@ -259,6 +300,44 @@ const weeklyData = [
 export default function DemonstracaoPage() {
   const [currentModule, setCurrentModule] = useState<Module>("dashboard");
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedSegment, setSelectedSegment] = useState<Segment>("clinica");
+  const [enabledModules, setEnabledModules] = useState<Module[]>([
+    "dashboard",
+    "agenda",
+    "clientes",
+    "financeiro",
+    "relatorios",
+  ]);
+
+  const currentSegment = segmentConfigs.find((s) => s.id === selectedSegment);
+
+  const toggleModule = (module: Module) => {
+    setEnabledModules((prev) =>
+      prev.includes(module)
+        ? prev.filter((m) => m !== module)
+        : [...prev, module],
+    );
+  };
+
+  const handleSegmentChange = (segment: Segment) => {
+    setSelectedSegment(segment);
+    const config = segmentConfigs.find((s) => s.id === segment);
+    if (config) {
+      setEnabledModules(config.modules);
+    }
+  };
+
+  const availableModules: {
+    id: Module;
+    label: string;
+    icon: React.ElementType;
+  }[] = [
+    { id: "dashboard", label: "Painel", icon: BarChart3 },
+    { id: "agenda", label: "Agenda", icon: Calendar },
+    { id: "clientes", label: "Clientes", icon: Users },
+    { id: "financeiro", label: "Financeiro", icon: CreditCard },
+    { id: "relatorios", label: "Relatórios", icon: FileText },
+  ];
 
   const maxRevenue = Math.max(...weeklyData.map((d) => d.revenue));
 
@@ -268,36 +347,28 @@ export default function DemonstracaoPage() {
         <div className="border-border flex items-center gap-2 border-b p-4">
           <Stethoscope className="text-primary size-6" />
           <div>
-            <p className="font-semibold">Clínica Saúde+</p>
+            <p className="font-semibold">{currentSegment?.businessName}</p>
             <p className="text-muted-foreground text-xs">Nova Iguaçu, RJ</p>
           </div>
         </div>
 
         <nav className="flex-1 space-y-1 p-3">
-          {[
-            { id: "dashboard" as Module, label: "Painel", icon: BarChart3 },
-            { id: "agenda" as Module, label: "Agenda", icon: Calendar },
-            { id: "clientes" as Module, label: "Clientes", icon: Users },
-            {
-              id: "financeiro" as Module,
-              label: "Financeiro",
-              icon: CreditCard,
-            },
-            { id: "relatorios" as Module, label: "Relatórios", icon: FileText },
-          ].map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setCurrentModule(item.id)}
-              className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
-                currentModule === item.id
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              }`}
-            >
-              <item.icon className="size-4" />
-              {item.label}
-            </button>
-          ))}
+          {availableModules
+            .filter((item) => enabledModules.includes(item.id))
+            .map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setCurrentModule(item.id)}
+                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
+                  currentModule === item.id
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                <item.icon className="size-4" />
+                {item.label}
+              </button>
+            ))}
         </nav>
 
         <div className="border-border space-y-2 border-t p-3">
@@ -350,7 +421,41 @@ export default function DemonstracaoPage() {
               })}
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground text-sm">Segmento:</span>
+              <select
+                value={selectedSegment}
+                onChange={(e) => handleSegmentChange(e.target.value as Segment)}
+                className="bg-muted rounded-lg border px-3 py-1.5 text-sm"
+              >
+                {segmentConfigs.map((seg) => (
+                  <option key={seg.id} value={seg.id}>
+                    {seg.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <Separator orientation="vertical" className="h-6" />
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground text-sm">Módulos:</span>
+              <div className="flex gap-1">
+                {availableModules.map((mod) => (
+                  <Button
+                    key={mod.id}
+                    variant={
+                      enabledModules.includes(mod.id) ? "default" : "outline"
+                    }
+                    size="sm"
+                    onClick={() => toggleModule(mod.id)}
+                    className="h-7 px-2 text-xs"
+                  >
+                    {mod.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+            <Separator orientation="vertical" className="h-6" />
             <div className="relative">
               <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
               <input
