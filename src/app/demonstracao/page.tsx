@@ -2155,7 +2155,7 @@ function DashboardModule({
             <CardTitle>Faturamento semanal</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex h-48 items-end gap-2">
+            <div className="flex h-52 items-end gap-2">
               {weeklyData.map((d) => (
                 <div
                   key={d.day}
@@ -2166,7 +2166,7 @@ function DashboardModule({
                   </span>
                   <div
                     className="w-full rounded-t bg-emerald-500"
-                    style={{ height: `${(d.revenue / maxRevenue) * 192}px` }}
+                    style={{ height: `${(d.revenue / maxRevenue) * 140}px` }}
                   />
                   <span className="text-muted-foreground text-xs">{d.day}</span>
                 </div>
@@ -3507,7 +3507,7 @@ function RelatoriosModule({
           <CardTitle>Faturamento semanal</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex h-48 items-end gap-2">
+          <div className="flex h-52 items-end gap-2">
             {weeklyData.map((d) => (
               <div
                 key={d.day}
@@ -3518,7 +3518,7 @@ function RelatoriosModule({
                 </span>
                 <div
                   className="w-full rounded-t bg-emerald-500"
-                  style={{ height: `${(d.revenue / maxRevenue) * 192}px` }}
+                  style={{ height: `${(d.revenue / maxRevenue) * 140}px` }}
                 />
                 <span className="text-muted-foreground text-xs">{d.day}</span>
               </div>
