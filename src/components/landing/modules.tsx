@@ -16,8 +16,6 @@ import {
   Globe,
   Repeat,
   Headphones,
-  Zap,
-  Target,
 } from "lucide-react";
 
 const modules = [
