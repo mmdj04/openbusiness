@@ -11,15 +11,46 @@ import {
 import { Check, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
-const features = [
-  "Agenda inteligente com lembretes",
-  "CRM e gestão de clientes",
-  "Financeiro completo",
-  "WhatsApp integrado",
-  "Relatórios básicos",
-  "Backup automático",
-  "Usuários ilimitados",
-  "Suporte técnico incluso",
+const plans = [
+  {
+    name: "Clinico",
+    price: "297",
+    description: "Tudo que sua clínica precisa para começar",
+    features: [
+      "Agenda inteligente com lembretes",
+      "CRM e gestão de clientes",
+      "Financeiro completo",
+      "Relatórios básicos",
+      "Backup automático",
+      "Suporte técnico incluso",
+    ],
+    popular: false,
+  },
+  {
+    name: "Clinico Plus",
+    price: "497",
+    description: "Automação e inteligência para crescer mais",
+    features: [
+      "Tudo do plano Clinico",
+      "WhatsApp automatizado",
+      "IA no prontuário",
+      "Teleconsulta",
+    ],
+    popular: true,
+  },
+  {
+    name: "Multi-Profissional",
+    price: "797",
+    description: "Para clínicas com múltiplos profissionais e convênios",
+    features: [
+      "Tudo do plano Clinico Plus",
+      "Multi-profissional",
+      "Convênios",
+      "Portal do paciente",
+      "Prioridade no suporte",
+    ],
+    popular: false,
+  },
 ];
 
 export function Pricing() {
@@ -39,49 +70,58 @@ export function Pricing() {
           </p>
         </div>
 
-        <div className="mx-auto mt-16 max-w-lg">
-          <Card className="border-primary ring-primary/20 overflow-visible shadow-lg ring-1">
-            <CardHeader className="text-center">
-              <CardTitle className="text-xl">OpenBusiness</CardTitle>
-              <CardDescription>
-                Monte seu plano ideal em poucos passos
-              </CardDescription>
-              <div className="mt-4">
-                <div className="flex items-baseline justify-center gap-1">
-                  <span className="text-foreground text-5xl font-bold">
-                    Monte seu plano
-                  </span>
-                </div>
-                <p className="text-muted-foreground mt-3 text-sm">
-                  Preço calculado pelo uso real do seu negócio.
-                  <br />
-                  Responda poucas perguntas e descubra seu valor.
-                </p>
-              </div>
-            </CardHeader>
-
-            <CardContent className="flex-1">
-              <ul className="space-y-3">
-                {features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-2">
-                    <Check className="text-primary mt-0.5 size-4 shrink-0" />
-                    <span className="text-muted-foreground text-sm">
-                      {feature}
+        <div className="mx-auto mt-16 grid max-w-5xl gap-6 sm:grid-cols-3">
+          {plans.map((plan) => (
+            <Card
+              key={plan.name}
+              className={`relative flex flex-col overflow-visible ${
+                plan.popular
+                  ? "border-primary ring-primary/20 shadow-lg ring-1"
+                  : ""
+              }`}
+            >
+              {plan.popular && (
+                <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">
+                  Mais popular
+                </Badge>
+              )}
+              <CardHeader className="text-center">
+                <CardTitle className="text-xl">{plan.name}</CardTitle>
+                <CardDescription>{plan.description}</CardDescription>
+                <div className="mt-4">
+                  <div className="flex items-baseline justify-center gap-1">
+                    <span className="text-muted-foreground text-sm">R$</span>
+                    <span className="text-foreground text-4xl font-bold">
+                      {plan.price}
                     </span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
+                    <span className="text-muted-foreground text-sm">/mês</span>
+                  </div>
+                </div>
+              </CardHeader>
 
-            <CardFooter>
-              <Link href="/configuracoes-plano" className="w-full">
-                <Button className="w-full" size="lg">
-                  Configurar meu plano
-                  <ArrowRight className="ml-2 size-4" />
-                </Button>
-              </Link>
-            </CardFooter>
-          </Card>
+              <CardContent className="flex-1">
+                <ul className="space-y-3">
+                  {plan.features.map((feature) => (
+                    <li key={feature} className="flex items-start gap-2">
+                      <Check className="text-primary mt-0.5 size-4 shrink-0" />
+                      <span className="text-muted-foreground text-sm">
+                        {feature}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+
+              <CardFooter>
+                <Link href="/configuracoes-plano" className="w-full">
+                  <Button className="w-full" size="lg">
+                    Começar agora
+                    <ArrowRight className="ml-2 size-4" />
+                  </Button>
+                </Link>
+              </CardFooter>
+            </Card>
+          ))}
         </div>
 
         <p className="text-muted-foreground mt-8 text-center text-sm">

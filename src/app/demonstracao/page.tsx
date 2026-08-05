@@ -38,6 +38,10 @@ import {
   ArrowDownRight,
   Phone,
   Save,
+  Video,
+  FileCheck,
+  Building,
+  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -57,7 +61,10 @@ type ModuleId =
   | "pdv"
   | "odontograma"
   | "lembretes"
-  | "plano-tratamento";
+  | "plano-tratamento"
+  | "teleconsulta"
+  | "documentos"
+  | "convenios";
 
 type SegmentId =
   | "clinica-medica"
@@ -1018,6 +1025,9 @@ export default function DemonstracaoPage() {
     { id: "lembretes", label: "Lembretes", icon: Bell },
     { id: "estoque", label: "Estoque", icon: Package },
     { id: "pdv", label: "PDV", icon: ShoppingCart },
+    { id: "teleconsulta", label: "Teleconsulta", icon: Video },
+    { id: "documentos", label: "Documentos", icon: FileCheck },
+    { id: "convenios", label: "Convenios", icon: Building },
   ];
 
   const maxRevenue = Math.max(...weeklyData.map((d) => d.revenue));
@@ -1090,6 +1100,9 @@ export default function DemonstracaoPage() {
                 {currentModule === "lembretes" && "Lembretes"}
                 {currentModule === "estoque" && "Estoque"}
                 {currentModule === "pdv" && "PDV"}
+                {currentModule === "teleconsulta" && "Teleconsulta"}
+                {currentModule === "documentos" && "Documentos"}
+                {currentModule === "convenios" && "Convenios"}
               </h1>
               <p className="text-muted-foreground text-xs">
                 {new Date().toLocaleDateString("pt-BR", {
@@ -1224,6 +1237,9 @@ export default function DemonstracaoPage() {
               patients={patients}
             />
           )}
+          {currentModule === "teleconsulta" && <TeleconsultaModule />}
+          {currentModule === "documentos" && <DocumentosModule />}
+          {currentModule === "convenios" && <ConveniosModule />}
         </div>
       </main>
     </div>
@@ -2633,8 +2649,61 @@ function ProntuarioModule({
     emergencia: "destructive",
   };
 
+  const todayCount = entries.filter(
+    (e) => e.date === new Date().toISOString().split("T")[0],
+  ).length;
+
   return (
     <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-muted-foreground text-sm">Consultas hoje</p>
+                <p className="text-2xl font-bold">{todayCount}</p>
+              </div>
+              <Sparkles className="size-8 text-violet-500" />
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-muted-foreground text-sm">CID mais usado</p>
+                <p className="text-2xl font-bold">M54.5</p>
+              </div>
+              <Badge className="bg-violet-100 text-violet-800">Top CID</Badge>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-muted-foreground text-sm">
+                  Tempo medio de consulta
+                </p>
+                <p className="text-2xl font-bold">24 min</p>
+              </div>
+              <Clock className="text-muted-foreground size-8" />
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-muted-foreground text-sm">Taxa de retorno</p>
+                <p className="text-2xl font-bold text-green-600">68%</p>
+              </div>
+              <Activity className="text-muted-foreground size-8" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       <div className="flex items-center justify-between">
         <p className="text-muted-foreground text-sm">
           {entries.length} registros
@@ -2751,6 +2820,38 @@ function ProntuarioModule({
                   rows={3}
                   placeholder="Evolucao do paciente..."
                 />
+                <div className="mt-2 flex items-center gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="gap-1"
+                    onClick={() =>
+                      setForm({
+                        ...form,
+                        notes:
+                          "Paciente relata dor de cabeca ha 3 dias, intensidade moderada. Nausea ocasional. Sem febre. Pressao arterial 130/85. Exame fisico normal. Orientado a repouso e hidratacao.",
+                      })
+                    }
+                  >
+                    <Sparkles className="size-3" /> Transcrever consulta por IA
+                  </Button>
+                  <Badge className="bg-violet-100 text-[10px] text-violet-800">
+                    IA
+                  </Badge>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="gap-1"
+                    onClick={() => setForm({ ...form, cid: "R51" })}
+                  >
+                    <Sparkles className="size-3" /> Sugerir CID
+                  </Button>
+                  <Badge className="bg-violet-100 text-[10px] text-violet-800">
+                    IA
+                  </Badge>
+                </div>
               </div>
               <div className="md:col-span-2">
                 <label className="text-sm font-medium">Prescricao</label>
@@ -2826,6 +2927,25 @@ function ProntuarioModule({
                         </p>
                       </div>
                     )}
+                    <div className="mt-3 rounded-lg border border-violet-200 bg-violet-50 p-3">
+                      <div className="mb-1 flex items-center gap-2">
+                        <Sparkles className="size-4 text-violet-600" />
+                        <span className="text-xs font-medium text-violet-800">
+                          Resumo gerado por IA
+                        </span>
+                        <Badge className="ml-auto bg-green-100 text-[10px] text-green-800">
+                          Confianca: 94%
+                        </Badge>
+                      </div>
+                      <p className="text-muted-foreground text-xs">
+                        Paciente apresenta quadro clinico compativel com
+                        cefaleia tensional. Quadro agudo ha 3 dias com
+                        intensidade moderada. Sem sinais de alarme. Exame fisico
+                        sem alteracoes significativas. Conduta adequada:
+                        repouso, hidratacao e analgesia. Retorno em caso de
+                        piora.
+                      </p>
+                    </div>
                   </div>
                   <div className="flex gap-1">
                     <Button
@@ -3889,6 +4009,427 @@ function LembretesModule({
             </Card>
           ))}
       </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Teleconsulta Module
+// ---------------------------------------------------------------------------
+
+function TeleconsultaModule() {
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="space-y-4 lg:col-span-2">
+          <Card className="overflow-hidden">
+            <div className="relative flex h-80 items-center justify-center rounded-xl bg-zinc-900">
+              <Video className="size-16 text-zinc-600" />
+              <p className="absolute bottom-4 left-4 text-sm text-zinc-500">
+                Video da consulta
+              </p>
+              <div className="absolute top-4 right-4">
+                <Badge className="bg-green-500 text-white">AO VIVO</Badge>
+              </div>
+              <div className="absolute right-4 bottom-4 text-right text-white">
+                <p className="text-sm font-medium">Maria Silva</p>
+                <p className="text-xs text-zinc-400">Consulta de retorno</p>
+              </div>
+            </div>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium">Dr. Ricardo - Consulta online</p>
+                  <p className="text-muted-foreground text-sm">
+                    05/08/2026 - 09:00
+                  </p>
+                </div>
+                <p className="text-xl font-bold tabular-nums">00:15:32</p>
+              </div>
+              <div className="mt-4 flex items-center gap-3">
+                <Button variant="outline" size="sm" className="gap-1">
+                  <span className="size-3 rounded-full bg-red-500" /> Mudo
+                </Button>
+                <Button variant="outline" size="sm" className="gap-1">
+                  Camera on
+                </Button>
+                <Button variant="destructive" size="sm" className="gap-1">
+                  <Phone className="size-3" /> Encerrar
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        <div className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">Prontuario da consulta</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="text-sm">
+                <p className="font-medium">Paciente: Maria Silva</p>
+                <p className="text-muted-foreground text-xs">
+                  CPF: 123.456.789-00 | Idade: 41 anos
+                </p>
+              </div>
+              <div className="text-sm">
+                <p className="text-muted-foreground text-xs">
+                  Ultimo retorno: 01/08/2026
+                </p>
+                <p className="text-muted-foreground text-xs">
+                  CID: M54.5 - Dor lombar
+                </p>
+              </div>
+              <div className="border-t pt-3">
+                <p className="mb-1 text-xs font-medium">Notas rapidas</p>
+                <textarea
+                  className="bg-muted w-full rounded border px-2 py-1.5 text-xs"
+                  rows={3}
+                  placeholder="Observacoes durante a consulta..."
+                />
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="mt-2 w-full gap-1"
+                >
+                  <Video className="size-3" /> Iniciar gravacao
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Badge className="bg-green-500 text-white">Conectado</Badge>
+                <Badge className="bg-red-500 text-white">Gravando</Badge>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Documentos Module
+// ---------------------------------------------------------------------------
+
+function DocumentosModule() {
+  const [generatingDoc, setGeneratingDoc] = useState<string | null>(null);
+
+  const documentTypes = [
+    {
+      id: "prescricao",
+      title: "Prescricao Digital",
+      description: "Receita medica com assinatura digital",
+      icon: FileText,
+    },
+    {
+      id: "consentimento",
+      title: "Termo de Consentimento",
+      description: "Termo de ciencia para procedimento",
+      icon: FileCheck,
+    },
+    {
+      id: "atestado",
+      title: "Atestado Medico",
+      description: "Declaracao de saude para afastamento",
+      icon: Stethoscope,
+    },
+    {
+      id: "declaracao",
+      title: "Declaracao",
+      description: "Declaracao de comparecimento ou saude",
+      icon: FileText,
+    },
+  ];
+
+  const generatedDocs = [
+    {
+      id: 1,
+      type: "Prescricao Digital",
+      patient: "Maria Silva",
+      date: "05/08/2026",
+      status: "assinado",
+    },
+    {
+      id: 2,
+      type: "Atestado Medico",
+      patient: "Joao Santos",
+      date: "03/08/2026",
+      status: "assinado",
+    },
+    {
+      id: 3,
+      type: "Termo de Consentimento",
+      patient: "Ana Costa",
+      date: "01/08/2026",
+      status: "assinado",
+    },
+  ];
+
+  return (
+    <div className="space-y-6">
+      {generatingDoc ? (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm">
+                {generatingDoc === "prescricao" && "Prescricao Digital"}
+                {generatingDoc === "consentimento" && "Termo de Consentimento"}
+                {generatingDoc === "atestado" && "Atestado Medico"}
+                {generatingDoc === "declaracao" && "Declaracao"}
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setGeneratingDoc(null)}
+              >
+                <X className="size-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-4 rounded-lg border-2 border-dashed p-6">
+              <div className="flex items-center gap-3 border-b pb-3">
+                <div className="bg-primary/10 flex size-10 items-center justify-center rounded-lg">
+                  <Stethoscope className="text-primary size-5" />
+                </div>
+                <div>
+                  <p className="font-semibold">Clinica Saude+</p>
+                  <p className="text-muted-foreground text-xs">
+                    CNPJ: 12.345.678/0001-00
+                  </p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <p className="text-muted-foreground text-xs">Paciente</p>
+                  <p className="font-medium">Maria Silva</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs">Data</p>
+                  <p className="font-medium">05/08/2026</p>
+                </div>
+              </div>
+              <div className="border-t pt-3">
+                <p className="text-sm">
+                  Ibuprofeno 600mg - 8/8h por 7 dias. Repouso relativo por 3
+                  dias.
+                </p>
+              </div>
+              <div className="border-t pt-3">
+                <div className="bg-muted flex items-center justify-center rounded p-4">
+                  <div className="text-center">
+                    <p className="border-foreground/40 border-b px-8 pb-1 text-sm italic">
+                      Dr. Ricardo A. Medico
+                    </p>
+                    <p className="text-muted-foreground mt-1 text-xs">
+                      Assinado digitalmente
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-2 flex items-center justify-center gap-1 text-green-600">
+                  <CheckCircle2 className="size-3" />
+                  <span className="text-xs font-medium">
+                    Assinatura digital validada
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button size="sm" className="gap-1">
+                <FileText className="size-3" /> Baixar PDF
+              </Button>
+              <Button size="sm" variant="outline" className="gap-1">
+                <Send className="size-3" /> Enviar por WhatsApp
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {documentTypes.map((doc) => (
+              <Card
+                key={doc.id}
+                className="hover:bg-muted/50 cursor-pointer transition-colors"
+                onClick={() => setGeneratingDoc(doc.id)}
+              >
+                <CardContent className="space-y-2 p-4 text-center">
+                  <doc.icon className="text-primary mx-auto size-8" />
+                  <p className="text-sm font-medium">{doc.title}</p>
+                  <p className="text-muted-foreground text-xs">
+                    {doc.description}
+                  </p>
+                  <Button size="sm" className="w-full">
+                    Gerar
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">
+                Documentos gerados recentemente
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {generatedDocs.map((doc) => (
+                  <div
+                    key={doc.id}
+                    className="flex items-center justify-between rounded-lg border p-3"
+                  >
+                    <div className="flex items-center gap-3">
+                      <FileCheck className="text-muted-foreground size-4" />
+                      <div>
+                        <p className="text-sm font-medium">{doc.type}</p>
+                        <p className="text-muted-foreground text-xs">
+                          {doc.patient} - {doc.date}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge variant="secondary" className="text-xs">
+                      Assinado
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Convenios Module
+// ---------------------------------------------------------------------------
+
+function ConveniosModule() {
+  const [showTissForm, setShowTissForm] = useState(false);
+  const [tissGenerated, setTissGenerated] = useState(false);
+
+  const operators = [
+    { name: "Unimed", status: "ativo", avgValue: 280, patients: 145 },
+    { name: "Bradesco Saude", status: "ativo", avgValue: 320, patients: 98 },
+    { name: "SulAmerica", status: "ativo", avgValue: 290, patients: 72 },
+    { name: "Amil", status: "inativo", avgValue: 260, patients: 45 },
+  ];
+
+  const statusColor: Record<string, string> = {
+    ativo: "bg-green-100 text-green-800",
+    inativo: "bg-zinc-100 text-zinc-600",
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Total convenios</p>
+            <p className="text-2xl font-bold">4</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Ativos</p>
+            <p className="text-2xl font-bold text-green-600">3</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">
+              Pendentes faturamento
+            </p>
+            <p className="text-2xl font-bold text-orange-500">12</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-sm">Operadoras</CardTitle>
+            <Button
+              size="sm"
+              className="gap-1"
+              onClick={() => setShowTissForm(!showTissForm)}
+            >
+              <FileText className="size-3" /> Gerar TISS
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {showTissForm && (
+            <div className="mb-4 space-y-3 rounded-lg border p-4">
+              <p className="text-sm font-medium">Gerar lote TISS</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium">Competencia</label>
+                  <input
+                    type="month"
+                    defaultValue="2026-08"
+                    className="bg-muted mt-1 w-full rounded border px-2 py-1.5 text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium">Operadora</label>
+                  <select className="bg-muted mt-1 w-full rounded border px-2 py-1.5 text-xs">
+                    <option value="">Todas</option>
+                    {operators
+                      .filter((o) => o.status === "ativo")
+                      .map((o) => (
+                        <option key={o.name} value={o.name}>
+                          {o.name}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+              </div>
+              <Button
+                size="sm"
+                className="w-full"
+                onClick={() => setTissGenerated(true)}
+              >
+                Gerar lote
+              </Button>
+              {tissGenerated && (
+                <div className="flex items-center gap-2 text-sm text-green-600">
+                  <CheckCircle2 className="size-4" />
+                  <span>Lote gerado - 23 guias - Aguardando envio</span>
+                </div>
+              )}
+            </div>
+          )}
+          <div className="space-y-2">
+            {operators.map((op) => (
+              <div
+                key={op.name}
+                className="flex items-center justify-between rounded-lg border p-3"
+              >
+                <div className="flex items-center gap-3">
+                  <Building className="text-muted-foreground size-4" />
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium">{op.name}</p>
+                      <Badge className={statusColor[op.status]}>
+                        {op.status}
+                      </Badge>
+                    </div>
+                    <p className="text-muted-foreground text-xs">
+                      Valor medio: R$ {op.avgValue} | Pacientes: {op.patients}
+                    </p>
+                  </div>
+                </div>
+                <Button size="sm" variant="ghost">
+                  <Edit className="size-3" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
