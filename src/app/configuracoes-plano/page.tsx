@@ -510,6 +510,16 @@ function ConfiguracoesPlanoContent() {
                     Selecione todos os módulos que fazem sentido para o seu
                     negócio.
                   </CardDescription>
+                  {currentSegment && (
+                    <div className="bg-primary/10 mt-2 flex items-center gap-2 rounded-lg px-3 py-2 text-sm">
+                      <Check className="text-primary size-4 shrink-0" />
+                      <span>
+                        Módulos pré-selecionados para{" "}
+                        <strong>{currentSegment.name}</strong>. Você pode
+                        ajustar conforme sua necessidade.
+                      </span>
+                    </div>
+                  )}
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-4 sm:grid-cols-2">
