@@ -25,7 +25,7 @@ const faqs = [
   {
     question: "Funciona no celular?",
     answer:
-      "Sim. A plataforma é responsiva e funciona perfeitamente em qualquer dispositivo. Planos Profissional e Completo incluem app mobile nativo.",
+      "Sim. A plataforma é responsiva e funciona perfeitamente em qualquer dispositivo, celular ou computador.",
   },
   {
     question: "Posso adicionar mais módulos depois?",

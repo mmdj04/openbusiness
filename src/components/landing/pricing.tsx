@@ -12,7 +12,7 @@ import { Check, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 const features = [
-  "Agenda inteligente",
+  "Agenda inteligente com lembretes",
   "CRM e gestão de clientes",
   "Financeiro completo",
   "WhatsApp integrado",
@@ -20,7 +20,6 @@ const features = [
   "Backup automático",
   "Usuários ilimitados",
   "Suporte técnico incluso",
-  "App mobile ou PWA",
 ];
 
 export function Pricing() {

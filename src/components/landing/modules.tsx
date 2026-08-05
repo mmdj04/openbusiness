@@ -9,13 +9,15 @@ import {
   FileText,
   Bell,
   ShoppingCart,
-  Truck,
   Clock,
   UserCog,
   Settings,
   Shield,
-  Smartphone,
   Globe,
+  Repeat,
+  Headphones,
+  Zap,
+  Target,
 } from "lucide-react";
 
 const modules = [
@@ -65,11 +67,6 @@ const modules = [
     description: "Ponto de venda integrado",
   },
   {
-    icon: Truck,
-    name: "Entregas",
-    description: "Rastreamento de entregas e motoboys",
-  },
-  {
     icon: Clock,
     name: "Assinaturas",
     description: "Cobrança recorrente e planos",
@@ -90,14 +87,19 @@ const modules = [
     description: "Backup automático e dados criptografados",
   },
   {
-    icon: Smartphone,
-    name: "App mobile",
-    description: "Acesso pelo celular para clientes e equipe",
-  },
-  {
     icon: Globe,
     name: "Multi-unidades",
     description: "Gerencie várias filiais em um só lugar",
+  },
+  {
+    icon: Repeat,
+    name: "Recorrência",
+    description: "Cobranças automáticas e planos recorrentes",
+  },
+  {
+    icon: Headphones,
+    name: "Suporte prioritário",
+    description: "Atendimento rápido e dedicado",
   },
 ];
 

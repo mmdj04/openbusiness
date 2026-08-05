@@ -23,13 +23,18 @@ import {
   Shield,
   Lock,
   Sparkles,
-  Zap,
 } from "lucide-react";
 import Link from "next/link";
 
 const BASE_PRICE = 497;
 
-const modules = [
+const includedModules = [
+  { id: "agenda", name: "Agenda inteligente" },
+  { id: "clientes", name: "CRM e gestão de clientes" },
+  { id: "financeiro", name: "Financeiro completo" },
+];
+
+const additionalModules = [
   {
     id: "estoque",
     name: "Estoque",
@@ -66,13 +71,6 @@ const modules = [
     popular: false,
   },
   {
-    id: "entregas",
-    name: "Entregas e rastreio",
-    description: "Rastreamento de entregas e motoboys",
-    price: 99,
-    popular: false,
-  },
-  {
     id: "assinaturas",
     name: "Assinaturas e planos",
     description: "Cobrança recorrente e planos",
@@ -80,11 +78,46 @@ const modules = [
     popular: false,
   },
   {
-    id: "app-mobile",
-    name: "App mobile",
-    description: "Aplicativo para clientes e equipe",
+    id: "lembretes",
+    name: "Lembretes avançados",
+    description: "Notificações automáticas por WhatsApp e email",
+    price: 69,
+    popular: false,
+  },
+  {
+    id: "multi-unidades",
+    name: "Multi-unidades",
+    description: "Gerencie várias filiais em um só lugar",
     price: 199,
+    popular: false,
+  },
+  {
+    id: "usuarios",
+    name: "Controle de usuários",
+    description: "Permissões e acesso por perfil",
+    price: 79,
+    popular: false,
+  },
+  {
+    id: "backup",
+    name: "Backup premium",
+    description: "Backup em tempo real e histórico completo",
+    price: 49,
+    popular: false,
+  },
+  {
+    id: "suporte",
+    name: "Suporte prioritário",
+    description: "Atendimento rápido e dedicado 24/7",
+    price: 99,
     popular: true,
+  },
+  {
+    id: "api",
+    name: "API personalizada",
+    description: "Integração com outros sistemas",
+    price: 179,
+    popular: false,
   },
 ];
 
@@ -121,7 +154,7 @@ export default function ConfiguracoesPlanoPage() {
     );
   };
 
-  const selectedModulesList = modules.filter((m) =>
+  const selectedModulesList = additionalModules.filter((m) =>
     selectedModules.includes(m.id),
   );
   const extraModulesValue = selectedModulesList.reduce(
@@ -145,7 +178,8 @@ export default function ConfiguracoesPlanoPage() {
             Configurar seu plano
           </h1>
           <p className="text-muted-foreground mt-2">
-            Personalize seu plano adicionando os módulos que precisa
+            Seu plano já vem com tudo que precisa para começar. Adicione mais
+            conforme sua necessidade.
           </p>
         </div>
 
@@ -157,16 +191,49 @@ export default function ConfiguracoesPlanoPage() {
                   <span className="bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-full text-sm font-bold">
                     1
                   </span>
+                  Seus módulos inclusos
+                </CardTitle>
+                <CardDescription>
+                  Estes módulos já estão inclusos no plano base por R${" "}
+                  {BASE_PRICE}/mês.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {includedModules.map((module) => (
+                    <div
+                      key={module.id}
+                      className="bg-primary/5 border-primary/20 flex items-center gap-3 rounded-lg border p-4"
+                    >
+                      <div className="bg-primary flex size-6 items-center justify-center rounded-full">
+                        <Check className="text-primary-foreground size-3" />
+                      </div>
+                      <span className="font-medium">{module.name}</span>
+                      <Badge variant="secondary" className="ml-auto text-xs">
+                        Incluso
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <span className="bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-full text-sm font-bold">
+                    2
+                  </span>
                   Módulos adicionais
                 </CardTitle>
                 <CardDescription>
-                  Seu plano já inclui Agenda, Clientes e Financeiro. Adicione
-                  mais funcionalidades conforme sua necessidade.
+                  Adicione funcionalidades extras conforme a necessidade do seu
+                  negócio.
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  {modules.map((module) => {
+                  {additionalModules.map((module) => {
                     const isSelected = selectedModules.includes(module.id);
 
                     return (
@@ -222,7 +289,7 @@ export default function ConfiguracoesPlanoPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <span className="bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-full text-sm font-bold">
-                    2
+                    3
                   </span>
                   Forma de pagamento
                 </CardTitle>
@@ -320,11 +387,7 @@ export default function ConfiguracoesPlanoPage() {
                   </div>
                   <div className="mt-2 flex items-center gap-2 text-sm">
                     <Check className="text-primary size-4" />
-                    <span>Suporte técnico incluso</span>
-                  </div>
-                  <div className="mt-2 flex items-center gap-2 text-sm">
-                    <Check className="text-primary size-4" />
-                    <span>Backup automático</span>
+                    <span>Backup automático incluso</span>
                   </div>
                   <div className="mt-2 flex items-center gap-2 text-sm">
                     <Check className="text-primary size-4" />
