@@ -9,17 +9,17 @@ export function Hero() {
         <div className="mx-auto max-w-3xl text-center">
           <Badge variant="secondary" className="mb-6 gap-1.5 px-4 py-1.5">
             <Zap className="size-3.5" />
-            Plataforma completa para seu negocio
+            Plataforma completa para seu negócio
           </Badge>
 
           <h1 className="text-foreground text-4xl font-bold tracking-tight sm:text-6xl lg:text-7xl">
-            Gestao do seu negocio{" "}
+            Gestão do seu negócio{" "}
             <span className="text-primary">simples e poderosa</span>
           </h1>
 
           <p className="text-muted-foreground mt-6 text-lg leading-8 sm:text-xl">
-            Sistemas prontos para clinicas, saloes, restaurantes, academias e
-            muito mais. Ative apenas os modulos que precisa. Sem complicacao,
+            Sistemas prontos para clínicas, salões, restaurantes, academias e
+            muito mais. Ative apenas os módulos que precisa. Sem complicação,
             sem mensalidades escondidas.
           </p>
 
@@ -42,7 +42,7 @@ export function Hero() {
                 className: "gap-2 px-8 text-base",
               })}
             >
-              Ver solucoes
+              Ver soluções
             </a>
           </div>
 
@@ -64,7 +64,7 @@ export function Hero() {
 
         <div className="mx-auto mt-20 grid max-w-4xl grid-cols-2 gap-4 sm:grid-cols-4">
           {[
-            { icon: Building2, label: "Negocios ativos", value: "2.400+" },
+            { icon: Building2, label: "Negócios ativos", value: "2.400+" },
             { icon: Users, label: "Clientes atendidos", value: "18.000+" },
             { icon: Shield, label: "Uptime garantido", value: "99,9%" },
             { icon: Zap, label: "Tempo de setup", value: "< 24h" },

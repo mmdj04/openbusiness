@@ -8,7 +8,7 @@ export function CTA() {
         <div className="border-border bg-card relative overflow-hidden rounded-2xl border px-6 py-16 sm:px-12 sm:py-20">
           <div className="relative mx-auto max-w-2xl text-center">
             <h2 className="text-foreground text-3xl font-bold tracking-tight sm:text-4xl">
-              Pronto para transformar a gestao do seu negocio?
+              Pronto para transformar a gestão do seu negócio?
             </h2>
             <p className="text-muted-foreground mt-4 text-lg">
               Comece hoje mesmo. Sem taxa de setup, sem fidelidade. Cancele

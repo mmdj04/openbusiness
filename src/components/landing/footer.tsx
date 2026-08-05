@@ -49,7 +49,7 @@ export function Footer() {
             reservados.
           </p>
           <p className="text-muted-foreground text-xs">
-            Feito com dedicacao para pequenos negócios do Brasil.
+            Feito com dedicação para pequenos negócios do Brasil.
           </p>
         </div>
       </div>
