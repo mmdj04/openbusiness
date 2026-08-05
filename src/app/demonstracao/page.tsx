@@ -17,7 +17,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Settings,
-  Eye,
   Edit,
   Stethoscope,
   Activity,
@@ -34,8 +33,6 @@ import {
   AlertTriangle,
   CheckCircle2,
   XCircle,
-  ArrowUpRight,
-  ArrowDownRight,
   Phone,
   Save,
   Video,
@@ -1571,7 +1568,6 @@ export default function DemonstracaoPage() {
             <WhatsAppModule
               messages={whatsappMessages}
               setMessages={setWhatsappMessages}
-              appointments={appointments}
               setAppointments={setAppointments}
             />
           )}
@@ -1952,15 +1948,17 @@ function DashboardModule({
               {faltouAppointments.map((a) => (
                 <div
                   key={a.id}
-                  className="flex items-center justify-between rounded-lg border border-yellow-200 bg-yellow-50 p-3"
+                  className="flex items-center justify-between rounded-lg border border-yellow-800/50 bg-yellow-950/30 p-3"
                 >
                   <div>
-                    <p className="font-medium">{a.patientName}</p>
-                    <p className="text-muted-foreground text-xs">
+                    <p className="font-medium text-yellow-100">
+                      {a.patientName}
+                    </p>
+                    <p className="text-xs text-yellow-300/70">
                       {a.date} as {a.time} | {a.professional}
                     </p>
                   </div>
-                  <Badge className="bg-yellow-100 text-xs text-yellow-800">
+                  <Badge className="bg-yellow-900/50 text-xs text-yellow-300">
                     faltou
                   </Badge>
                 </div>
@@ -1985,15 +1983,15 @@ function DashboardModule({
               {canceladoAppointments.map((a) => (
                 <div
                   key={a.id}
-                  className="flex items-center justify-between rounded-lg border border-red-200 bg-red-50 p-3"
+                  className="flex items-center justify-between rounded-lg border border-red-800/50 bg-red-950/30 p-3"
                 >
                   <div>
-                    <p className="font-medium">{a.patientName}</p>
-                    <p className="text-muted-foreground text-xs">
+                    <p className="font-medium text-red-100">{a.patientName}</p>
+                    <p className="text-xs text-red-300/70">
                       {a.date} as {a.time} | {a.service} - {a.professional}
                     </p>
                   </div>
-                  <Badge className="bg-red-100 text-xs text-red-800">
+                  <Badge className="bg-red-900/50 text-xs text-red-300">
                     cancelado
                   </Badge>
                 </div>
@@ -2018,15 +2016,15 @@ function DashboardModule({
               {upcomingRetornos.map((a) => (
                 <div
                   key={a.id}
-                  className="flex items-center justify-between rounded-lg border border-blue-200 bg-blue-50 p-3"
+                  className="flex items-center justify-between rounded-lg border border-blue-800/50 bg-blue-950/30 p-3"
                 >
                   <div>
-                    <p className="font-medium">{a.patientName}</p>
-                    <p className="text-muted-foreground text-xs">
+                    <p className="font-medium text-blue-100">{a.patientName}</p>
+                    <p className="text-xs text-blue-300/70">
                       {a.date} as {a.time} | {a.professional}
                     </p>
                   </div>
-                  <Badge className="bg-blue-100 text-xs text-blue-800">
+                  <Badge className="bg-blue-900/50 text-xs text-blue-300">
                     retorno
                   </Badge>
                 </div>
@@ -3409,7 +3407,7 @@ function RelatoriosModule({
                   R$ {d.revenue}
                 </span>
                 <div
-                  className="bg-primary w-full rounded-t"
+                  className="w-full rounded-t bg-emerald-500"
                   style={{ height: `${(d.revenue / maxRevenue) * 100}%` }}
                 />
                 <span className="text-muted-foreground text-xs">{d.day}</span>
@@ -3497,12 +3495,10 @@ function RelatoriosModule({
 function WhatsAppModule({
   messages,
   setMessages,
-  appointments,
   setAppointments,
 }: {
   messages: WhatsAppMessage[];
   setMessages: React.Dispatch<React.SetStateAction<WhatsAppMessage[]>>;
-  appointments: Appointment[];
   setAppointments: React.Dispatch<React.SetStateAction<Appointment[]>>;
 }) {
   const pendingCount = messages.filter((m) => m.status === "pendente").length;

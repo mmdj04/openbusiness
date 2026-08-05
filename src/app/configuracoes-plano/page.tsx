@@ -23,7 +23,6 @@ import {
   Stethoscope,
   Smile,
   ShoppingBag,
-  Building,
   Users,
   BarChart3,
   Calendar,
