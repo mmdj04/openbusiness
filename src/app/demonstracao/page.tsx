@@ -2165,7 +2165,7 @@ function DashboardModule({
                     R$ {d.revenue}
                   </span>
                   <div
-                    className="bg-primary w-full rounded-t"
+                    className="w-full rounded-t bg-emerald-500"
                     style={{ height: `${(d.revenue / maxRevenue) * 100}%` }}
                   />
                   <span className="text-muted-foreground text-xs">{d.day}</span>
