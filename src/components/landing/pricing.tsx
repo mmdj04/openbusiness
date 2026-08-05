@@ -87,12 +87,12 @@ export function Pricing() {
               key={plan.name}
               className={`relative flex flex-col ${
                 plan.highlight
-                  ? "border-primary ring-primary/20 shadow-lg ring-1"
+                  ? "border-primary ring-primary/20 mt-4 overflow-visible shadow-lg ring-1"
                   : ""
               }`}
             >
               {plan.badge && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                <div className="absolute -top-3 left-1/2 z-10 -translate-x-1/2">
                   <Badge className="px-3">{plan.badge}</Badge>
                 </div>
               )}
