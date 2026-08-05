@@ -34,10 +34,22 @@ import {
   DollarSign,
   UserPlus,
   CalendarPlus,
+  Package,
+  ShoppingCart,
+  Send,
 } from "lucide-react";
 import Link from "next/link";
 
-type Module = "dashboard" | "agenda" | "clientes" | "financeiro" | "relatorios";
+type Module =
+  | "dashboard"
+  | "agenda"
+  | "clientes"
+  | "financeiro"
+  | "relatorios"
+  | "whatsapp"
+  | "estoque"
+  | "prontuario"
+  | "pdv";
 
 type Segment = "clinica" | "salao" | "restaurante" | "personalizado";
 
@@ -53,28 +65,62 @@ const segmentConfigs: SegmentConfig[] = [
   {
     id: "clinica",
     name: "Clínica Médica",
-    modules: ["dashboard", "agenda", "clientes", "financeiro", "relatorios"],
+    modules: [
+      "dashboard",
+      "agenda",
+      "clientes",
+      "financeiro",
+      "relatorios",
+      "whatsapp",
+      "prontuario",
+    ],
     businessName: "Clínica Saúde+",
     businessType: "Clínica Médica",
   },
   {
     id: "salao",
     name: "Salão de Beleza",
-    modules: ["dashboard", "agenda", "clientes", "financeiro"],
+    modules: [
+      "dashboard",
+      "agenda",
+      "clientes",
+      "financeiro",
+      "relatorios",
+      "whatsapp",
+      "estoque",
+    ],
     businessName: "Studio Beleza",
     businessType: "Salão de Beleza",
   },
   {
     id: "restaurante",
     name: "Restaurante",
-    modules: ["dashboard", "clientes", "financeiro", "relatorios"],
+    modules: [
+      "dashboard",
+      "clientes",
+      "financeiro",
+      "relatorios",
+      "whatsapp",
+      "estoque",
+      "pdv",
+    ],
     businessName: "Sabor & Arte",
     businessType: "Restaurante",
   },
   {
     id: "personalizado",
     name: "Personalizado",
-    modules: ["dashboard", "agenda", "clientes", "financeiro", "relatorios"],
+    modules: [
+      "dashboard",
+      "agenda",
+      "clientes",
+      "financeiro",
+      "relatorios",
+      "whatsapp",
+      "estoque",
+      "prontuario",
+      "pdv",
+    ],
     businessName: "Meu Negócio",
     businessType: "Personalizado",
   },
@@ -339,6 +385,10 @@ export default function DemonstracaoPage() {
     { id: "clientes", label: "Clientes", icon: Users },
     { id: "financeiro", label: "Financeiro", icon: CreditCard },
     { id: "relatorios", label: "Relatórios", icon: FileText },
+    { id: "whatsapp", label: "WhatsApp", icon: MessageSquare },
+    { id: "estoque", label: "Estoque", icon: Package },
+    { id: "prontuario", label: "Prontuário", icon: FileText },
+    { id: "pdv", label: "PDV", icon: ShoppingCart },
   ];
 
   const maxRevenue = Math.max(...weeklyData.map((d) => d.revenue));
@@ -414,6 +464,10 @@ export default function DemonstracaoPage() {
                 {currentModule === "clientes" && "Clientes"}
                 {currentModule === "financeiro" && "Financeiro"}
                 {currentModule === "relatorios" && "Relatórios"}
+                {currentModule === "whatsapp" && "WhatsApp"}
+                {currentModule === "estoque" && "Estoque"}
+                {currentModule === "prontuario" && "Prontuário"}
+                {currentModule === "pdv" && "PDV"}
               </h1>
               <p className="text-muted-foreground text-xs">
                 {new Date().toLocaleDateString("pt-BR", {
@@ -492,6 +546,10 @@ export default function DemonstracaoPage() {
           {currentModule === "relatorios" && (
             <RelatoriosModule weeklyData={weeklyData} maxRevenue={maxRevenue} />
           )}
+          {currentModule === "whatsapp" && <WhatsAppModule />}
+          {currentModule === "estoque" && <EstoqueModule />}
+          {currentModule === "prontuario" && <ProntuarioModule />}
+          {currentModule === "pdv" && <PDVModule />}
         </div>
       </main>
     </div>
@@ -1128,6 +1186,514 @@ function RelatoriosModule({
           </div>
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+function WhatsAppModule() {
+  const messages = [
+    {
+      id: 1,
+      client: "Maria Silva",
+      message: "Olá, gostaria de agendar uma consulta...",
+      time: "09:15",
+      status: "lido",
+    },
+    {
+      id: 2,
+      client: "João Santos",
+      message: "Bom dia! Pode confirmar meu horário de amanhã?",
+      time: "08:30",
+      status: "lido",
+    },
+    {
+      id: 3,
+      client: "Ana Costa",
+      message: "Preciso remarcar minha consulta para outra data.",
+      time: "14:20",
+      status: "pendente",
+    },
+    {
+      id: 4,
+      client: "Pedro Lima",
+      message: "Qual o valor da consulta?",
+      time: "11:45",
+      status: "respondido",
+    },
+    {
+      id: 5,
+      client: "Lucia Ferreira",
+      message: "Obrigada pelo lembrete!",
+      time: "Ontem",
+      status: "lido",
+    },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Mensagens hoje</p>
+            <p className="text-2xl font-bold">24</p>
+            <p className="mt-1 text-sm text-green-600">+8 vs. ontem</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Pendentes</p>
+            <p className="text-2xl font-bold">3</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Taxa de resposta</p>
+            <p className="text-2xl font-bold">95%</p>
+            <p className="mt-1 text-sm text-green-600">+2% vs. semana</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>Conversas recentes</CardTitle>
+            <Button size="sm" className="gap-2">
+              <Send className="size-4" />
+              Nova mensagem
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {messages.map((msg) => (
+              <div
+                key={msg.id}
+                className="flex items-start gap-3 rounded-lg border p-4"
+              >
+                <div className="bg-primary/10 flex size-10 shrink-0 items-center justify-center rounded-full">
+                  <MessageSquare className="text-primary size-5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between">
+                    <p className="font-medium">{msg.client}</p>
+                    <p className="text-muted-foreground text-xs">{msg.time}</p>
+                  </div>
+                  <p className="text-muted-foreground mt-1 truncate text-sm">
+                    {msg.message}
+                  </p>
+                </div>
+                <Badge
+                  variant={
+                    msg.status === "lido"
+                      ? "default"
+                      : msg.status === "pendente"
+                        ? "secondary"
+                        : "outline"
+                  }
+                  className="shrink-0"
+                >
+                  {msg.status}
+                </Badge>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function EstoqueModule() {
+  const products = [
+    {
+      id: 1,
+      name: "Shampoo Premium",
+      category: "Cabelo",
+      stock: 45,
+      minStock: 10,
+      price: 89.9,
+      status: "ok",
+    },
+    {
+      id: 2,
+      name: "Condicionador Hidratante",
+      category: "Cabelo",
+      stock: 32,
+      minStock: 10,
+      price: 79.9,
+      status: "ok",
+    },
+    {
+      id: 3,
+      name: "Máscara Capilar",
+      category: "Cabelo",
+      stock: 8,
+      minStock: 10,
+      price: 129.9,
+      status: "baixo",
+    },
+    {
+      id: 4,
+      name: "Creme para Pentear",
+      category: "Estilo",
+      stock: 28,
+      minStock: 15,
+      price: 59.9,
+      status: "ok",
+    },
+    {
+      id: 5,
+      name: "Óleo de Argan",
+      category: "Tratamento",
+      stock: 3,
+      minStock: 5,
+      price: 149.9,
+      status: "critico",
+    },
+    {
+      id: 6,
+      name: "Tintura Capilar",
+      category: "Coloração",
+      stock: 18,
+      minStock: 8,
+      price: 45.9,
+      status: "ok",
+    },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-4">
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Total de itens</p>
+            <p className="text-2xl font-bold">156</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Estoque baixo</p>
+            <p className="text-2xl font-bold text-orange-500">4</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Estoque crítico</p>
+            <p className="text-2xl font-bold text-red-500">2</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Valor total</p>
+            <p className="text-2xl font-bold">R$ 12.450</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>Produtos</CardTitle>
+            <Button size="sm" className="gap-2">
+              <Plus className="size-4" />
+              Novo produto
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {products.map((product) => (
+              <div
+                key={product.id}
+                className="flex items-center justify-between rounded-lg border p-4"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="bg-primary/10 rounded-lg p-2">
+                    <Package className="text-primary size-5" />
+                  </div>
+                  <div>
+                    <p className="font-medium">{product.name}</p>
+                    <p className="text-muted-foreground text-sm">
+                      {product.category} • R$ {product.price}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="text-right">
+                    <p className="font-medium">{product.stock} un.</p>
+                    <p className="text-muted-foreground text-xs">
+                      Mín: {product.minStock}
+                    </p>
+                  </div>
+                  <Badge
+                    variant={
+                      product.status === "ok"
+                        ? "default"
+                        : product.status === "baixo"
+                          ? "secondary"
+                          : "destructive"
+                    }
+                  >
+                    {product.status === "ok"
+                      ? "Normal"
+                      : product.status === "baixo"
+                        ? "Baixo"
+                        : "Crítico"}
+                  </Badge>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function ProntuarioModule() {
+  const records = [
+    {
+      id: 1,
+      patient: "Maria Silva",
+      date: "2026-08-05",
+      type: "Consulta",
+      doctor: "Dr. Ricardo",
+      notes:
+        "Paciente relata melhora nos sintomas. Manter tratamento por mais 30 dias.",
+      prescription: "Ibuprofeno 600mg - 8/8h por 7 dias",
+    },
+    {
+      id: 2,
+      patient: "João Santos",
+      date: "2026-08-04",
+      type: "Retorno",
+      doctor: "Dr. Ricardo",
+      notes:
+        "Exames de sangue dentro da normalidade. Pressão arterial controlada.",
+      prescription: "Losartana 50mg - 1x ao dia",
+    },
+    {
+      id: 3,
+      patient: "Ana Costa",
+      date: "2026-08-03",
+      type: "Exame",
+      doctor: "Dra. Beatriz",
+      notes:
+        "Raio-X do tórax sem alterações. Encaminhar para retorno em 15 dias.",
+      prescription: null,
+    },
+    {
+      id: 4,
+      patient: "Pedro Lima",
+      date: "2026-08-02",
+      type: "Consulta",
+      doctor: "Dr. Ricardo",
+      notes: "Dor lombar baixa. Indicar fisioterapia e anti-inflamatório.",
+      prescription: "Dipirona 500mg - 6/6h | Encaminhar fisioterapia",
+    },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Prontuários hoje</p>
+            <p className="text-2xl font-bold">8</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Total de pacientes</p>
+            <p className="text-2xl font-bold">248</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">
+              Consultas esta semana
+            </p>
+            <p className="text-2xl font-bold">42</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>Prontuários recentes</CardTitle>
+            <Button size="sm" className="gap-2">
+              <Plus className="size-4" />
+              Novo prontuário
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {records.map((record) => (
+              <div key={record.id} className="rounded-lg border p-4">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium">{record.patient}</p>
+                      <Badge variant="outline">{record.type}</Badge>
+                    </div>
+                    <p className="text-muted-foreground mt-1 text-sm">
+                      {new Date(record.date).toLocaleDateString("pt-BR")} •{" "}
+                      {record.doctor}
+                    </p>
+                  </div>
+                  <Button variant="ghost" size="icon" className="size-8">
+                    <Eye className="size-4" />
+                  </Button>
+                </div>
+                <p className="text-muted-foreground mt-3 text-sm">
+                  {record.notes}
+                </p>
+                {record.prescription && (
+                  <div className="bg-muted mt-2 rounded p-2">
+                    <p className="text-xs font-medium">Prescrição:</p>
+                    <p className="text-muted-foreground text-xs">
+                      {record.prescription}
+                    </p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function PDVModule() {
+  const recentSales = [
+    {
+      id: 1,
+      client: "Maria Silva",
+      items: ["Corte de Cabelo", "Escova"],
+      total: 120,
+      payment: "Cartão",
+      time: "14:30",
+    },
+    {
+      id: 2,
+      client: "João Santos",
+      items: ["Barba", "Corte"],
+      total: 80,
+      payment: "Pix",
+      time: "13:15",
+    },
+    {
+      id: 3,
+      client: "Ana Costa",
+      items: ["Manicure", "Pedicure"],
+      total: 95,
+      payment: "Dinheiro",
+      time: "11:00",
+    },
+    {
+      id: 4,
+      client: "Pedro Lima",
+      items: ["Shampoo Premium"],
+      total: 89.9,
+      payment: "Cartão",
+      time: "10:30",
+    },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-4">
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Vendas hoje</p>
+            <p className="text-2xl font-bold">R$ 1.240</p>
+            <p className="mt-1 text-sm text-green-600">+15% vs. ontem</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Pedidos</p>
+            <p className="text-2xl font-bold">12</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Ticket médio</p>
+            <p className="text-2xl font-bold">R$ 103</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Em aberto</p>
+            <p className="text-2xl font-bold">R$ 320</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Vendas recentes</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {recentSales.map((sale) => (
+                <div
+                  key={sale.id}
+                  className="flex items-center justify-between rounded-lg border p-3"
+                >
+                  <div>
+                    <p className="font-medium">{sale.client}</p>
+                    <p className="text-muted-foreground text-xs">
+                      {sale.items.join(", ")}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium">R$ {sale.total}</p>
+                    <p className="text-muted-foreground text-xs">
+                      {sale.payment} • {sale.time}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Formas de pagamento</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {[
+                { method: "Cartão", amount: 580, percent: 47 },
+                { method: "Pix", amount: 420, percent: 34 },
+                { method: "Dinheiro", amount: 240, percent: 19 },
+              ].map((item) => (
+                <div key={item.method} className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span>{item.method}</span>
+                    <span className="font-medium">
+                      R$ {item.amount} ({item.percent}%)
+                    </span>
+                  </div>
+                  <div className="bg-muted h-2 overflow-hidden rounded-full">
+                    <div
+                      className="bg-primary h-full rounded-full"
+                      style={{ width: `${item.percent}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
