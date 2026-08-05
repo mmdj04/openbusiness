@@ -1,0 +1,9 @@
+export { Hero } from "./hero";
+export { Solutions } from "./solutions";
+export { HowItWorks } from "./how-it-works";
+export { Modules } from "./modules";
+export { Pricing } from "./pricing";
+export { Testimonials } from "./testimonials";
+export { FAQ } from "./faq";
+export { CTA } from "./cta";
+export { Footer } from "./footer";
