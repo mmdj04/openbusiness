@@ -41,10 +41,6 @@ export function Pricing() {
 
         <div className="mx-auto mt-16 max-w-lg">
           <Card className="border-primary ring-primary/20 overflow-visible shadow-lg ring-1">
-            <div className="absolute -top-3 left-1/2 z-10 -translate-x-1/2">
-              <Badge className="px-3">Plano único</Badge>
-            </div>
-
             <CardHeader className="text-center">
               <CardTitle className="text-xl">OpenBusiness</CardTitle>
               <CardDescription>

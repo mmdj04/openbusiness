@@ -21,21 +21,21 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-const BASE_PRICE = 497;
+const BASE_PRICE = 297;
 
 const modulePrices: Record<string, number> = {
-  agenda: 60,
-  financeiro: 80,
-  estoque: 70,
-  whatsapp: 120,
-  pdv: 100,
-  crm: 70,
-  relatorios: 80,
-  ia: 180,
-  assinaturas: 90,
-  prontuario: 130,
-  lembretes: 70,
-  "multi-unidades": 200,
+  agenda: 40,
+  financeiro: 50,
+  estoque: 45,
+  whatsapp: 80,
+  pdv: 65,
+  crm: 45,
+  relatorios: 50,
+  ia: 120,
+  assinaturas: 60,
+  prontuario: 85,
+  lembretes: 45,
+  "multi-unidades": 130,
 };
 
 const solutions = [

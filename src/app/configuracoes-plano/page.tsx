@@ -51,21 +51,21 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
-const BASE_PRICE = 497;
+const BASE_PRICE = 297;
 
 const modulePrices: Record<string, number> = {
-  agenda: 60,
-  financeiro: 80,
-  estoque: 70,
-  whatsapp: 120,
-  pdv: 100,
-  crm: 70,
-  relatorios: 80,
-  ia: 180,
-  assinaturas: 90,
-  prontuario: 130,
-  lembretes: 70,
-  "multi-unidades": 200,
+  agenda: 40,
+  financeiro: 50,
+  estoque: 45,
+  whatsapp: 80,
+  pdv: 65,
+  crm: 45,
+  relatorios: 50,
+  ia: 120,
+  assinaturas: 60,
+  prontuario: 85,
+  lembretes: 45,
+  "multi-unidades": 130,
 };
 
 const operationSizes = [
@@ -80,45 +80,45 @@ const operationSizes = [
     id: "pequena",
     label: "2–5 colaboradores",
     description: "Equipe pequena e ágil",
-    multiplier: 1.15,
+    multiplier: 1.1,
     icon: "👥",
   },
   {
     id: "media",
     label: "6–20 colaboradores",
     description: "Operação em crescimento",
-    multiplier: 1.35,
+    multiplier: 1.25,
     icon: "🏢",
   },
   {
     id: "grande",
     label: "21–50 colaboradores",
     description: "Empresa consolidada",
-    multiplier: 1.6,
+    multiplier: 1.45,
     icon: "🏬",
   },
   {
     id: "enterprise",
     label: "51+ colaboradores",
     description: "Grande empresa",
-    multiplier: 1.9,
+    multiplier: 1.7,
     icon: "🏗️",
   },
 ];
 
 const userTiers = [
   { id: "1-3", label: "1–3", surcharge: 0, description: "Uso básico" },
-  { id: "4-10", label: "4–10", surcharge: 60, description: "Equipe pequena" },
+  { id: "4-10", label: "4–10", surcharge: 40, description: "Equipe pequena" },
   {
     id: "11-30",
     label: "11–30",
-    surcharge: 150,
+    surcharge: 100,
     description: "Equipe média",
   },
   {
     id: "31+",
     label: "31+",
-    surcharge: 350,
+    surcharge: 200,
     description: "Equipe grande",
   },
 ];
@@ -126,27 +126,27 @@ const userTiers = [
 const volumeTiers = {
   clientes: [
     { label: "Até 500", surcharge: 0, usage: "leve" },
-    { label: "501–5.000", surcharge: 80, usage: "moderado" },
-    { label: "5.001–50.000", surcharge: 200, usage: "intensivo" },
-    { label: "50.000+", surcharge: 450, usage: "enterprise" },
+    { label: "501–5.000", surcharge: 50, usage: "moderado" },
+    { label: "5.001–50.000", surcharge: 120, usage: "intensivo" },
+    { label: "50.000+", surcharge: 250, usage: "enterprise" },
   ],
   pedidos: [
     { label: "Até 200", surcharge: 0, usage: "leve" },
-    { label: "201–1.000", surcharge: 80, usage: "moderado" },
-    { label: "1.001–10.000", surcharge: 200, usage: "intensivo" },
-    { label: "10.000+", surcharge: 450, usage: "enterprise" },
+    { label: "201–1.000", surcharge: 50, usage: "moderado" },
+    { label: "1.001–10.000", surcharge: 120, usage: "intensivo" },
+    { label: "10.000+", surcharge: 250, usage: "enterprise" },
   ],
   agendamentos: [
     { label: "Até 300", surcharge: 0, usage: "leve" },
-    { label: "301–2.000", surcharge: 80, usage: "moderado" },
-    { label: "2.001–20.000", surcharge: 200, usage: "intensivo" },
-    { label: "20.000+", surcharge: 450, usage: "enterprise" },
+    { label: "301–2.000", surcharge: 50, usage: "moderado" },
+    { label: "2.001–20.000", surcharge: 120, usage: "intensivo" },
+    { label: "20.000+", surcharge: 250, usage: "enterprise" },
   ],
   produtos: [
     { label: "Até 500", surcharge: 0, usage: "leve" },
-    { label: "501–3.000", surcharge: 80, usage: "moderado" },
-    { label: "3.001–30.000", surcharge: 200, usage: "intensivo" },
-    { label: "30.000+", surcharge: 450, usage: "enterprise" },
+    { label: "501–3.000", surcharge: 50, usage: "moderado" },
+    { label: "3.001–30.000", surcharge: 120, usage: "intensivo" },
+    { label: "30.000+", surcharge: 250, usage: "enterprise" },
   ],
 };
 
@@ -367,13 +367,13 @@ function calculatePrice(
   }
   breakdown.volume = volumeTotal;
 
-  breakdown.suporte = supportPremium ? 200 : 0;
+  breakdown.suporte = supportPremium ? 120 : 0;
 
   const total = Math.round(
     (BASE_PRICE + modulesTotal) * sizeMultiplier +
       (userTier?.surcharge || 0) +
       volumeTotal +
-      (supportPremium ? 200 : 0),
+      (supportPremium ? 120 : 0),
   );
 
   return { total, breakdown };
@@ -388,14 +388,14 @@ function getPriceTier(price: number): {
   color: string;
   icon: React.ReactNode;
 } {
-  if (price <= 650) {
+  if (price <= 450) {
     return {
       label: "Plano Essencial",
       color: "text-emerald-500",
       icon: <Zap className="size-5" />,
     };
   }
-  if (price <= 1000) {
+  if (price <= 800) {
     return {
       label: "Plano Profissional",
       color: "text-blue-500",
@@ -853,7 +853,7 @@ function ConfiguracoesPlanoContent() {
                         <Headphones className="mr-1 inline size-4" />
                         Suporte prioritário 24/7
                       </Label>
-                      <p className="text-primary text-sm">+ R$ 200/mês</p>
+                      <p className="text-primary text-sm">+ R$ 120/mês</p>
                     </div>
                   </div>
                 </CardContent>
