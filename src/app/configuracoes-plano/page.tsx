@@ -709,7 +709,7 @@ function ConfiguracoesPlanoContent() {
               </Card>
             )}
 
-            {step > 1 && step < 6 && (
+            {step >= 1 && step < 6 && (
               <div className="flex justify-between">
                 <Button variant="outline" onClick={() => setStep(step - 1)}>
                   <ArrowLeft className="mr-2 size-4" />
