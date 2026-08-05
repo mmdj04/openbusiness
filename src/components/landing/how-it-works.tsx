@@ -48,7 +48,7 @@ export function HowItWorks() {
               key={step.number}
               className="relative border-0 bg-transparent"
             >
-              <CardContent className="p-0">
+              <CardContent className="p-6">
                 <div className="mb-6 flex items-center gap-4">
                   <div className="bg-primary text-primary-foreground flex size-12 items-center justify-center rounded-full text-lg font-bold">
                     {step.number}
