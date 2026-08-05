@@ -1,21 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Calendar,
   Users,
   BarChart3,
-  Settings,
   Bell,
   MessageSquare,
   FileText,
@@ -24,9 +16,7 @@ import {
   Plus,
   ChevronLeft,
   ChevronRight,
-  Phone,
-  ArrowUpRight,
-  ArrowDownRight,
+  Settings,
   Eye,
   Edit,
   Stethoscope,
@@ -37,10 +27,25 @@ import {
   Package,
   ShoppingCart,
   Send,
+  Trash2,
+  X,
+  Check,
+  Clock,
+  AlertTriangle,
+  CheckCircle2,
+  XCircle,
+  ArrowUpRight,
+  ArrowDownRight,
+  Phone,
+  Save,
 } from "lucide-react";
 import Link from "next/link";
 
-type Module =
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+type ModuleId =
   | "dashboard"
   | "agenda"
   | "clientes"
@@ -51,9 +56,10 @@ type Module =
   | "prontuario"
   | "pdv"
   | "odontograma"
-  | "lembretes";
+  | "lembretes"
+  | "plano-tratamento";
 
-type Segment =
+type SegmentId =
   | "clinica-medica"
   | "clinica-odontologica"
   | "salao"
@@ -74,13 +80,119 @@ type Segment =
   | "veterinaria";
 
 interface SegmentConfig {
-  id: Segment;
+  id: SegmentId;
   name: string;
-  modules: Module[];
+  modules: ModuleId[];
   businessName: string;
   businessType: string;
   available: boolean;
 }
+
+interface Patient {
+  id: number;
+  name: string;
+  phone: string;
+  email: string;
+  birthDate: string;
+  cpf: string;
+  lastVisit: string;
+  totalSpent: number;
+  status: "ativo" | "inativo";
+}
+
+interface Appointment {
+  id: number;
+  date: string;
+  time: string;
+  patientId: number;
+  patientName: string;
+  professional: string;
+  service: string;
+  amount: number;
+  status: "agendado" | "confirmado" | "cancelado" | "realizado" | "faltou";
+  notes: string;
+}
+
+interface ProntuarioEntry {
+  id: number;
+  patientId: number;
+  patientName: string;
+  date: string;
+  professional: string;
+  type: "consulta" | "retorno" | "exame" | "emergencia";
+  notes: string;
+  prescription: string;
+  cid: string;
+}
+
+interface ToothRecord {
+  toothId: number;
+  condition:
+    | "saudavel"
+    | "caries"
+    | "restaurado"
+    | "ausente"
+    | "implante"
+    | "coroa"
+    | "endodontia"
+    | "fratura"
+    | "sellador"
+    | "protese"
+    | "inclinado"
+    | "mancha"
+    | "gengiva"
+    | "extracao"
+    | "tratamento";
+  faces: {
+    vestbular: boolean;
+    lingual: boolean;
+    mesial: boolean;
+    distal: boolean;
+    oclusal: boolean;
+  };
+  date: string;
+  professional: string;
+  notes: string;
+}
+
+interface TreatmentItem {
+  id: number;
+  toothId: number;
+  procedure: string;
+  status: "pendente" | "aprovado" | "em_execucao" | "concluido";
+  value: number;
+  sessions: number;
+  completedSessions: number;
+  notes: string;
+}
+
+interface Lembrete {
+  id: number;
+  patientId: number;
+  patientName: string;
+  type: string;
+  date: string;
+  time: string;
+  message: string;
+  status: "pendente" | "enviado" | "confirmado";
+  channel: "whatsapp" | "sms" | "email";
+}
+
+interface WhatsAppMessage {
+  id: number;
+  patientName: string;
+  message: string;
+  time: string;
+  status: "lido" | "pendente" | "respondido";
+  direction: "enviado" | "recebido";
+  appointmentId?: number;
+  action?: "confirmar" | "cancelar" | "nenhum";
+  actionTaken?: boolean;
+}
+
+// ---------------------------------------------------------------------------
+// Segment Configs
+// ---------------------------------------------------------------------------
 
 const segmentConfigs: SegmentConfig[] = [
   {
@@ -93,6 +205,7 @@ const segmentConfigs: SegmentConfig[] = [
       "relatorios",
       "whatsapp",
       "prontuario",
+      "lembretes",
     ],
     businessName: "Clinica Saude+",
     businessType: "Clinica Medica",
@@ -108,6 +221,9 @@ const segmentConfigs: SegmentConfig[] = [
       "relatorios",
       "odontograma",
       "lembretes",
+      "prontuario",
+      "plano-tratamento",
+      "whatsapp",
     ],
     businessName: "Odonto Vida",
     businessType: "Clinica Odontologica",
@@ -115,149 +231,157 @@ const segmentConfigs: SegmentConfig[] = [
   },
   {
     id: "salao",
-    name: "Salao de Beleza",
-    modules: ["dashboard", "agenda", "clientes", "financeiro"],
-    businessName: "Studio Beleza",
-    businessType: "Salao de Beleza",
+    name: "Salao",
+    modules: ["dashboard", "agenda"],
+    businessName: "Studio",
+    businessType: "Salao",
     available: false,
   },
   {
     id: "restaurante",
     name: "Restaurante",
-    modules: ["dashboard", "clientes", "financeiro"],
-    businessName: "Sabor & Arte",
+    modules: ["dashboard"],
+    businessName: "Sabor",
     businessType: "Restaurante",
     available: false,
   },
   {
     id: "academia",
     name: "Academia",
-    modules: ["dashboard", "clientes"],
-    businessName: "Fitness Center",
+    modules: ["dashboard"],
+    businessName: "Fitness",
     businessType: "Academia",
     available: false,
   },
   {
     id: "pet",
     name: "Pet Shop",
-    modules: ["dashboard", "clientes"],
+    modules: ["dashboard"],
     businessName: "Pet Love",
-    businessType: "Pet Shop",
+    businessType: "Pet",
     available: false,
   },
   {
     id: "hotel",
     name: "Hotel",
-    modules: ["dashboard", "clientes"],
-    businessName: "Hotel Premium",
+    modules: ["dashboard"],
+    businessName: "Hotel",
     businessType: "Hotel",
     available: false,
   },
   {
     id: "escola",
     name: "Escola",
-    modules: ["dashboard", "clientes"],
-    businessName: "Educacao Total",
+    modules: ["dashboard"],
+    businessName: "Educacao",
     businessType: "Escola",
     available: false,
   },
   {
     id: "contabil",
     name: "Contabil",
-    modules: ["dashboard", "clientes"],
-    businessName: "Contabil Express",
+    modules: ["dashboard"],
+    businessName: "Contabil",
     businessType: "Contabil",
     available: false,
   },
   {
     id: "advocacia",
     name: "Advocacia",
-    modules: ["dashboard", "clientes"],
-    businessName: "Advocacia Justa",
+    modules: ["dashboard"],
+    businessName: "Advocacia",
     businessType: "Advocacia",
     available: false,
   },
   {
     id: "imobiliaria",
     name: "Imobiliaria",
-    modules: ["dashboard", "clientes"],
-    businessName: "Imovel Certo",
+    modules: ["dashboard"],
+    businessName: "Imovel",
     businessType: "Imobiliaria",
     available: false,
   },
   {
     id: "consultoria",
     name: "Consultoria",
-    modules: ["dashboard", "clientes"],
-    businessName: "Consultoria Pro",
+    modules: ["dashboard"],
+    businessName: "Consultoria",
     businessType: "Consultoria",
     available: false,
   },
   {
     id: "marketing",
-    name: "Agencia de Marketing",
-    modules: ["dashboard", "clientes"],
-    businessName: "Marketing Digital",
-    businessType: "Agencia de Marketing",
+    name: "Marketing",
+    modules: ["dashboard"],
+    businessName: "Marketing",
+    businessType: "Marketing",
     available: false,
   },
   {
     id: "engenharia",
     name: "Engenharia",
-    modules: ["dashboard", "clientes"],
-    businessName: "Engenharia Total",
+    modules: ["dashboard"],
+    businessName: "Engenharia",
     businessType: "Engenharia",
     available: false,
   },
   {
     id: "farmacia",
     name: "Farmacia",
-    modules: ["dashboard", "clientes"],
-    businessName: "Farmacia Vida",
+    modules: ["dashboard"],
+    businessName: "Farmacia",
     businessType: "Farmacia",
     available: false,
   },
   {
     id: "otica",
     name: "Otica",
-    modules: ["dashboard", "clientes"],
-    businessName: "Otica Visual",
+    modules: ["dashboard"],
+    businessName: "Otica",
     businessType: "Otica",
     available: false,
   },
   {
     id: "veterinaria",
     name: "Veterinaria",
-    modules: ["dashboard", "clientes"],
-    businessName: "Vet Care",
+    modules: ["dashboard"],
+    businessName: "Vet",
     businessType: "Veterinaria",
     available: false,
   },
   {
     id: "personalizado",
     name: "Personalizado",
-    modules: ["dashboard", "agenda", "clientes", "financeiro", "relatorios"],
-    businessName: "Meu Negocio",
+    modules: ["dashboard"],
+    businessName: "Negocio",
     businessType: "Personalizado",
     available: false,
   },
 ];
 
-const clients = [
+// ---------------------------------------------------------------------------
+// Initial Data
+// ---------------------------------------------------------------------------
+
+const initialPatients: Patient[] = [
   {
     id: 1,
     name: "Maria Silva",
     phone: "(21) 99876-5432",
     email: "maria@email.com",
+    birthDate: "1985-03-15",
+    cpf: "123.456.789-00",
     lastVisit: "2026-08-01",
     totalSpent: 1250,
     status: "ativo",
   },
   {
     id: 2,
-    name: "João Santos",
+    name: "Joao Santos",
     phone: "(21) 99765-4321",
     email: "joao@email.com",
+    birthDate: "1990-07-22",
+    cpf: "987.654.321-00",
     lastVisit: "2026-08-03",
     totalSpent: 890,
     status: "ativo",
@@ -267,6 +391,8 @@ const clients = [
     name: "Ana Costa",
     phone: "(21) 99654-3210",
     email: "ana@email.com",
+    birthDate: "1978-11-08",
+    cpf: "456.789.123-00",
     lastVisit: "2026-07-28",
     totalSpent: 2100,
     status: "ativo",
@@ -276,6 +402,8 @@ const clients = [
     name: "Pedro Lima",
     phone: "(21) 99543-2109",
     email: "pedro@email.com",
+    birthDate: "1995-01-30",
+    cpf: "321.654.987-00",
     lastVisit: "2026-08-02",
     totalSpent: 450,
     status: "ativo",
@@ -285,6 +413,8 @@ const clients = [
     name: "Lucia Ferreira",
     phone: "(21) 99432-1098",
     email: "lucia@email.com",
+    birthDate: "1982-06-12",
+    cpf: "789.123.456-00",
     lastVisit: "2026-07-15",
     totalSpent: 780,
     status: "inativo",
@@ -294,6 +424,8 @@ const clients = [
     name: "Carlos Mendes",
     phone: "(21) 99321-0987",
     email: "carlos@email.com",
+    birthDate: "1970-09-05",
+    cpf: "654.321.987-00",
     lastVisit: "2026-08-04",
     totalSpent: 3200,
     status: "ativo",
@@ -303,6 +435,8 @@ const clients = [
     name: "Fernanda Alves",
     phone: "(21) 99210-9876",
     email: "fernanda@email.com",
+    birthDate: "1998-12-20",
+    cpf: "147.258.369-00",
     lastVisit: "2026-08-01",
     totalSpent: 950,
     status: "ativo",
@@ -312,143 +446,447 @@ const clients = [
     name: "Roberto Souza",
     phone: "(21) 99109-8765",
     email: "roberto@email.com",
+    birthDate: "1965-04-18",
+    cpf: "369.258.147-00",
     lastVisit: "2026-07-20",
     totalSpent: 1500,
     status: "ativo",
   },
 ];
 
-const appointments = [
+const initialAppointments: Appointment[] = [
   {
     id: 1,
+    date: "2026-08-05",
     time: "09:00",
-    client: "Maria Silva",
-    service: "Consulta",
-    duration: "30min",
-    status: "confirmado",
+    patientId: 1,
+    patientName: "Maria Silva",
     professional: "Dr. Ricardo",
+    service: "Consulta",
+    amount: 250,
+    status: "confirmado",
+    notes: "Retorno para controle",
   },
   {
     id: 2,
-    time: "09:30",
-    client: "João Santos",
-    service: "Retorno",
-    duration: "20min",
-    status: "confirmado",
+    date: "2026-08-05",
+    time: "10:30",
+    patientId: 2,
+    patientName: "Joao Santos",
     professional: "Dr. Ricardo",
+    service: "Limpeza",
+    amount: 150,
+    status: "agendado",
+    notes: "",
   },
   {
     id: 3,
-    time: "10:00",
-    client: "Ana Costa",
+    date: "2026-08-05",
+    time: "11:00",
+    patientId: 3,
+    patientName: "Ana Costa",
+    professional: "Dra. Beatriz",
     service: "Exame",
-    duration: "45min",
-    status: "pendente",
-    professional: "Dr. Ricardo",
+    amount: 450,
+    status: "agendado",
+    notes: "",
   },
   {
     id: 4,
-    time: "11:00",
-    client: "Pedro Lima",
+    date: "2026-08-05",
+    time: "14:00",
+    patientId: 4,
+    patientName: "Pedro Lima",
+    professional: "Dr. Ricardo",
     service: "Consulta",
-    duration: "30min",
-    status: "confirmado",
-    professional: "Dra. Beatriz",
+    amount: 250,
+    status: "realizado",
+    notes: "Paciente OK",
   },
   {
     id: 5,
-    time: "14:00",
-    client: "Lucia Ferreira",
-    service: "Limpeza",
-    duration: "60min",
-    status: "cancelado",
-    professional: "Higienista Ana",
+    date: "2026-08-05",
+    time: "15:30",
+    patientId: 6,
+    patientName: "Carlos Mendes",
+    professional: "Dra. Beatriz",
+    service: "Retorno",
+    amount: 0,
+    status: "faltou",
+    notes: "",
   },
   {
     id: 6,
-    time: "14:30",
-    client: "Carlos Mendes",
-    service: "Consulta",
-    duration: "30min",
-    status: "confirmado",
+    date: "2026-08-06",
+    time: "09:00",
+    patientId: 7,
+    patientName: "Fernanda Alves",
     professional: "Dr. Ricardo",
+    service: "Consulta",
+    amount: 250,
+    status: "agendado",
+    notes: "",
   },
   {
     id: 7,
-    time: "15:00",
-    client: "Fernanda Alves",
-    service: "Avaliação",
-    duration: "40min",
-    status: "confirmado",
-    professional: "Dra. Beatriz",
-  },
-  {
-    id: 8,
-    time: "16:00",
-    client: "Roberto Souza",
-    service: "Retorno",
-    duration: "20min",
-    status: "pendente",
+    date: "2026-08-06",
+    time: "10:00",
+    patientId: 8,
+    patientName: "Roberto Souza",
     professional: "Dr. Ricardo",
+    service: "Consulta",
+    amount: 250,
+    status: "agendado",
+    notes: "",
   },
 ];
 
-const financialData = {
-  monthlyRevenue: 28450,
-  lastMonthRevenue: 25200,
-  pendingPayments: 3200,
-  averageTicket: 285,
-  recentTransactions: [
-    {
-      id: 1,
-      date: "2026-08-05",
-      client: "Maria Silva",
-      service: "Consulta",
-      amount: 250,
-      status: "pago",
+const initialProntuarios: ProntuarioEntry[] = [
+  {
+    id: 1,
+    patientId: 1,
+    patientName: "Maria Silva",
+    date: "2026-08-05",
+    professional: "Dr. Ricardo",
+    type: "retorno",
+    notes: "Paciente relata melhora nos sintomas. Manter tratamento.",
+    prescription: "Ibuprofeno 600mg - 8/8h por 7 dias",
+    cid: "M54.5",
+  },
+  {
+    id: 2,
+    patientId: 2,
+    patientName: "Joao Santos",
+    date: "2026-08-04",
+    professional: "Dr. Ricardo",
+    type: "consulta",
+    notes: "Exames dentro da normalidade. Pressao arterial controlada.",
+    prescription: "Losartana 50mg - 1x ao dia",
+    cid: "I10",
+  },
+  {
+    id: 3,
+    patientId: 3,
+    patientName: "Ana Costa",
+    date: "2026-08-03",
+    professional: "Dra. Beatriz",
+    type: "exame",
+    notes: "Raio-X do torax sem alteracoes.",
+    prescription: "",
+    cid: "Z01.1",
+  },
+  {
+    id: 4,
+    patientId: 4,
+    patientName: "Pedro Lima",
+    date: "2026-08-02",
+    professional: "Dr. Ricardo",
+    type: "consulta",
+    notes: "Dor lombar baixa. Indicar fisioterapia.",
+    prescription: "Dipirona 500mg - 6/6h | Encaminhar fisioterapia",
+    cid: "M54.4",
+  },
+];
+
+const initialToothRecords: ToothRecord[] = [
+  {
+    toothId: 12,
+    condition: "restaurado",
+    faces: {
+      vestbular: false,
+      lingual: false,
+      mesial: true,
+      distal: false,
+      oclusal: false,
     },
-    {
-      id: 2,
-      date: "2026-08-05",
-      client: "João Santos",
-      service: "Retorno",
-      amount: 150,
-      status: "pago",
+    date: "2026-06-10",
+    professional: "Dr. Ricardo",
+    notes: "Restauracao em amalgama",
+  },
+  {
+    toothId: 15,
+    condition: "caries",
+    faces: {
+      vestbular: false,
+      lingual: false,
+      mesial: true,
+      distal: false,
+      oclusal: true,
     },
-    {
-      id: 3,
-      date: "2026-08-04",
-      client: "Ana Costa",
-      service: "Exame",
-      amount: 450,
-      status: "pendente",
+    date: "2026-08-01",
+    professional: "Dr. Ricardo",
+    notes: "Caries profunda",
+  },
+  {
+    toothId: 16,
+    condition: "endodontia",
+    faces: {
+      vestbular: false,
+      lingual: false,
+      mesial: false,
+      distal: false,
+      oclusal: true,
     },
-    {
-      id: 4,
-      date: "2026-08-04",
-      client: "Pedro Lima",
-      service: "Consulta",
-      amount: 250,
-      status: "pago",
+    date: "2026-05-20",
+    professional: "Dr. Ricardo",
+    notes: "Tratamento endodontico concluido",
+  },
+  {
+    toothId: 18,
+    condition: "ausente",
+    faces: {
+      vestbular: false,
+      lingual: false,
+      mesial: false,
+      distal: false,
+      oclusal: false,
     },
-    {
-      id: 5,
-      date: "2026-08-03",
-      client: "Carlos Mendes",
-      service: "Tratamento",
-      amount: 1200,
-      status: "pago",
+    date: "2025-12-15",
+    professional: "Dr. Ricardo",
+    notes: "Extracao realizada",
+  },
+  {
+    toothId: 24,
+    condition: "caries",
+    faces: {
+      vestbular: true,
+      lingual: false,
+      mesial: true,
+      distal: false,
+      oclusal: false,
     },
-    {
-      id: 6,
-      date: "2026-08-03",
-      client: "Fernanda Alves",
-      service: "Avaliação",
-      amount: 200,
-      status: "pago",
+    date: "2026-08-01",
+    professional: "Dr. Ricardo",
+    notes: "Caries vestibulo-mesial",
+  },
+  {
+    toothId: 27,
+    condition: "coroa",
+    faces: {
+      vestbular: true,
+      lingual: true,
+      mesial: true,
+      distal: true,
+      oclusal: true,
     },
-  ],
-};
+    date: "2026-03-15",
+    professional: "Dr. Ricardo",
+    notes: "Coroa ceramica instalada",
+  },
+  {
+    toothId: 28,
+    condition: "ausente",
+    faces: {
+      vestbular: false,
+      lingual: false,
+      mesial: false,
+      distal: false,
+      oclusal: false,
+    },
+    date: "2025-10-20",
+    professional: "Dr. Ricardo",
+    notes: "Extracao",
+  },
+  {
+    toothId: 35,
+    condition: "restaurado",
+    faces: {
+      vestbular: false,
+      lingual: false,
+      mesial: false,
+      distal: false,
+      oclusal: true,
+    },
+    date: "2026-07-05",
+    professional: "Dr. Ricardo",
+    notes: "Restauracao resina",
+  },
+  {
+    toothId: 45,
+    condition: "caries",
+    faces: {
+      vestbular: false,
+      lingual: false,
+      mesial: false,
+      distal: true,
+      oclusal: true,
+    },
+    date: "2026-08-01",
+    professional: "Dr. Ricardo",
+    notes: "Caries disto-oclusal",
+  },
+  {
+    toothId: 47,
+    condition: "restaurado",
+    faces: {
+      vestbular: false,
+      lingual: false,
+      mesial: true,
+      distal: false,
+      oclusal: true,
+    },
+    date: "2026-04-10",
+    professional: "Dr. Ricardo",
+    notes: "Restauracao ampla",
+  },
+  {
+    toothId: 48,
+    condition: "ausente",
+    faces: {
+      vestbular: false,
+      lingual: false,
+      mesial: false,
+      distal: false,
+      oclusal: false,
+    },
+    date: "2025-11-05",
+    professional: "Dr. Ricardo",
+    notes: "Extracao de sisos",
+  },
+];
+
+const initialTreatmentPlan: TreatmentItem[] = [
+  {
+    id: 1,
+    toothId: 15,
+    procedure: "Tratamento de caries - Restauracao em resina",
+    status: "aprovado",
+    value: 280,
+    sessions: 1,
+    completedSessions: 0,
+    notes: "Caries profunda - pode necessitar endodontia",
+  },
+  {
+    id: 2,
+    toothId: 24,
+    procedure: "Restauracao vestibulo-mesial em resina",
+    status: "pendente",
+    value: 220,
+    sessions: 1,
+    completedSessions: 0,
+    notes: "",
+  },
+  {
+    id: 3,
+    toothId: 45,
+    procedure: "Tratamento de caries - Restauracao",
+    status: "em_execucao",
+    value: 250,
+    sessions: 2,
+    completedSessions: 1,
+    notes: "1a sessao concluida",
+  },
+  {
+    id: 4,
+    toothId: 16,
+    procedure: "Coroa sobre endodontia",
+    status: "pendente",
+    value: 890,
+    sessions: 2,
+    completedSessions: 0,
+    notes: "Apos conclusao da endodontia",
+  },
+];
+
+const initialLembretes: Lembrete[] = [
+  {
+    id: 1,
+    patientId: 1,
+    patientName: "Maria Silva",
+    type: "retorno",
+    date: "2026-08-15",
+    time: "09:00",
+    message: "Retorno para controle",
+    status: "pendente",
+    channel: "whatsapp",
+  },
+  {
+    id: 2,
+    patientId: 2,
+    patientName: "Joao Santos",
+    type: "limpeza",
+    date: "2026-08-10",
+    time: "14:30",
+    message: "Lembrete de limpeza semestral",
+    status: "enviado",
+    channel: "sms",
+  },
+  {
+    id: 3,
+    patientId: 3,
+    patientName: "Ana Costa",
+    type: "exame",
+    date: "2026-08-08",
+    time: "11:00",
+    message: "Resultado de exame disponivel",
+    status: "confirmado",
+    channel: "whatsapp",
+  },
+  {
+    id: 4,
+    patientId: 7,
+    patientName: "Fernanda Alves",
+    type: "aniversario",
+    date: "2026-08-20",
+    time: "08:00",
+    message: "Feliz aniversario! Descconto de 10%",
+    status: "pendente",
+    channel: "whatsapp",
+  },
+];
+
+const initialWhatsAppMessages: WhatsAppMessage[] = [
+  {
+    id: 1,
+    patientName: "Maria Silva",
+    message: "Consulta confirmada para 05/08 as 09:00. Obrigada!",
+    time: "09:15",
+    status: "lido",
+    direction: "recebido",
+    appointmentId: 1,
+  },
+  {
+    id: 2,
+    patientName: "Joao Santos",
+    message: "Bom dia! Pode confirmar meu horario de amanha?",
+    time: "08:30",
+    status: "lido",
+    direction: "recebido",
+    appointmentId: 2,
+  },
+  {
+    id: 3,
+    patientName: "Ana Costa",
+    message: "Preciso remarcar minha consulta para outra data.",
+    time: "14:20",
+    status: "pendente",
+    direction: "recebido",
+    appointmentId: 3,
+  },
+  {
+    id: 4,
+    patientName: "Pedro Lima",
+    message:
+      "Seu agendamento para 05/08 as 14:00 esta confirmado. Confirmar ouCancelar?",
+    time: "10:00",
+    status: "lido",
+    direction: "enviado",
+    appointmentId: 4,
+    action: "confirmar",
+    actionTaken: true,
+  },
+  {
+    id: 5,
+    patientName: "Roberto Souza",
+    message: "Lembrete: sua consulta e amanha as 15:30. Podemos confirmar?",
+    time: "16:00",
+    status: "respondido",
+    direction: "enviado",
+    appointmentId: 5,
+    action: "confirmar",
+    actionTaken: false,
+  },
+];
 
 const weeklyData = [
   { day: "Seg", revenue: 3200, appointments: 12 },
@@ -456,59 +894,130 @@ const weeklyData = [
   { day: "Qua", revenue: 3800, appointments: 14 },
   { day: "Qui", revenue: 4500, appointments: 16 },
   { day: "Sex", revenue: 5200, appointments: 18 },
-  { day: "Sáb", revenue: 2800, appointments: 10 },
+  { day: "Sab", revenue: 2800, appointments: 10 },
   { day: "Dom", revenue: 0, appointments: 0 },
 ];
 
+const conditionLabels: Record<string, string> = {
+  saudavel: "Saudavel",
+  caries: "Caries",
+  restaurado: "Restaurado",
+  ausente: "Ausente",
+  implante: "Implante",
+  coroa: "Coroa",
+  endodontia: "Endodontia",
+  fratura: "Fratura",
+  sellador: "Sellador",
+  protese: "Protese",
+  inclinado: "Inclinado",
+  mancha: "Mancha",
+  gengiva: "Problema gengival",
+  extracao: "Extracao",
+  tratamento: "Em tratamento",
+};
+
+const conditionColors: Record<string, string> = {
+  saudavel: "bg-green-500",
+  caries: "bg-red-500",
+  restaurado: "bg-blue-500",
+  ausente: "bg-zinc-600",
+  implante: "bg-purple-500",
+  coroa: "bg-yellow-500",
+  endodontia: "bg-orange-500",
+  fratura: "bg-red-700",
+  sellador: "bg-cyan-500",
+  protese: "bg-pink-500",
+  inclinado: "bg-amber-600",
+  mancha: "bg-stone-400",
+  gengiva: "bg-rose-400",
+  extracao: "bg-zinc-800",
+  tratamento: "bg-teal-500",
+};
+
+const professionalOptions = ["Dr. Ricardo", "Dra. Beatriz"];
+const serviceOptionsMedica = ["Consulta", "Retorno", "Exame", "Emergencia"];
+const serviceOptionsOdonto = [
+  "Consulta",
+  "Limpeza",
+  "Restauracao",
+  "Endodontia",
+  "Extracao",
+  "Clareamento",
+  "Protese",
+  "Ortodontia",
+];
+
+// ---------------------------------------------------------------------------
+// Main Page
+// ---------------------------------------------------------------------------
+
 export default function DemonstracaoPage() {
-  const [currentModule, setCurrentModule] = useState<Module>("dashboard");
+  const [currentModule, setCurrentModule] = useState<ModuleId>("dashboard");
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedSegment, setSelectedSegment] =
-    useState<Segment>("clinica-medica");
-  const [enabledModules, setEnabledModules] = useState<Module[]>([
+    useState<SegmentId>("clinica-medica");
+  const [enabledModules, setEnabledModules] = useState<ModuleId[]>([
     "dashboard",
     "agenda",
     "clientes",
-    "financeiro",
     "relatorios",
+    "whatsapp",
+    "prontuario",
+    "lembretes",
   ]);
+
+  // Dynamic data
+  const [patients, setPatients] = useState<Patient[]>(initialPatients);
+  const [appointments, setAppointments] =
+    useState<Appointment[]>(initialAppointments);
+  const [prontuarios, setProntuarios] =
+    useState<ProntuarioEntry[]>(initialProntuarios);
+  const [toothRecords, setToothRecords] =
+    useState<ToothRecord[]>(initialToothRecords);
+  const [treatmentPlan, setTreatmentPlan] =
+    useState<TreatmentItem[]>(initialTreatmentPlan);
+  const [lembretes, setLembretes] = useState<Lembrete[]>(initialLembretes);
+  const [whatsappMessages, setWhatsappMessages] = useState<WhatsAppMessage[]>(
+    initialWhatsAppMessages,
+  );
 
   const currentSegment = segmentConfigs.find((s) => s.id === selectedSegment);
 
-  const toggleModule = (module: Module) => {
+  const handleSegmentChange = (segId: SegmentId) => {
+    const seg = segmentConfigs.find((s) => s.id === segId);
+    if (!seg || !seg.available) return;
+    setSelectedSegment(segId);
+    setEnabledModules(seg.modules);
+    setCurrentModule("dashboard");
+  };
+
+  const toggleModule = (mod: ModuleId) => {
     setEnabledModules((prev) => {
-      if (prev.includes(module)) {
+      if (prev.includes(mod)) {
         if (prev.length === 1) return prev;
-        return prev.filter((m) => m !== module);
+        return prev.filter((m) => m !== mod);
       }
-      return [...prev, module];
+      return [...prev, mod];
     });
   };
 
-  const handleSegmentChange = (segment: Segment) => {
-    setSelectedSegment(segment);
-    const config = segmentConfigs.find((s) => s.id === segment);
-    if (config) {
-      setEnabledModules(config.modules);
-    }
-  };
-
   const availableModules: {
-    id: Module;
+    id: ModuleId;
     label: string;
     icon: React.ElementType;
   }[] = [
     { id: "dashboard", label: "Painel", icon: BarChart3 },
     { id: "agenda", label: "Agenda", icon: Calendar },
-    { id: "clientes", label: "Clientes", icon: Users },
+    { id: "clientes", label: "Pacientes", icon: Users },
     { id: "financeiro", label: "Financeiro", icon: CreditCard },
     { id: "relatorios", label: "Relatorios", icon: FileText },
     { id: "whatsapp", label: "WhatsApp", icon: MessageSquare },
-    { id: "estoque", label: "Estoque", icon: Package },
     { id: "prontuario", label: "Prontuario", icon: FileText },
-    { id: "pdv", label: "PDV", icon: ShoppingCart },
     { id: "odontograma", label: "Odontograma", icon: Stethoscope },
+    { id: "plano-tratamento", label: "Plano Tratamento", icon: Activity },
     { id: "lembretes", label: "Lembretes", icon: Bell },
+    { id: "estoque", label: "Estoque", icon: Package },
+    { id: "pdv", label: "PDV", icon: ShoppingCart },
   ];
 
   const maxRevenue = Math.max(...weeklyData.map((d) => d.revenue));
@@ -520,10 +1029,9 @@ export default function DemonstracaoPage() {
           <Stethoscope className="text-primary size-6" />
           <div>
             <p className="font-semibold">{currentSegment?.businessName}</p>
-            <p className="text-muted-foreground text-xs">Nova Iguaçu, RJ</p>
+            <p className="text-muted-foreground text-xs">Nova Iguacu, RJ</p>
           </div>
         </div>
-
         <nav className="flex-1 space-y-1 p-3">
           {availableModules
             .filter((item) => enabledModules.includes(item.id))
@@ -542,7 +1050,6 @@ export default function DemonstracaoPage() {
               </button>
             ))}
         </nav>
-
         <div className="border-border space-y-2 border-t p-3">
           <Button
             variant="outline"
@@ -550,7 +1057,7 @@ export default function DemonstracaoPage() {
             size="sm"
           >
             <Bell className="size-4" />
-            Notificações
+            Notificacoes
             <Badge className="ml-auto" variant="secondary">
               3
             </Badge>
@@ -560,36 +1067,29 @@ export default function DemonstracaoPage() {
             className="w-full justify-start gap-2"
             size="sm"
           >
-            <MessageSquare className="size-4" />
-            WhatsApp
-          </Button>
-          <Button
-            variant="ghost"
-            className="w-full justify-start gap-2"
-            size="sm"
-          >
             <Settings className="size-4" />
-            Configurações
+            Configuracoes
           </Button>
         </div>
       </aside>
 
       <main className="ml-64 flex-1 overflow-hidden">
         <header className="bg-card border-border border-b">
-          <div className="flex items-center gap-4 p-4">
+          <div className="flex flex-wrap items-center gap-3 p-4">
             <div className="min-w-0 shrink-0">
               <h1 className="text-xl font-semibold">
                 {currentModule === "dashboard" && "Painel de Controle"}
                 {currentModule === "agenda" && "Agenda"}
-                {currentModule === "clientes" && "Clientes"}
+                {currentModule === "clientes" && "Pacientes"}
                 {currentModule === "financeiro" && "Financeiro"}
-                {currentModule === "relatorios" && "Relatórios"}
+                {currentModule === "relatorios" && "Relatorios"}
                 {currentModule === "whatsapp" && "WhatsApp"}
-                {currentModule === "estoque" && "Estoque"}
                 {currentModule === "prontuario" && "Prontuario"}
-                {currentModule === "pdv" && "PDV"}
                 {currentModule === "odontograma" && "Odontograma"}
+                {currentModule === "plano-tratamento" && "Plano de Tratamento"}
                 {currentModule === "lembretes" && "Lembretes"}
+                {currentModule === "estoque" && "Estoque"}
+                {currentModule === "pdv" && "PDV"}
               </h1>
               <p className="text-muted-foreground text-xs">
                 {new Date().toLocaleDateString("pt-BR", {
@@ -600,12 +1100,10 @@ export default function DemonstracaoPage() {
                 })}
               </p>
             </div>
-
             <div className="bg-border h-8 w-px" />
-
             <select
               value={selectedSegment}
-              onChange={(e) => handleSegmentChange(e.target.value as Segment)}
+              onChange={(e) => handleSegmentChange(e.target.value as SegmentId)}
               className="bg-muted rounded border px-2 py-1.5 text-sm"
             >
               {segmentConfigs.map((seg) => (
@@ -615,7 +1113,6 @@ export default function DemonstracaoPage() {
                 </option>
               ))}
             </select>
-
             <div className="relative min-w-0 flex-1">
               <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
               <input
@@ -624,205 +1121,270 @@ export default function DemonstracaoPage() {
                 className="bg-muted w-full rounded border py-2 pr-4 pl-9 text-sm"
               />
             </div>
-
             <Link href="/demonstracao">
               <Button variant="outline" size="sm" className="shrink-0">
                 Sair da Demo
               </Button>
             </Link>
           </div>
-
           <div className="flex flex-wrap items-center gap-2 border-t px-4 py-2">
-            <span className="text-muted-foreground text-xs">Módulos:</span>
+            <span className="text-muted-foreground text-xs">Modulos:</span>
             <div className="flex flex-wrap gap-1">
-              {availableModules.map((mod) => (
-                <Button
-                  key={mod.id}
-                  variant={
-                    enabledModules.includes(mod.id) ? "default" : "outline"
-                  }
-                  size="sm"
-                  onClick={() => toggleModule(mod.id)}
-                  disabled={
-                    enabledModules.includes(mod.id) &&
-                    enabledModules.length === 1
-                  }
-                  className="h-6 px-2 text-xs"
-                >
-                  {mod.label}
-                </Button>
-              ))}
+              {availableModules
+                .filter((mod) => currentSegment?.modules.includes(mod.id))
+                .map((mod) => (
+                  <Button
+                    key={mod.id}
+                    variant={
+                      enabledModules.includes(mod.id) ? "default" : "outline"
+                    }
+                    size="sm"
+                    onClick={() => toggleModule(mod.id)}
+                    disabled={
+                      enabledModules.includes(mod.id) &&
+                      enabledModules.length === 1
+                    }
+                    className="h-6 px-2 text-xs"
+                  >
+                    {mod.label}
+                  </Button>
+                ))}
             </div>
           </div>
         </header>
 
         <div className="flex-1 overflow-auto p-6">
-          {currentModule === "dashboard" && <DashboardModule />}
+          {currentModule === "dashboard" && (
+            <DashboardModule
+              appointments={appointments}
+              patients={patients}
+              weeklyData={weeklyData}
+              maxRevenue={maxRevenue}
+            />
+          )}
           {currentModule === "agenda" && (
             <AgendaModule
               selectedDate={selectedDate}
               setSelectedDate={setSelectedDate}
+              appointments={appointments}
+              setAppointments={setAppointments}
+              patients={patients}
+              isOdonto={selectedSegment === "clinica-odontologica"}
             />
           )}
-          {currentModule === "clientes" && <ClientesModule />}
-          {currentModule === "financeiro" && <FinanceiroModule />}
-          {currentModule === "relatorios" && (
-            <RelatoriosModule weeklyData={weeklyData} maxRevenue={maxRevenue} />
+          {currentModule === "clientes" && (
+            <ClientesModule patients={patients} setPatients={setPatients} />
           )}
-          {currentModule === "whatsapp" && <WhatsAppModule />}
-          {currentModule === "estoque" && <EstoqueModule />}
-          {currentModule === "prontuario" && <ProntuarioModule />}
-          {currentModule === "pdv" && <PDVModule />}
-          {currentModule === "odontograma" && <OdontogramaModule />}
-          {currentModule === "lembretes" && <LembretesModule />}
+          {currentModule === "financeiro" && (
+            <FinanceiroModule
+              appointments={appointments}
+              treatmentPlan={treatmentPlan}
+            />
+          )}
+          {currentModule === "relatorios" && (
+            <RelatoriosModule
+              weeklyData={weeklyData}
+              maxRevenue={maxRevenue}
+              appointments={appointments}
+              patients={patients}
+            />
+          )}
+          {currentModule === "whatsapp" && (
+            <WhatsAppModule
+              messages={whatsappMessages}
+              setMessages={setWhatsappMessages}
+              appointments={appointments}
+              setAppointments={setAppointments}
+            />
+          )}
+          {currentModule === "prontuario" && (
+            <ProntuarioModule
+              entries={prontuarios}
+              setEntries={setProntuarios}
+              patients={patients}
+            />
+          )}
+          {currentModule === "odontograma" && (
+            <OdontogramaModule
+              records={toothRecords}
+              setRecords={setToothRecords}
+            />
+          )}
+          {currentModule === "plano-tratamento" && (
+            <PlanoTratamentoModule
+              plan={treatmentPlan}
+              setPlan={setTreatmentPlan}
+              toothRecords={toothRecords}
+            />
+          )}
+          {currentModule === "lembretes" && (
+            <LembretesModule
+              lembretes={lembretes}
+              setLembretes={setLembretes}
+              patients={patients}
+            />
+          )}
         </div>
       </main>
     </div>
   );
 }
 
-function DashboardModule() {
+// ---------------------------------------------------------------------------
+// Dashboard Module
+// ---------------------------------------------------------------------------
+
+function DashboardModule({
+  appointments,
+  patients,
+  weeklyData,
+  maxRevenue,
+}: {
+  appointments: Appointment[];
+  patients: Patient[];
+  weeklyData: { day: string; revenue: number; appointments: number }[];
+  maxRevenue: number;
+}) {
+  const todayAppointments = appointments.filter((a) => a.date === "2026-08-05");
+  const todayConfirmed = todayAppointments.filter(
+    (a) => a.status === "confirmado",
+  ).length;
+  const todayPending = todayAppointments.filter(
+    (a) => a.status === "agendado",
+  ).length;
+  const todayRevenue = todayAppointments
+    .filter((a) => a.status === "realizado")
+    .reduce((s, a) => s + a.amount, 0);
+  const monthRevenue = 28450;
+
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {[
-          {
-            label: "Receita do mês",
-            value: "R$ 28.450",
-            change: "+12.9%",
-            trend: "up",
-            icon: DollarSign,
-          },
-          {
-            label: "Agendamentos hoje",
-            value: "8",
-            change: "+2",
-            trend: "up",
-            icon: CalendarPlus,
-          },
-          {
-            label: "Clientes ativos",
-            value: "248",
-            change: "+15",
-            trend: "up",
-            icon: UserPlus,
-          },
-          {
-            label: "Taxa de presença",
-            value: "87%",
-            change: "+5%",
-            trend: "up",
-            icon: Activity,
-          },
-        ].map((stat) => (
-          <Card key={stat.label}>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-muted-foreground text-sm">{stat.label}</p>
-                  <p className="text-2xl font-bold">{stat.value}</p>
-                </div>
-                <div
-                  className={`rounded-lg p-2 ${stat.trend === "up" ? "bg-green-100 dark:bg-green-900" : "bg-red-100 dark:bg-red-900"}`}
-                >
-                  <stat.icon
-                    className={`size-5 ${stat.trend === "up" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
-                  />
-                </div>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-muted-foreground text-sm">Consultas hoje</p>
+                <p className="text-2xl font-bold">{todayAppointments.length}</p>
               </div>
-              <div className="mt-2 flex items-center gap-1 text-sm">
-                {stat.trend === "up" ? (
-                  <ArrowUpRight className="size-4 text-green-600" />
-                ) : (
-                  <ArrowDownRight className="size-4 text-red-600" />
-                )}
-                <span
-                  className={
-                    stat.trend === "up" ? "text-green-600" : "text-red-600"
-                  }
-                >
-                  {stat.change}
-                </span>
-                <span className="text-muted-foreground">vs. mês anterior</span>
+              <Calendar className="text-muted-foreground size-8" />
+            </div>
+            <p className="mt-1 text-sm text-green-600">
+              {todayConfirmed} confirmadas, {todayPending} pendentes
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-muted-foreground text-sm">
+                  Faturamento hoje
+                </p>
+                <p className="text-2xl font-bold">
+                  R$ {todayRevenue.toLocaleString("pt-BR")}
+                </p>
               </div>
-            </CardContent>
-          </Card>
-        ))}
+              <DollarSign className="text-muted-foreground size-8" />
+            </div>
+            <p className="mt-1 text-sm text-green-600">+12% vs. ontem</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-muted-foreground text-sm">
+                  Pacientes ativos
+                </p>
+                <p className="text-2xl font-bold">
+                  {patients.filter((p) => p.status === "ativo").length}
+                </p>
+              </div>
+              <Users className="text-muted-foreground size-8" />
+            </div>
+            <p className="mt-1 text-sm text-green-600">+3 este mes</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-muted-foreground text-sm">Faturamento mes</p>
+                <p className="text-2xl font-bold">
+                  R$ {monthRevenue.toLocaleString("pt-BR")}
+                </p>
+              </div>
+              <Activity className="text-muted-foreground size-8" />
+            </div>
+            <p className="mt-1 text-sm text-green-600">+8% vs. mes anterior</p>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Próximos agendamentos</CardTitle>
-            <CardDescription>
-              Hoje, {new Date().toLocaleDateString("pt-BR")}
-            </CardDescription>
+            <CardTitle>Faturamento semanal</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {appointments.slice(0, 5).map((apt) => (
+            <div className="flex h-48 items-end gap-2">
+              {weeklyData.map((d) => (
                 <div
-                  key={apt.id}
-                  className="flex items-center justify-between rounded-lg border p-3"
+                  key={d.day}
+                  className="flex flex-1 flex-col items-center gap-1"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="text-muted-foreground font-mono text-sm">
-                      {apt.time}
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">{apt.client}</p>
-                      <p className="text-muted-foreground text-xs">
-                        {apt.service} • {apt.professional}
-                      </p>
-                    </div>
-                  </div>
-                  <Badge
-                    variant={
-                      apt.status === "confirmado"
-                        ? "default"
-                        : apt.status === "pendente"
-                          ? "secondary"
-                          : "destructive"
-                    }
-                    className="text-xs"
-                  >
-                    {apt.status}
-                  </Badge>
+                  <span className="text-muted-foreground text-xs">
+                    R$ {d.revenue}
+                  </span>
+                  <div
+                    className="bg-primary w-full rounded-t"
+                    style={{ height: `${(d.revenue / maxRevenue) * 100}%` }}
+                  />
+                  <span className="text-muted-foreground text-xs">{d.day}</span>
                 </div>
               ))}
             </div>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader>
-            <CardTitle>Últimas transações</CardTitle>
-            <CardDescription>Receitas recentes</CardDescription>
+            <CardTitle>Proximas consultas</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {financialData.recentTransactions.slice(0, 5).map((tx) => (
-                <div
-                  key={tx.id}
-                  className="flex items-center justify-between rounded-lg border p-3"
-                >
-                  <div>
-                    <p className="text-sm font-medium">{tx.client}</p>
-                    <p className="text-muted-foreground text-xs">
-                      {tx.service}
-                    </p>
+              {appointments
+                .filter(
+                  (a) =>
+                    a.status !== "realizado" &&
+                    a.status !== "cancelado" &&
+                    a.status !== "faltou",
+                )
+                .slice(0, 5)
+                .map((a) => (
+                  <div
+                    key={a.id}
+                    className="flex items-center justify-between rounded-lg border p-3"
+                  >
+                    <div>
+                      <p className="font-medium">{a.patientName}</p>
+                      <p className="text-muted-foreground text-xs">
+                        {a.service} - {a.professional}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm">{a.time}</p>
+                      <Badge
+                        variant={
+                          a.status === "confirmado" ? "default" : "secondary"
+                        }
+                        className="text-xs"
+                      >
+                        {a.status}
+                      </Badge>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium">R$ {tx.amount}</p>
-                    <Badge
-                      variant={tx.status === "pago" ? "default" : "secondary"}
-                      className="text-xs"
-                    >
-                      {tx.status}
-                    </Badge>
-                  </div>
-                </div>
-              ))}
+                ))}
             </div>
           </CardContent>
         </Card>
@@ -831,528 +1393,1038 @@ function DashboardModule() {
   );
 }
 
+// ---------------------------------------------------------------------------
+// Agenda Module (Interactive)
+// ---------------------------------------------------------------------------
+
 function AgendaModule({
   selectedDate,
   setSelectedDate,
+  appointments,
+  setAppointments,
+  patients,
+  isOdonto,
 }: {
   selectedDate: Date;
   setSelectedDate: (d: Date) => void;
+  appointments: Appointment[];
+  setAppointments: React.Dispatch<React.SetStateAction<Appointment[]>>;
+  patients: Patient[];
+  isOdonto: boolean;
 }) {
-  const daysInMonth = new Date(
-    selectedDate.getFullYear(),
-    selectedDate.getMonth() + 1,
-    0,
-  ).getDate();
-  const firstDayOfMonth = new Date(
-    selectedDate.getFullYear(),
-    selectedDate.getMonth(),
-    1,
-  ).getDay();
+  const [showForm, setShowForm] = useState(false);
+  const [editingAppointment, setEditingAppointment] =
+    useState<Appointment | null>(null);
+  const [form, setForm] = useState({
+    patientId: "",
+    professional: "Dr. Ricardo",
+    service: "",
+    date: "2026-08-05",
+    time: "09:00",
+    notes: "",
+  });
+
+  const dateStr = selectedDate.toISOString().split("T")[0];
+  const dayAppointments = appointments.filter((a) => a.date === dateStr);
+  const services = isOdonto ? serviceOptionsOdonto : serviceOptionsMedica;
+
+  const handleSave = () => {
+    const patient = patients.find((p) => p.id === Number(form.patientId));
+    if (!patient) return;
+    if (editingAppointment) {
+      setAppointments((prev) =>
+        prev.map((a) =>
+          a.id === editingAppointment.id
+            ? {
+                ...a,
+                patientId: patient.id,
+                patientName: patient.name,
+                professional: form.professional,
+                service: form.service,
+                date: form.date,
+                time: form.time,
+                notes: form.notes,
+              }
+            : a,
+        ),
+      );
+    } else {
+      const newAppt: Appointment = {
+        id: Date.now(),
+        date: form.date,
+        time: form.time,
+        patientId: patient.id,
+        patientName: patient.name,
+        professional: form.professional,
+        service: form.service,
+        amount: 0,
+        status: "agendado",
+        notes: form.notes,
+      };
+      setAppointments((prev) => [...prev, newAppt]);
+    }
+    setShowForm(false);
+    setEditingAppointment(null);
+    setForm({
+      patientId: "",
+      professional: "Dr. Ricardo",
+      service: "",
+      date: dateStr,
+      time: "09:00",
+      notes: "",
+    });
+  };
+
+  const handleEdit = (appt: Appointment) => {
+    setEditingAppointment(appt);
+    setForm({
+      patientId: String(appt.patientId),
+      professional: appt.professional,
+      service: appt.service,
+      date: appt.date,
+      time: appt.time,
+      notes: appt.notes,
+    });
+    setShowForm(true);
+  };
+
+  const handleDelete = (id: number) => {
+    setAppointments((prev) => prev.filter((a) => a.id !== id));
+  };
+
+  const handleStatusChange = (id: number, status: Appointment["status"]) => {
+    setAppointments((prev) =>
+      prev.map((a) => (a.id === id ? { ...a, status } : a)),
+    );
+  };
+
+  const statusColors: Record<string, string> = {
+    agendado: "bg-blue-100 text-blue-800",
+    confirmado: "bg-green-100 text-green-800",
+    cancelado: "bg-red-100 text-red-800",
+    realizado: "bg-zinc-100 text-zinc-800",
+    faltou: "bg-orange-100 text-orange-800",
+  };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-semibold">
-            {selectedDate.toLocaleDateString("pt-BR", {
-              month: "long",
-              year: "numeric",
-            })}
-          </h2>
-        </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
           <Button
             variant="outline"
             size="icon"
             onClick={() =>
               setSelectedDate(
-                new Date(
-                  selectedDate.getFullYear(),
-                  selectedDate.getMonth() - 1,
-                ),
+                new Date(selectedDate.setDate(selectedDate.getDate() - 1)),
               )
             }
           >
             <ChevronLeft className="size-4" />
           </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setSelectedDate(new Date())}
-          >
-            Hoje
-          </Button>
+          <div className="text-center">
+            <p className="font-semibold">
+              {selectedDate.toLocaleDateString("pt-BR", {
+                weekday: "long",
+                day: "2-digit",
+                month: "long",
+              })}
+            </p>
+            <p className="text-muted-foreground text-sm">
+              {dayAppointments.length} consultas
+            </p>
+          </div>
           <Button
             variant="outline"
             size="icon"
             onClick={() =>
               setSelectedDate(
-                new Date(
-                  selectedDate.getFullYear(),
-                  selectedDate.getMonth() + 1,
-                ),
+                new Date(selectedDate.setDate(selectedDate.getDate() + 1)),
               )
             }
           >
             <ChevronRight className="size-4" />
           </Button>
-          <Button size="sm">
-            <Plus className="mr-2 size-4" />
-            Novo agendamento
-          </Button>
         </div>
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-1">
-          <CardContent className="p-4">
-            <div className="text-muted-foreground mb-4 grid grid-cols-7 gap-1 text-center text-xs font-medium">
-              {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((day) => (
-                <div key={day}>{day}</div>
-              ))}
-            </div>
-            <div className="grid grid-cols-7 gap-1">
-              {Array.from({ length: firstDayOfMonth }, (_, i) => (
-                <div key={`empty-${i}`} />
-              ))}
-              {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(
-                (day) => {
-                  const isToday =
-                    day === new Date().getDate() &&
-                    selectedDate.getMonth() === new Date().getMonth() &&
-                    selectedDate.getFullYear() === new Date().getFullYear();
-                  const isSelected = day === selectedDate.getDate();
-                  return (
-                    <button
-                      key={day}
-                      onClick={() =>
-                        setSelectedDate(
-                          new Date(
-                            selectedDate.getFullYear(),
-                            selectedDate.getMonth(),
-                            day,
-                          ),
-                        )
-                      }
-                      className={`flex size-8 items-center justify-center rounded-full text-sm transition-colors ${
-                        isToday
-                          ? "bg-primary text-primary-foreground"
-                          : isSelected
-                            ? "bg-primary/20 text-primary"
-                            : "hover:bg-muted"
-                      }`}
-                    >
-                      {day}
-                    </button>
-                  );
-                },
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Agendamentos do dia</CardTitle>
-            <CardDescription>
-              {selectedDate.toLocaleDateString("pt-BR", {
-                weekday: "long",
-                day: "numeric",
-                month: "long",
-              })}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {appointments.map((apt) => (
-                <div
-                  key={apt.id}
-                  className="flex items-center justify-between rounded-lg border p-4"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="text-center">
-                      <div className="text-lg font-bold">{apt.time}</div>
-                      <div className="text-muted-foreground text-xs">
-                        {apt.duration}
-                      </div>
-                    </div>
-                    <Separator orientation="vertical" className="h-10" />
-                    <div>
-                      <p className="font-medium">{apt.client}</p>
-                      <p className="text-muted-foreground text-sm">
-                        {apt.service}
-                      </p>
-                      <p className="text-muted-foreground text-xs">
-                        {apt.professional}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge
-                      variant={
-                        apt.status === "confirmado"
-                          ? "default"
-                          : apt.status === "pendente"
-                            ? "secondary"
-                            : "destructive"
-                      }
-                    >
-                      {apt.status}
-                    </Badge>
-                    <Button variant="ghost" size="icon" className="size-8">
-                      <Phone className="size-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="size-8">
-                      <MessageSquare className="size-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
-}
-
-function ClientesModule() {
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-semibold">Lista de clientes</h2>
-          <p className="text-muted-foreground text-sm">
-            {clients.length} clientes cadastrados
-          </p>
-        </div>
-        <Button>
-          <Plus className="mr-2 size-4" />
-          Novo cliente
+        <Button
+          onClick={() => {
+            setEditingAppointment(null);
+            setForm({
+              patientId: "",
+              professional: "Dr. Ricardo",
+              service: "",
+              date: dateStr,
+              time: "09:00",
+              notes: "",
+            });
+            setShowForm(true);
+          }}
+          className="gap-2"
+        >
+          <Plus className="size-4" /> Nova consulta
         </Button>
       </div>
 
-      <Card>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-border border-b">
-                  <th className="text-muted-foreground p-4 text-left text-sm font-medium">
-                    Cliente
-                  </th>
-                  <th className="text-muted-foreground p-4 text-left text-sm font-medium">
-                    Contato
-                  </th>
-                  <th className="text-muted-foreground p-4 text-left text-sm font-medium">
-                    Último atendimento
-                  </th>
-                  <th className="text-muted-foreground p-4 text-left text-sm font-medium">
-                    Total gasto
-                  </th>
-                  <th className="text-muted-foreground p-4 text-left text-sm font-medium">
-                    Status
-                  </th>
-                  <th className="text-muted-foreground p-4 text-right text-sm font-medium">
-                    Ações
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {clients.map((client) => (
-                  <tr
-                    key={client.id}
-                    className="border-border hover:bg-muted/50 border-b last:border-0"
-                  >
-                    <td className="p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="bg-primary/10 flex size-10 items-center justify-center rounded-full">
-                          <span className="text-primary text-sm font-medium">
-                            {client.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </span>
-                        </div>
-                        <div>
-                          <p className="font-medium">{client.name}</p>
-                          <p className="text-muted-foreground text-xs">
-                            {client.email}
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <div className="flex items-center gap-1 text-sm">
-                        <Phone className="size-3" />
-                        {client.phone}
-                      </div>
-                    </td>
-                    <td className="p-4 text-sm">
-                      {new Date(client.lastVisit).toLocaleDateString("pt-BR")}
-                    </td>
-                    <td className="p-4 text-sm font-medium">
-                      R$ {client.totalSpent.toLocaleString("pt-BR")}
-                    </td>
-                    <td className="p-4">
-                      <Badge
-                        variant={
-                          client.status === "ativo" ? "default" : "secondary"
-                        }
-                      >
-                        {client.status}
-                      </Badge>
-                    </td>
-                    <td className="p-4">
-                      <div className="flex justify-end gap-1">
-                        <Button variant="ghost" size="icon" className="size-8">
-                          <Eye className="size-4" />
+      {showForm && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>
+                {editingAppointment ? "Editar consulta" : "Agendar consulta"}
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setShowForm(false);
+                  setEditingAppointment(null);
+                }}
+              >
+                <X className="size-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <label className="text-sm font-medium">Paciente</label>
+                <select
+                  value={form.patientId}
+                  onChange={(e) =>
+                    setForm({ ...form, patientId: e.target.value })
+                  }
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                >
+                  <option value="">Selecionar...</option>
+                  {patients
+                    .filter((p) => p.status === "ativo")
+                    .map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Profissional</label>
+                <select
+                  value={form.professional}
+                  onChange={(e) =>
+                    setForm({ ...form, professional: e.target.value })
+                  }
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                >
+                  {professionalOptions.map((p) => (
+                    <option key={p} value={p}>
+                      {p}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Servico</label>
+                <select
+                  value={form.service}
+                  onChange={(e) =>
+                    setForm({ ...form, service: e.target.value })
+                  }
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                >
+                  <option value="">Selecionar...</option>
+                  {services.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Data</label>
+                <input
+                  type="date"
+                  value={form.date}
+                  onChange={(e) => setForm({ ...form, date: e.target.value })}
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Horario</label>
+                <input
+                  type="time"
+                  value={form.time}
+                  onChange={(e) => setForm({ ...form, time: e.target.value })}
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Observacoes</label>
+                <input
+                  type="text"
+                  value={form.notes}
+                  onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                  placeholder="Opcional"
+                />
+              </div>
+            </div>
+            <div className="mt-4 flex gap-2">
+              <Button
+                onClick={handleSave}
+                disabled={!form.patientId || !form.service}
+              >
+                <Save className="mr-2 size-4" />{" "}
+                {editingAppointment ? "Salvar" : "Agendar"}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowForm(false);
+                  setEditingAppointment(null);
+                }}
+              >
+                Cancelar
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="space-y-3">
+        {dayAppointments.length === 0 && (
+          <Card>
+            <CardContent className="text-muted-foreground p-8 text-center">
+              Nenhuma consulta para este dia
+            </CardContent>
+          </Card>
+        )}
+        {dayAppointments
+          .sort((a, b) => a.time.localeCompare(b.time))
+          .map((appt) => (
+            <Card key={appt.id}>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="text-center">
+                      <p className="text-lg font-bold">{appt.time}</p>
+                    </div>
+                    <div>
+                      <p className="font-medium">{appt.patientName}</p>
+                      <p className="text-muted-foreground text-sm">
+                        {appt.service} - {appt.professional}
+                      </p>
+                      {appt.notes && (
+                        <p className="text-muted-foreground mt-1 text-xs">
+                          {appt.notes}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge className={statusColors[appt.status]}>
+                      {appt.status}
+                    </Badge>
+                    {appt.status === "agendado" && (
+                      <>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="gap-1 text-green-600"
+                          onClick={() =>
+                            handleStatusChange(appt.id, "confirmado")
+                          }
+                        >
+                          <Check className="size-3" /> Confirmar
                         </Button>
-                        <Button variant="ghost" size="icon" className="size-8">
-                          <Edit className="size-4" />
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="gap-1 text-red-600"
+                          onClick={() =>
+                            handleStatusChange(appt.id, "cancelado")
+                          }
+                        >
+                          <X className="size-3" /> Cancelar
                         </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+                      </>
+                    )}
+                    {appt.status === "confirmado" && (
+                      <>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="gap-1"
+                          onClick={() =>
+                            handleStatusChange(appt.id, "realizado")
+                          }
+                        >
+                          <CheckCircle2 className="size-3" /> Realizar
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="gap-1 text-orange-600"
+                          onClick={() => handleStatusChange(appt.id, "faltou")}
+                        >
+                          <AlertTriangle className="size-3" /> Falta
+                        </Button>
+                      </>
+                    )}
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleEdit(appt)}
+                    >
+                      <Edit className="size-3" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleDelete(appt.id)}
+                    >
+                      <Trash2 className="size-3" />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+      </div>
     </div>
   );
 }
 
-function FinanceiroModule() {
-  const revenueChange = (
-    ((financialData.monthlyRevenue - financialData.lastMonthRevenue) /
-      financialData.lastMonthRevenue) *
-    100
-  ).toFixed(1);
+// ---------------------------------------------------------------------------
+// Clientes (Pacientes) Module (Interactive)
+// ---------------------------------------------------------------------------
+
+function ClientesModule({
+  patients,
+  setPatients,
+}: {
+  patients: Patient[];
+  setPatients: React.Dispatch<React.SetStateAction<Patient[]>>;
+}) {
+  const [showForm, setShowForm] = useState(false);
+  const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [form, setForm] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    birthDate: "",
+    cpf: "",
+  });
+
+  const filtered = patients.filter(
+    (p) =>
+      p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.phone.includes(searchTerm) ||
+      p.cpf.includes(searchTerm),
+  );
+
+  const handleSave = () => {
+    if (!form.name || !form.phone) return;
+    if (editingPatient) {
+      setPatients((prev) =>
+        prev.map((p) => (p.id === editingPatient.id ? { ...p, ...form } : p)),
+      );
+    } else {
+      setPatients((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          ...form,
+          lastVisit: "",
+          totalSpent: 0,
+          status: "ativo" as const,
+        },
+      ]);
+    }
+    setShowForm(false);
+    setEditingPatient(null);
+    setForm({ name: "", phone: "", email: "", birthDate: "", cpf: "" });
+  };
+
+  const handleEdit = (p: Patient) => {
+    setEditingPatient(p);
+    setForm({
+      name: p.name,
+      phone: p.phone,
+      email: p.email,
+      birthDate: p.birthDate,
+      cpf: p.cpf,
+    });
+    setShowForm(true);
+  };
+
+  const handleDelete = (id: number) => {
+    setPatients((prev) => prev.filter((p) => p.id !== id));
+  };
+
+  const toggleStatus = (id: number) => {
+    setPatients((prev) =>
+      prev.map((p) =>
+        p.id === id
+          ? { ...p, status: p.status === "ativo" ? "inativo" : "ativo" }
+          : p,
+      ),
+    );
+  };
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {[
-          {
-            label: "Receita do mês",
-            value: `R$ ${financialData.monthlyRevenue.toLocaleString("pt-BR")}`,
-            change: `+${revenueChange}%`,
-          },
-          {
-            label: "Receita mês anterior",
-            value: `R$ ${financialData.lastMonthRevenue.toLocaleString("pt-BR")}`,
-            change: "",
-          },
-          {
-            label: "Pagamentos pendentes",
-            value: `R$ ${financialData.pendingPayments.toLocaleString("pt-BR")}`,
-            change: "",
-          },
-          {
-            label: "Ticket médio",
-            value: `R$ ${financialData.averageTicket}`,
-            change: "",
-          },
-        ].map((stat) => (
-          <Card key={stat.label}>
+      <div className="flex items-center justify-between">
+        <div className="relative w-80">
+          <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+          <input
+            type="text"
+            placeholder="Buscar por nome, telefone ou CPF..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="bg-muted w-full rounded border py-2 pr-4 pl-9 text-sm"
+          />
+        </div>
+        <Button
+          onClick={() => {
+            setEditingPatient(null);
+            setForm({ name: "", phone: "", email: "", birthDate: "", cpf: "" });
+            setShowForm(true);
+          }}
+          className="gap-2"
+        >
+          <UserPlus className="size-4" /> Novo paciente
+        </Button>
+      </div>
+
+      {showForm && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>
+                {editingPatient ? "Editar paciente" : "Cadastrar paciente"}
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setShowForm(false);
+                  setEditingPatient(null);
+                }}
+              >
+                <X className="size-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <label className="text-sm font-medium">Nome completo</label>
+                <input
+                  type="text"
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Telefone</label>
+                <input
+                  type="tel"
+                  value={form.phone}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                  placeholder="(21) 99999-9999"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Email</label>
+                <input
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">CPF</label>
+                <input
+                  type="text"
+                  value={form.cpf}
+                  onChange={(e) => setForm({ ...form, cpf: e.target.value })}
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                  placeholder="000.000.000-00"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">
+                  Data de nascimento
+                </label>
+                <input
+                  type="date"
+                  value={form.birthDate}
+                  onChange={(e) =>
+                    setForm({ ...form, birthDate: e.target.value })
+                  }
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                />
+              </div>
+            </div>
+            <div className="mt-4 flex gap-2">
+              <Button onClick={handleSave} disabled={!form.name || !form.phone}>
+                <Save className="mr-2 size-4" />{" "}
+                {editingPatient ? "Salvar" : "Cadastrar"}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowForm(false);
+                  setEditingPatient(null);
+                }}
+              >
+                Cancelar
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="space-y-3">
+        {filtered.map((p) => (
+          <Card key={p.id}>
             <CardContent className="p-4">
-              <p className="text-muted-foreground text-sm">{stat.label}</p>
-              <p className="text-2xl font-bold">{stat.value}</p>
-              {stat.change && (
-                <p className="mt-1 text-sm text-green-600">{stat.change}</p>
-              )}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="bg-primary/10 flex size-10 items-center justify-center rounded-full">
+                    <Users className="text-primary size-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium">{p.name}</p>
+                      <Badge
+                        variant={p.status === "ativo" ? "default" : "secondary"}
+                      >
+                        {p.status}
+                      </Badge>
+                    </div>
+                    <p className="text-muted-foreground text-sm">
+                      {p.phone} | {p.email}
+                    </p>
+                    <p className="text-muted-foreground text-xs">
+                      CPF: {p.cpf} | Nascimento:{" "}
+                      {p.birthDate
+                        ? new Date(
+                            p.birthDate + "T00:00:00",
+                          ).toLocaleDateString("pt-BR")
+                        : "-"}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <p className="font-medium">
+                      R$ {p.totalSpent.toLocaleString("pt-BR")}
+                    </p>
+                    <p className="text-muted-foreground text-xs">
+                      Ultima visita:{" "}
+                      {p.lastVisit
+                        ? new Date(
+                            p.lastVisit + "T00:00:00",
+                          ).toLocaleDateString("pt-BR")
+                        : "-"}
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => toggleStatus(p.id)}
+                  >
+                    {p.status === "ativo" ? (
+                      <XCircle className="size-3" />
+                    ) : (
+                      <CheckCircle2 className="size-3" />
+                    )}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => handleEdit(p)}
+                  >
+                    <Edit className="size-3" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => handleDelete(p.id)}
+                  >
+                    <Trash2 className="size-3" />
+                  </Button>
+                </div>
+              </div>
             </CardContent>
           </Card>
         ))}
       </div>
+    </div>
+  );
+}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Últimas transações</CardTitle>
-          <CardDescription>Receitas e pagamentos recentes</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {financialData.recentTransactions.map((tx) => (
-              <div
-                key={tx.id}
-                className="flex items-center justify-between rounded-lg border p-4"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="rounded-lg bg-green-100 p-2 dark:bg-green-900">
-                    <DollarSign className="size-5 text-green-600 dark:text-green-400" />
+// ---------------------------------------------------------------------------
+// Financeiro Module
+// ---------------------------------------------------------------------------
+
+function FinanceiroModule({
+  appointments,
+  treatmentPlan,
+}: {
+  appointments: Appointment[];
+  treatmentPlan: TreatmentItem[];
+}) {
+  const totalReceita = appointments
+    .filter((a) => a.status === "realizado")
+    .reduce((s, a) => s + a.amount, 0);
+  const totalPendente = appointments
+    .filter((a) => a.status === "confirmado" || a.status === "agendado")
+    .reduce((s, a) => s + a.amount, 0);
+  const totalTratamentos = treatmentPlan.reduce((s, t) => s + t.value, 0);
+  const valorRecebido = treatmentPlan
+    .filter((t) => t.status === "concluido")
+    .reduce((s, t) => s + t.value, 0);
+  const valorAberto = totalTratamentos - valorRecebido;
+
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Receita realizada</p>
+            <p className="text-2xl font-bold">
+              R$ {totalReceita.toLocaleString("pt-BR")}
+            </p>
+            <p className="mt-1 text-sm text-green-600">+12% vs. mes anterior</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">A receber</p>
+            <p className="text-2xl font-bold text-orange-500">
+              R$ {totalPendente.toLocaleString("pt-BR")}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">
+              Valor total tratamentos
+            </p>
+            <p className="text-2xl font-bold">
+              R$ {totalTratamentos.toLocaleString("pt-BR")}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">
+              Em aberto (tratamentos)
+            </p>
+            <p className="text-2xl font-bold text-red-500">
+              R$ {valorAberto.toLocaleString("pt-BR")}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Consultas por status</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {(
+                [
+                  "realizado",
+                  "confirmado",
+                  "agendado",
+                  "faltou",
+                  "cancelado",
+                ] as const
+              ).map((status) => {
+                const count = appointments.filter(
+                  (a) => a.status === status,
+                ).length;
+                const pct = Math.round((count / appointments.length) * 100);
+                return (
+                  <div key={status} className="space-y-1">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="capitalize">{status}</span>
+                      <span className="font-medium">
+                        {count} ({pct}%)
+                      </span>
+                    </div>
+                    <div className="bg-muted h-2 overflow-hidden rounded-full">
+                      <div
+                        className="bg-primary h-full rounded-full"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
                   </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Recebimentos por tratamento</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {treatmentPlan.map((t) => (
+                <div
+                  key={t.id}
+                  className="flex items-center justify-between rounded-lg border p-3"
+                >
                   <div>
-                    <p className="font-medium">{tx.client}</p>
-                    <p className="text-muted-foreground text-sm">
-                      {tx.service}
+                    <p className="text-sm font-medium">
+                      Dente {t.toothId} - {t.procedure}
+                    </p>
+                    <p className="text-muted-foreground text-xs">
+                      Sessoes: {t.completedSessions}/{t.sessions}
                     </p>
                   </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-lg font-bold">R$ {tx.amount}</p>
-                  <div className="flex items-center gap-2">
-                    <p className="text-muted-foreground text-xs">{tx.date}</p>
+                  <div className="text-right">
+                    <p className="text-sm font-medium">R$ {t.value}</p>
                     <Badge
-                      variant={tx.status === "pago" ? "default" : "secondary"}
+                      variant={
+                        t.status === "concluido"
+                          ? "default"
+                          : t.status === "em_execucao"
+                            ? "secondary"
+                            : "outline"
+                      }
                       className="text-xs"
                     >
-                      {tx.status}
+                      {t.status.replace("_", " ")}
                     </Badge>
                   </div>
                 </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Relatorios Module
+// ---------------------------------------------------------------------------
+
+function RelatoriosModule({
+  weeklyData,
+  maxRevenue,
+  appointments,
+  patients,
+}: {
+  weeklyData: { day: string; revenue: number; appointments: number }[];
+  maxRevenue: number;
+  appointments: Appointment[];
+  patients: Patient[];
+}) {
+  const totalAppointments = appointments.length;
+  const totalRevenue = appointments
+    .filter((a) => a.status === "realizado")
+    .reduce((s, a) => s + a.amount, 0);
+  const noShowRate = Math.round(
+    (appointments.filter((a) => a.status === "faltou").length /
+      totalAppointments) *
+      100,
+  );
+  const confirmRate = Math.round(
+    (appointments.filter(
+      (a) => a.status === "confirmado" || a.status === "realizado",
+    ).length /
+      totalAppointments) *
+      100,
+  );
+
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Total consultas</p>
+            <p className="text-2xl font-bold">{totalAppointments}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Receita total</p>
+            <p className="text-2xl font-bold">
+              R$ {totalRevenue.toLocaleString("pt-BR")}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Taxa de no-show</p>
+            <p className="text-2xl font-bold text-red-500">{noShowRate}%</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">Taxa de confirmacao</p>
+            <p className="text-2xl font-bold text-green-600">{confirmRate}%</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Faturamento semanal</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex h-48 items-end gap-2">
+            {weeklyData.map((d) => (
+              <div
+                key={d.day}
+                className="flex flex-1 flex-col items-center gap-1"
+              >
+                <span className="text-muted-foreground text-xs">
+                  R$ {d.revenue}
+                </span>
+                <div
+                  className="bg-primary w-full rounded-t"
+                  style={{ height: `${(d.revenue / maxRevenue) * 100}%` }}
+                />
+                <span className="text-muted-foreground text-xs">{d.day}</span>
               </div>
             ))}
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
-}
 
-function RelatoriosModule({
-  weeklyData,
-  maxRevenue,
-}: {
-  weeklyData: { day: string; revenue: number; appointments: number }[];
-  maxRevenue: number;
-}) {
-  return (
-    <div className="space-y-6">
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Receita da semana</CardTitle>
-            <CardDescription>Últimos 7 dias</CardDescription>
+            <CardTitle>Pacientes mais ativos</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {patients
+                .filter((p) => p.status === "ativo")
+                .sort((a, b) => b.totalSpent - a.totalSpent)
+                .slice(0, 5)
+                .map((p, i) => (
+                  <div
+                    key={p.id}
+                    className="flex items-center justify-between rounded-lg border p-3"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-muted-foreground text-sm font-bold">
+                        #{i + 1}
+                      </span>
+                      <p className="font-medium">{p.name}</p>
+                    </div>
+                    <p className="font-medium">
+                      R$ {p.totalSpent.toLocaleString("pt-BR")}
+                    </p>
+                  </div>
+                ))}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Desempenho por profissional</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {weeklyData.map((day) => (
-                <div key={day.day} className="flex items-center gap-4">
-                  <div className="w-8 text-sm font-medium">{day.day}</div>
-                  <div className="flex-1">
-                    <div className="bg-muted h-6 overflow-hidden rounded-full">
+              {professionalOptions.map((prof) => {
+                const profAppts = appointments.filter(
+                  (a) => a.professional === prof,
+                );
+                const profRevenue = profAppts
+                  .filter((a) => a.status === "realizado")
+                  .reduce((s, a) => s + a.amount, 0);
+                return (
+                  <div key={prof} className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span>{prof}</span>
+                      <span className="font-medium">
+                        {profAppts.length} consultas - R${" "}
+                        {profRevenue.toLocaleString("pt-BR")}
+                      </span>
+                    </div>
+                    <div className="bg-muted h-2 overflow-hidden rounded-full">
                       <div
-                        className="bg-primary h-full rounded-full transition-all duration-500"
+                        className="bg-primary h-full rounded-full"
                         style={{
-                          width: `${(day.revenue / maxRevenue) * 100}%`,
+                          width: `${(profRevenue / Math.max(totalRevenue, 1)) * 100}%`,
                         }}
                       />
                     </div>
                   </div>
-                  <div className="w-20 text-right text-sm font-medium">
-                    R$ {day.revenue.toLocaleString("pt-BR")}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Agendamentos por dia</CardTitle>
-            <CardDescription>Últimos 7 dias</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {weeklyData.map((day) => (
-                <div key={day.day} className="flex items-center gap-4">
-                  <div className="w-8 text-sm font-medium">{day.day}</div>
-                  <div className="flex-1">
-                    <div className="bg-muted h-6 overflow-hidden rounded-full">
-                      <div
-                        className="h-full rounded-full bg-blue-500 transition-all duration-500"
-                        style={{ width: `${(day.appointments / 20) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                  <div className="w-20 text-right text-sm font-medium">
-                    {day.appointments}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </CardContent>
         </Card>
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Resumo mensal</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-lg border p-4 text-center">
-              <p className="text-muted-foreground text-sm">
-                Total de atendimentos
-              </p>
-              <p className="text-3xl font-bold">85</p>
-              <p className="mt-1 text-sm text-green-600">
-                +12% vs. mês anterior
-              </p>
-            </div>
-            <div className="rounded-lg border p-4 text-center">
-              <p className="text-muted-foreground text-sm">Novos clientes</p>
-              <p className="text-3xl font-bold">23</p>
-              <p className="mt-1 text-sm text-green-600">
-                +8% vs. mês anterior
-              </p>
-            </div>
-            <div className="rounded-lg border p-4 text-center">
-              <p className="text-muted-foreground text-sm">Taxa de retenção</p>
-              <p className="text-3xl font-bold">92%</p>
-              <p className="mt-1 text-sm text-green-600">
-                +3% vs. mês anterior
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }
 
-function WhatsAppModule() {
-  const messages = [
-    {
-      id: 1,
-      client: "Maria Silva",
-      message: "Olá, gostaria de agendar uma consulta...",
-      time: "09:15",
-      status: "lido",
-    },
-    {
-      id: 2,
-      client: "João Santos",
-      message: "Bom dia! Pode confirmar meu horário de amanhã?",
-      time: "08:30",
-      status: "lido",
-    },
-    {
-      id: 3,
-      client: "Ana Costa",
-      message: "Preciso remarcar minha consulta para outra data.",
-      time: "14:20",
-      status: "pendente",
-    },
-    {
-      id: 4,
-      client: "Pedro Lima",
-      message: "Qual o valor da consulta?",
-      time: "11:45",
-      status: "respondido",
-    },
-    {
-      id: 5,
-      client: "Lucia Ferreira",
-      message: "Obrigada pelo lembrete!",
-      time: "Ontem",
-      status: "lido",
-    },
-  ];
+// ---------------------------------------------------------------------------
+// WhatsApp Module (Interactive)
+// ---------------------------------------------------------------------------
+
+function WhatsAppModule({
+  messages,
+  setMessages,
+  appointments,
+  setAppointments,
+}: {
+  messages: WhatsAppMessage[];
+  setMessages: React.Dispatch<React.SetStateAction<WhatsAppMessage[]>>;
+  appointments: Appointment[];
+  setAppointments: React.Dispatch<React.SetStateAction<Appointment[]>>;
+}) {
+  const pendingCount = messages.filter((m) => m.status === "pendente").length;
+
+  const handleConfirm = (msg: WhatsAppMessage) => {
+    if (msg.appointmentId) {
+      setAppointments((prev) =>
+        prev.map((a) =>
+          a.id === msg.appointmentId ? { ...a, status: "confirmado" } : a,
+        ),
+      );
+    }
+    setMessages((prev) =>
+      prev.map((m) =>
+        m.id === msg.id
+          ? { ...m, status: "respondido" as const, actionTaken: true }
+          : m,
+      ),
+    );
+  };
+
+  const handleCancel = (msg: WhatsAppMessage) => {
+    if (msg.appointmentId) {
+      setAppointments((prev) =>
+        prev.map((a) =>
+          a.id === msg.appointmentId ? { ...a, status: "cancelado" } : a,
+        ),
+      );
+    }
+    setMessages((prev) =>
+      prev.map((m) =>
+        m.id === msg.id
+          ? { ...m, status: "respondido" as const, actionTaken: true }
+          : m,
+      ),
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -1360,66 +2432,103 @@ function WhatsAppModule() {
         <Card>
           <CardContent className="p-4">
             <p className="text-muted-foreground text-sm">Mensagens hoje</p>
-            <p className="text-2xl font-bold">24</p>
-            <p className="mt-1 text-sm text-green-600">+8 vs. ontem</p>
+            <p className="text-2xl font-bold">{messages.length}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <p className="text-muted-foreground text-sm">Pendentes</p>
-            <p className="text-2xl font-bold">3</p>
+            <p className="text-2xl font-bold text-orange-500">{pendingCount}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <p className="text-muted-foreground text-sm">Taxa de resposta</p>
-            <p className="text-2xl font-bold">95%</p>
-            <p className="mt-1 text-sm text-green-600">+2% vs. semana</p>
+            <p className="text-2xl font-bold text-green-600">
+              {Math.round(
+                ((messages.length - pendingCount) /
+                  Math.max(messages.length, 1)) *
+                  100,
+              )}
+              %
+            </p>
           </CardContent>
         </Card>
       </div>
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Conversas recentes</CardTitle>
-            <Button size="sm" className="gap-2">
-              <Send className="size-4" />
-              Nova mensagem
-            </Button>
-          </div>
+          <CardTitle>Conversas recentes</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className="flex items-start gap-3 rounded-lg border p-4"
-              >
-                <div className="bg-primary/10 flex size-10 shrink-0 items-center justify-center rounded-full">
-                  <MessageSquare className="text-primary size-5" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between">
-                    <p className="font-medium">{msg.client}</p>
-                    <p className="text-muted-foreground text-xs">{msg.time}</p>
+              <div key={msg.id} className="rounded-lg border p-4">
+                <div className="flex items-start gap-3">
+                  <div className="bg-primary/10 flex size-10 shrink-0 items-center justify-center rounded-full">
+                    <MessageSquare className="text-primary size-5" />
                   </div>
-                  <p className="text-muted-foreground mt-1 truncate text-sm">
-                    {msg.message}
-                  </p>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between">
+                      <p className="font-medium">{msg.patientName}</p>
+                      <p className="text-muted-foreground text-xs">
+                        {msg.time}
+                      </p>
+                    </div>
+                    <div className="mt-1 flex items-center gap-2">
+                      <Badge
+                        variant={
+                          msg.direction === "enviado" ? "default" : "secondary"
+                        }
+                        className="text-xs"
+                      >
+                        {msg.direction === "enviado" ? "Enviado" : "Recebido"}
+                      </Badge>
+                      <Badge
+                        variant={
+                          msg.status === "lido"
+                            ? "default"
+                            : msg.status === "pendente"
+                              ? "secondary"
+                              : "outline"
+                        }
+                        className="text-xs"
+                      >
+                        {msg.status}
+                      </Badge>
+                    </div>
+                    <p className="text-muted-foreground mt-1 text-sm">
+                      {msg.message}
+                    </p>
+
+                    {msg.action === "confirmar" &&
+                      !msg.actionTaken &&
+                      msg.direction === "enviado" && (
+                        <div className="mt-3 flex gap-2">
+                          <Button
+                            size="sm"
+                            className="gap-1 bg-green-600 hover:bg-green-700"
+                            onClick={() => handleConfirm(msg)}
+                          >
+                            <Check className="size-3" /> Confirmar consulta
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="gap-1 text-red-600"
+                            onClick={() => handleCancel(msg)}
+                          >
+                            <X className="size-3" /> Cancelar
+                          </Button>
+                        </div>
+                      )}
+                    {msg.actionTaken && (
+                      <p className="mt-2 text-xs font-medium text-green-600">
+                        Acao realizada
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <Badge
-                  variant={
-                    msg.status === "lido"
-                      ? "default"
-                      : msg.status === "pendente"
-                        ? "secondary"
-                        : "outline"
-                  }
-                  className="shrink-0"
-                >
-                  {msg.status}
-                </Badge>
               </div>
             ))}
           </div>
@@ -1429,623 +2538,1107 @@ function WhatsAppModule() {
   );
 }
 
-function EstoqueModule() {
-  const products = [
-    {
-      id: 1,
-      name: "Shampoo Premium",
-      category: "Cabelo",
-      stock: 45,
-      minStock: 10,
-      price: 89.9,
-      status: "ok",
-    },
-    {
-      id: 2,
-      name: "Condicionador Hidratante",
-      category: "Cabelo",
-      stock: 32,
-      minStock: 10,
-      price: 79.9,
-      status: "ok",
-    },
-    {
-      id: 3,
-      name: "Máscara Capilar",
-      category: "Cabelo",
-      stock: 8,
-      minStock: 10,
-      price: 129.9,
-      status: "baixo",
-    },
-    {
-      id: 4,
-      name: "Creme para Pentear",
-      category: "Estilo",
-      stock: 28,
-      minStock: 15,
-      price: 59.9,
-      status: "ok",
-    },
-    {
-      id: 5,
-      name: "Óleo de Argan",
-      category: "Tratamento",
-      stock: 3,
-      minStock: 5,
-      price: 149.9,
-      status: "critico",
-    },
-    {
-      id: 6,
-      name: "Tintura Capilar",
-      category: "Coloração",
-      stock: 18,
-      minStock: 8,
-      price: 45.9,
-      status: "ok",
-    },
-  ];
+// ---------------------------------------------------------------------------
+// Prontuario Module (Interactive)
+// ---------------------------------------------------------------------------
+
+function ProntuarioModule({
+  entries,
+  setEntries,
+  patients,
+}: {
+  entries: ProntuarioEntry[];
+  setEntries: React.Dispatch<React.SetStateAction<ProntuarioEntry[]>>;
+  patients: Patient[];
+}) {
+  const [showForm, setShowForm] = useState(false);
+  const [editingEntry, setEditingEntry] = useState<ProntuarioEntry | null>(
+    null,
+  );
+  const [form, setForm] = useState({
+    patientId: "",
+    professional: "Dr. Ricardo",
+    type: "consulta" as ProntuarioEntry["type"],
+    notes: "",
+    prescription: "",
+    cid: "",
+  });
+
+  const handleSave = () => {
+    const patient = patients.find((p) => p.id === Number(form.patientId));
+    if (!patient) return;
+    if (editingEntry) {
+      setEntries((prev) =>
+        prev.map((e) =>
+          e.id === editingEntry.id
+            ? {
+                ...e,
+                ...form,
+                patientId: Number(form.patientId),
+                patientName: patient.name,
+                date: new Date().toISOString().split("T")[0],
+              }
+            : e,
+        ),
+      );
+    } else {
+      setEntries((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          patientId: Number(form.patientId),
+          professional: form.professional,
+          type: form.type,
+          notes: form.notes,
+          prescription: form.prescription,
+          cid: form.cid,
+          patientName: patient.name,
+          date: new Date().toISOString().split("T")[0],
+        },
+      ]);
+    }
+    setShowForm(false);
+    setEditingEntry(null);
+    setForm({
+      patientId: "",
+      professional: "Dr. Ricardo",
+      type: "consulta",
+      notes: "",
+      prescription: "",
+      cid: "",
+    });
+  };
+
+  const handleEdit = (entry: ProntuarioEntry) => {
+    setEditingEntry(entry);
+    setForm({
+      patientId: String(entry.patientId),
+      professional: entry.professional,
+      type: entry.type,
+      notes: entry.notes,
+      prescription: entry.prescription,
+      cid: entry.cid,
+    });
+    setShowForm(true);
+  };
+
+  const handleDelete = (id: number) => {
+    setEntries((prev) => prev.filter((e) => e.id !== id));
+  };
+
+  const typeColors: Record<string, string> = {
+    consulta: "default",
+    retorno: "secondary",
+    exame: "outline",
+    emergencia: "destructive",
+  };
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="flex items-center justify-between">
+        <p className="text-muted-foreground text-sm">
+          {entries.length} registros
+        </p>
+        <Button
+          onClick={() => {
+            setEditingEntry(null);
+            setForm({
+              patientId: "",
+              professional: "Dr. Ricardo",
+              type: "consulta",
+              notes: "",
+              prescription: "",
+              cid: "",
+            });
+            setShowForm(true);
+          }}
+          className="gap-2"
+        >
+          <FileText className="size-4" /> Novo prontuario
+        </Button>
+      </div>
+
+      {showForm && (
         <Card>
-          <CardContent className="p-4">
-            <p className="text-muted-foreground text-sm">Total de itens</p>
-            <p className="text-2xl font-bold">156</p>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>
+                {editingEntry ? "Editar prontuario" : "Novo prontuario"}
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setShowForm(false);
+                  setEditingEntry(null);
+                }}
+              >
+                <X className="size-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <label className="text-sm font-medium">Paciente</label>
+                <select
+                  value={form.patientId}
+                  onChange={(e) =>
+                    setForm({ ...form, patientId: e.target.value })
+                  }
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                >
+                  <option value="">Selecionar...</option>
+                  {patients
+                    .filter((p) => p.status === "ativo")
+                    .map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Profissional</label>
+                <select
+                  value={form.professional}
+                  onChange={(e) =>
+                    setForm({ ...form, professional: e.target.value })
+                  }
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                >
+                  {professionalOptions.map((p) => (
+                    <option key={p} value={p}>
+                      {p}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Tipo</label>
+                <select
+                  value={form.type}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      type: e.target.value as typeof form.type,
+                    })
+                  }
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                >
+                  <option value="consulta">Consulta</option>
+                  <option value="retorno">Retorno</option>
+                  <option value="exame">Exame</option>
+                  <option value="emergencia">Emergencia</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium">CID-10</label>
+                <input
+                  type="text"
+                  value={form.cid}
+                  onChange={(e) => setForm({ ...form, cid: e.target.value })}
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                  placeholder="Ex: M54.5"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="text-sm font-medium">Notas clinicas</label>
+                <textarea
+                  value={form.notes}
+                  onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                  rows={3}
+                  placeholder="Evolucao do paciente..."
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="text-sm font-medium">Prescricao</label>
+                <textarea
+                  value={form.prescription}
+                  onChange={(e) =>
+                    setForm({ ...form, prescription: e.target.value })
+                  }
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                  rows={2}
+                  placeholder="Medicamento - posologia - duracao"
+                />
+              </div>
+            </div>
+            <div className="mt-4 flex gap-2">
+              <Button
+                onClick={handleSave}
+                disabled={!form.patientId || !form.notes}
+              >
+                <Save className="mr-2 size-4" />{" "}
+                {editingEntry ? "Salvar" : "Registrar"}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowForm(false);
+                  setEditingEntry(null);
+                }}
+              >
+                Cancelar
+              </Button>
+            </div>
           </CardContent>
         </Card>
+      )}
+
+      <div className="space-y-3">
+        {entries
+          .sort((a, b) => b.date.localeCompare(a.date))
+          .map((entry) => (
+            <Card key={entry.id}>
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium">{entry.patientName}</p>
+                      <Badge
+                        variant={
+                          typeColors[entry.type] as
+                            "default" | "secondary" | "outline"
+                        }
+                      >
+                        {entry.type}
+                      </Badge>
+                      {entry.cid && (
+                        <Badge variant="outline" className="text-xs">
+                          CID: {entry.cid}
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-muted-foreground mt-1 text-sm">
+                      {new Date(entry.date + "T00:00:00").toLocaleDateString(
+                        "pt-BR",
+                      )}{" "}
+                      - {entry.professional}
+                    </p>
+                    <p className="mt-2 text-sm">{entry.notes}</p>
+                    {entry.prescription && (
+                      <div className="bg-muted mt-2 rounded p-2">
+                        <p className="text-xs font-medium">Prescricao:</p>
+                        <p className="text-muted-foreground text-xs">
+                          {entry.prescription}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex gap-1">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleEdit(entry)}
+                    >
+                      <Edit className="size-3" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleDelete(entry.id)}
+                    >
+                      <Trash2 className="size-3" />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Odontograma Module (5 Faces, 15 Condicoes)
+// ---------------------------------------------------------------------------
+
+function OdontogramaModule({
+  records,
+  setRecords,
+}: {
+  records: ToothRecord[];
+  setRecords: React.Dispatch<React.SetStateAction<ToothRecord[]>>;
+}) {
+  const [selectedTooth, setSelectedTooth] = useState<number | null>(null);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({
+    condition: "saudavel" as ToothRecord["condition"],
+    vestbular: false,
+    lingual: false,
+    mesial: false,
+    distal: false,
+    oclusal: false,
+    notes: "",
+  });
+
+  const faceLabels: Record<string, string> = {
+    vestbular: "Vestibular",
+    lingual: "Lingual",
+    mesial: "Mesial",
+    distal: "Distal",
+    oclusal: "Oclusal",
+  };
+
+  const teeth = useMemo(() => {
+    const upperRight = [18, 17, 16, 15, 14, 13, 12, 11];
+    const upperLeft = [21, 22, 23, 24, 25, 26, 27, 28];
+    const lowerLeft = [31, 32, 33, 34, 35, 36, 37, 38];
+    const lowerRight = [48, 47, 46, 45, 44, 43, 42, 41];
+    return { upperRight, upperLeft, lowerLeft, lowerRight };
+  }, []);
+
+  const getRecord = (toothId: number) =>
+    records.find((r) => r.toothId === toothId);
+
+  const handleSaveRecord = () => {
+    if (!selectedTooth) return;
+    const existing = getRecord(selectedTooth);
+    const newRecord: ToothRecord = {
+      toothId: selectedTooth,
+      condition: form.condition,
+      faces: {
+        vestbular: form.vestbular,
+        lingual: form.lingual,
+        mesial: form.mesial,
+        distal: form.distal,
+        oclusal: form.oclusal,
+      },
+      date: new Date().toISOString().split("T")[0],
+      professional: "Dr. Ricardo",
+      notes: form.notes,
+    };
+
+    if (existing) {
+      setRecords((prev) =>
+        prev.map((r) => (r.toothId === selectedTooth ? newRecord : r)),
+      );
+    } else {
+      setRecords((prev) => [...prev, newRecord]);
+    }
+    setShowForm(false);
+    setForm({
+      condition: "saudavel",
+      vestbular: false,
+      lingual: false,
+      mesial: false,
+      distal: false,
+      oclusal: false,
+      notes: "",
+    });
+  };
+
+  const handleToothClick = (toothId: number) => {
+    setSelectedTooth(toothId);
+    const existing = getRecord(toothId);
+    if (existing) {
+      setForm({
+        condition: existing.condition,
+        vestbular: existing.faces.vestbular,
+        lingual: existing.faces.lingual,
+        mesial: existing.faces.mesial,
+        distal: existing.faces.distal,
+        oclusal: existing.faces.oclusal,
+        notes: existing.notes,
+      });
+    } else {
+      setForm({
+        condition: "saudavel",
+        vestbular: false,
+        lingual: false,
+        mesial: false,
+        distal: false,
+        oclusal: false,
+        notes: "",
+      });
+    }
+    setShowForm(true);
+  };
+
+  const handleDeleteRecord = (toothId: number) => {
+    setRecords((prev) => prev.filter((r) => r.toothId !== toothId));
+    setShowForm(false);
+    setSelectedTooth(null);
+  };
+
+  const ToothButton = ({ id }: { id: number }) => {
+    const record = getRecord(id);
+    const color = record ? conditionColors[record.condition] : "bg-green-500";
+    const hasActiveFaces = record && Object.values(record.faces).some(Boolean);
+    return (
+      <button
+        onClick={() => handleToothClick(id)}
+        className={`hover:ring-primary/50 relative flex size-10 items-center justify-center rounded-lg border text-xs font-bold text-white transition-all hover:scale-110 hover:ring-2 ${color} ${selectedTooth === id ? "ring-primary scale-110 ring-2" : ""}`}
+        title={`Dente ${id} - ${record ? conditionLabels[record.condition] : "Saudavel"}`}
+      >
+        {id}
+        {hasActiveFaces && (
+          <span className="absolute -top-1 -right-1 size-2 rounded-full bg-yellow-400" />
+        )}
+      </button>
+    );
+  };
+
+  const counts = useMemo(() => {
+    const c: Record<string, number> = {};
+    for (const r of records) {
+      c[r.condition] = (c[r.condition] || 0) + 1;
+    }
+    return c;
+  }, [records]);
+
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-4 lg:grid-cols-6">
         <Card>
           <CardContent className="p-4">
-            <p className="text-muted-foreground text-sm">Estoque baixo</p>
-            <p className="text-2xl font-bold text-orange-500">4</p>
+            <p className="text-muted-foreground text-sm">Total dentes</p>
+            <p className="text-2xl font-bold">32</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-muted-foreground text-sm">Estoque crítico</p>
-            <p className="text-2xl font-bold text-red-500">2</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-muted-foreground text-sm">Valor total</p>
-            <p className="text-2xl font-bold">R$ 12.450</p>
-          </CardContent>
-        </Card>
+        {Object.entries(counts)
+          .filter(([, v]) => v > 0)
+          .map(([key, val]) => (
+            <Card key={key}>
+              <CardContent className="p-4">
+                <p className="text-muted-foreground text-sm">
+                  {conditionLabels[key]}
+                </p>
+                <p className="text-2xl font-bold">{val}</p>
+              </CardContent>
+            </Card>
+          ))}
       </div>
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Produtos</CardTitle>
-            <Button size="sm" className="gap-2">
-              <Plus className="size-4" />
-              Novo produto
-            </Button>
-          </div>
+          <CardTitle>Odontograma - Maria Silva</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            {products.map((product) => (
-              <div
-                key={product.id}
-                className="flex items-center justify-between rounded-lg border p-4"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="bg-primary/10 rounded-lg p-2">
-                    <Package className="text-primary size-5" />
-                  </div>
-                  <div>
-                    <p className="font-medium">{product.name}</p>
-                    <p className="text-muted-foreground text-sm">
-                      {product.category} • R$ {product.price}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-right">
-                    <p className="font-medium">{product.stock} un.</p>
-                    <p className="text-muted-foreground text-xs">
-                      Mín: {product.minStock}
-                    </p>
-                  </div>
-                  <Badge
-                    variant={
-                      product.status === "ok"
-                        ? "default"
-                        : product.status === "baixo"
-                          ? "secondary"
-                          : "destructive"
-                    }
-                  >
-                    {product.status === "ok"
-                      ? "Normal"
-                      : product.status === "baixo"
-                        ? "Baixo"
-                        : "Crítico"}
-                  </Badge>
-                </div>
+          <div className="mb-4 flex flex-wrap gap-3">
+            {Object.entries(conditionLabels).map(([key, label]) => (
+              <div key={key} className="flex items-center gap-1.5 text-xs">
+                <div
+                  className={`size-3 rounded-full ${conditionColors[key]}`}
+                />
+                <span>{label}</span>
               </div>
             ))}
           </div>
+
+          <div className="space-y-4">
+            <div>
+              <p className="text-muted-foreground mb-2 text-xs font-medium">
+                Arcada Superior - Direita
+              </p>
+              <div className="flex gap-2">
+                {teeth.upperRight.map((id) => (
+                  <ToothButton key={id} id={id} />
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="text-muted-foreground mb-2 text-xs font-medium">
+                Arcada Superior - Esquerda
+              </p>
+              <div className="flex gap-2">
+                {teeth.upperLeft.map((id) => (
+                  <ToothButton key={id} id={id} />
+                ))}
+              </div>
+            </div>
+            <div className="border-t pt-4">
+              <p className="text-muted-foreground mb-2 text-xs font-medium">
+                Arcada Inferior - Esquerda
+              </p>
+              <div className="flex gap-2">
+                {teeth.lowerLeft.map((id) => (
+                  <ToothButton key={id} id={id} />
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="text-muted-foreground mb-2 text-xs font-medium">
+                Arcada Inferior - Direita
+              </p>
+              <div className="flex gap-2">
+                {teeth.lowerRight.map((id) => (
+                  <ToothButton key={id} id={id} />
+                ))}
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
+
+      {showForm && selectedTooth && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Dente {selectedTooth} - Editar condicao</CardTitle>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setShowForm(false);
+                  setSelectedTooth(null);
+                }}
+              >
+                <X className="size-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <label className="text-sm font-medium">Condicao</label>
+                <select
+                  value={form.condition}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      condition: e.target.value as ToothRecord["condition"],
+                    })
+                  }
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                >
+                  {Object.entries(conditionLabels).map(([key, label]) => (
+                    <option key={key} value={key}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Faces afetadas</label>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {(
+                    Object.keys(faceLabels) as Array<keyof typeof faceLabels>
+                  ).map((face) => (
+                    <button
+                      key={face}
+                      type="button"
+                      onClick={() =>
+                        setForm({
+                          ...form,
+                          [face]: !form[face as keyof typeof form],
+                        })
+                      }
+                      className={`rounded-full border px-3 py-1 text-xs transition-colors ${form[face as keyof typeof form] ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
+                    >
+                      {faceLabels[face]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="md:col-span-2">
+                <label className="text-sm font-medium">Observacoes</label>
+                <input
+                  type="text"
+                  value={form.notes}
+                  onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                  placeholder="Detalhes do procedimento..."
+                />
+              </div>
+            </div>
+            <div className="mt-4 flex gap-2">
+              <Button onClick={handleSaveRecord}>
+                <Save className="mr-2 size-4" /> Salvar
+              </Button>
+              <Button
+                variant="outline"
+                className="text-red-600"
+                onClick={() => handleDeleteRecord(selectedTooth)}
+              >
+                <Trash2 className="mr-2 size-4" /> Remover
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowForm(false);
+                  setSelectedTooth(null);
+                }}
+              >
+                Cancelar
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {records.length > 0 && !showForm && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Historico de registros</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {records
+                .sort((a, b) => b.date.localeCompare(a.date))
+                .map((r) => (
+                  <div
+                    key={r.toothId}
+                    className="flex items-center justify-between rounded-lg border p-3"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`flex size-8 items-center justify-center rounded text-xs font-bold text-white ${conditionColors[r.condition]}`}
+                      >
+                        {r.toothId}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">
+                          Dente {r.toothId} - {conditionLabels[r.condition]}
+                        </p>
+                        <p className="text-muted-foreground text-xs">
+                          {Object.entries(r.faces)
+                            .filter(([, v]) => v)
+                            .map(([k]) => faceLabels[k])
+                            .join(", ") || "Sem faces"}{" "}
+                          | {r.date} - {r.professional}
+                        </p>
+                        {r.notes && (
+                          <p className="text-muted-foreground mt-0.5 text-xs">
+                            {r.notes}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleToothClick(r.toothId)}
+                    >
+                      <Edit className="size-3" />
+                    </Button>
+                  </div>
+                ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
 
-function ProntuarioModule() {
-  const records = [
-    {
-      id: 1,
-      patient: "Maria Silva",
-      date: "2026-08-05",
-      type: "Consulta",
-      doctor: "Dr. Ricardo",
-      notes:
-        "Paciente relata melhora nos sintomas. Manter tratamento por mais 30 dias.",
-      prescription: "Ibuprofeno 600mg - 8/8h por 7 dias",
-    },
-    {
-      id: 2,
-      patient: "João Santos",
-      date: "2026-08-04",
-      type: "Retorno",
-      doctor: "Dr. Ricardo",
-      notes:
-        "Exames de sangue dentro da normalidade. Pressão arterial controlada.",
-      prescription: "Losartana 50mg - 1x ao dia",
-    },
-    {
-      id: 3,
-      patient: "Ana Costa",
-      date: "2026-08-03",
-      type: "Exame",
-      doctor: "Dra. Beatriz",
-      notes:
-        "Raio-X do tórax sem alterações. Encaminhar para retorno em 15 dias.",
-      prescription: null,
-    },
-    {
-      id: 4,
-      patient: "Pedro Lima",
-      date: "2026-08-02",
-      type: "Consulta",
-      doctor: "Dr. Ricardo",
-      notes: "Dor lombar baixa. Indicar fisioterapia e anti-inflamatório.",
-      prescription: "Dipirona 500mg - 6/6h | Encaminhar fisioterapia",
-    },
-  ];
+// ---------------------------------------------------------------------------
+// Plano de Tratamento Module (Interactive)
+// ---------------------------------------------------------------------------
+
+function PlanoTratamentoModule({
+  plan,
+  setPlan,
+  toothRecords,
+}: {
+  plan: TreatmentItem[];
+  setPlan: React.Dispatch<React.SetStateAction<TreatmentItem[]>>;
+  toothRecords: ToothRecord[];
+}) {
+  const [showForm, setShowForm] = useState(false);
+  const [editingItem, setEditingItem] = useState<TreatmentItem | null>(null);
+  const [form, setForm] = useState({
+    toothId: "",
+    procedure: "",
+    value: "",
+    sessions: "1",
+    notes: "",
+  });
+
+  const totalValue = plan.reduce((s, t) => s + t.value, 0);
+  const paidValue = plan
+    .filter((t) => t.status === "concluido")
+    .reduce((s, t) => s + t.value, 0);
+  const pendingValue = totalValue - paidValue;
+
+  const handleSave = () => {
+    if (!form.toothId || !form.procedure) return;
+    if (editingItem) {
+      setPlan((prev) =>
+        prev.map((t) =>
+          t.id === editingItem.id
+            ? {
+                ...t,
+                toothId: Number(form.toothId),
+                procedure: form.procedure,
+                value: Number(form.value),
+                sessions: Number(form.sessions),
+                notes: form.notes,
+              }
+            : t,
+        ),
+      );
+    } else {
+      setPlan((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          toothId: Number(form.toothId),
+          procedure: form.procedure,
+          status: "pendente",
+          value: Number(form.value),
+          sessions: Number(form.sessions),
+          completedSessions: 0,
+          notes: form.notes,
+        },
+      ]);
+    }
+    setShowForm(false);
+    setEditingItem(null);
+    setForm({
+      toothId: "",
+      procedure: "",
+      value: "",
+      sessions: "1",
+      notes: "",
+    });
+  };
+
+  const handleEdit = (item: TreatmentItem) => {
+    setEditingItem(item);
+    setForm({
+      toothId: String(item.toothId),
+      procedure: item.procedure,
+      value: String(item.value),
+      sessions: String(item.sessions),
+      notes: item.notes,
+    });
+    setShowForm(true);
+  };
+
+  const handleDelete = (id: number) => {
+    setPlan((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  const handleStatusChange = (id: number, status: TreatmentItem["status"]) => {
+    setPlan((prev) =>
+      prev.map((t) => {
+        if (t.id !== id) return t;
+        const updated = { ...t, status };
+        if (status === "concluido") updated.completedSessions = t.sessions;
+        if (status === "em_execucao" && t.completedSessions === 0)
+          updated.completedSessions = 1;
+        return updated;
+      }),
+    );
+  };
+
+  const statusColors: Record<string, string> = {
+    pendente: "bg-zinc-100 text-zinc-800",
+    aprovado: "bg-blue-100 text-blue-800",
+    em_execucao: "bg-yellow-100 text-yellow-800",
+    concluido: "bg-green-100 text-green-800",
+  };
 
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardContent className="p-4">
-            <p className="text-muted-foreground text-sm">Prontuários hoje</p>
-            <p className="text-2xl font-bold">8</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-muted-foreground text-sm">Total de pacientes</p>
-            <p className="text-2xl font-bold">248</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
             <p className="text-muted-foreground text-sm">
-              Consultas esta semana
+              Valor total do plano
             </p>
-            <p className="text-2xl font-bold">42</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Prontuários recentes</CardTitle>
-            <Button size="sm" className="gap-2">
-              <Plus className="size-4" />
-              Novo prontuário
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {records.map((record) => (
-              <div key={record.id} className="rounded-lg border p-4">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium">{record.patient}</p>
-                      <Badge variant="outline">{record.type}</Badge>
-                    </div>
-                    <p className="text-muted-foreground mt-1 text-sm">
-                      {new Date(record.date).toLocaleDateString("pt-BR")} •{" "}
-                      {record.doctor}
-                    </p>
-                  </div>
-                  <Button variant="ghost" size="icon" className="size-8">
-                    <Eye className="size-4" />
-                  </Button>
-                </div>
-                <p className="text-muted-foreground mt-3 text-sm">
-                  {record.notes}
-                </p>
-                {record.prescription && (
-                  <div className="bg-muted mt-2 rounded p-2">
-                    <p className="text-xs font-medium">Prescrição:</p>
-                    <p className="text-muted-foreground text-xs">
-                      {record.prescription}
-                    </p>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-function PDVModule() {
-  const recentSales = [
-    {
-      id: 1,
-      client: "Maria Silva",
-      items: ["Corte de Cabelo", "Escova"],
-      total: 120,
-      payment: "Cartão",
-      time: "14:30",
-    },
-    {
-      id: 2,
-      client: "João Santos",
-      items: ["Barba", "Corte"],
-      total: 80,
-      payment: "Pix",
-      time: "13:15",
-    },
-    {
-      id: 3,
-      client: "Ana Costa",
-      items: ["Manicure", "Pedicure"],
-      total: 95,
-      payment: "Dinheiro",
-      time: "11:00",
-    },
-    {
-      id: 4,
-      client: "Pedro Lima",
-      items: ["Shampoo Premium"],
-      total: 89.9,
-      payment: "Cartão",
-      time: "10:30",
-    },
-  ];
-
-  return (
-    <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-muted-foreground text-sm">Vendas hoje</p>
-            <p className="text-2xl font-bold">R$ 1.240</p>
-            <p className="mt-1 text-sm text-green-600">+15% vs. ontem</p>
+            <p className="text-2xl font-bold">
+              R$ {totalValue.toLocaleString("pt-BR")}
+            </p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <p className="text-muted-foreground text-sm">Pedidos</p>
-            <p className="text-2xl font-bold">12</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-muted-foreground text-sm">Ticket médio</p>
-            <p className="text-2xl font-bold">R$ 103</p>
+            <p className="text-muted-foreground text-sm">Recebido</p>
+            <p className="text-2xl font-bold text-green-600">
+              R$ {paidValue.toLocaleString("pt-BR")}
+            </p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <p className="text-muted-foreground text-sm">Em aberto</p>
-            <p className="text-2xl font-bold">R$ 320</p>
+            <p className="text-2xl font-bold text-orange-500">
+              R$ {pendingValue.toLocaleString("pt-BR")}
+            </p>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="flex items-center justify-between">
+        <p className="text-muted-foreground text-sm">
+          {plan.length} procedimentos
+        </p>
+        <Button
+          onClick={() => {
+            setEditingItem(null);
+            setForm({
+              toothId: "",
+              procedure: "",
+              value: "",
+              sessions: "1",
+              notes: "",
+            });
+            setShowForm(true);
+          }}
+          className="gap-2"
+        >
+          <Plus className="size-4" /> Novo procedimento
+        </Button>
+      </div>
+
+      {showForm && (
         <Card>
           <CardHeader>
-            <CardTitle>Vendas recentes</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle>
+                {editingItem ? "Editar procedimento" : "Novo procedimento"}
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setShowForm(false);
+                  setEditingItem(null);
+                }}
+              >
+                <X className="size-4" />
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {recentSales.map((sale) => (
-                <div
-                  key={sale.id}
-                  className="flex items-center justify-between rounded-lg border p-3"
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <label className="text-sm font-medium">Dente</label>
+                <select
+                  value={form.toothId}
+                  onChange={(e) =>
+                    setForm({ ...form, toothId: e.target.value })
+                  }
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
                 >
-                  <div>
-                    <p className="font-medium">{sale.client}</p>
-                    <p className="text-muted-foreground text-xs">
-                      {sale.items.join(", ")}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium">R$ {sale.total}</p>
-                    <p className="text-muted-foreground text-xs">
-                      {sale.payment} • {sale.time}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Formas de pagamento</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {[
-                { method: "Cartão", amount: 580, percent: 47 },
-                { method: "Pix", amount: 420, percent: 34 },
-                { method: "Dinheiro", amount: 240, percent: 19 },
-              ].map((item) => (
-                <div key={item.method} className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span>{item.method}</span>
-                    <span className="font-medium">
-                      R$ {item.amount} ({item.percent}%)
-                    </span>
-                  </div>
-                  <div className="bg-muted h-2 overflow-hidden rounded-full">
-                    <div
-                      className="bg-primary h-full rounded-full"
-                      style={{ width: `${item.percent}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
-}
-
-function OdontogramaModule() {
-  const teeth: {
-    id: number;
-    name: string;
-    status: "saudavel" | "tratado" | "caries" | "ausente";
-  }[] = [
-    { id: 11, name: "11", status: "saudavel" },
-    { id: 12, name: "12", status: "tratado" },
-    { id: 13, name: "13", status: "saudavel" },
-    { id: 14, name: "14", status: "saudavel" },
-    { id: 15, name: "15", status: "caries" },
-    { id: 16, name: "16", status: "tratado" },
-    { id: 17, name: "17", status: "saudavel" },
-    { id: 18, name: "18", status: "ausente" },
-    { id: 21, name: "21", status: "saudavel" },
-    { id: 22, name: "22", status: "saudavel" },
-    { id: 23, name: "23", status: "saudavel" },
-    { id: 24, name: "24", status: "caries" },
-    { id: 25, name: "25", status: "saudavel" },
-    { id: 26, name: "26", status: "saudavel" },
-    { id: 27, name: "27", status: "tratado" },
-    { id: 28, name: "28", status: "ausente" },
-    { id: 31, name: "31", status: "saudavel" },
-    { id: 32, name: "32", status: "saudavel" },
-    { id: 33, name: "33", status: "saudavel" },
-    { id: 34, name: "34", status: "saudavel" },
-    { id: 35, name: "35", status: "tratado" },
-    { id: 36, name: "36", status: "saudavel" },
-    { id: 37, name: "37", status: "saudavel" },
-    { id: 38, name: "38", status: "ausente" },
-    { id: 41, name: "41", status: "saudavel" },
-    { id: 42, name: "42", status: "saudavel" },
-    { id: 43, name: "43", status: "saudavel" },
-    { id: 44, name: "44", status: "saudavel" },
-    { id: 45, name: "45", status: "caries" },
-    { id: 46, name: "46", status: "saudavel" },
-    { id: 47, name: "47", status: "tratado" },
-    { id: 48, name: "48", status: "ausente" },
-  ];
-
-  const statusColors: Record<string, string> = {
-    saudavel: "bg-green-500",
-    tratado: "bg-blue-500",
-    caries: "bg-red-500",
-    ausente: "bg-muted",
-  };
-
-  const statusLabels: Record<string, string> = {
-    saudavel: "Saudavel",
-    tratado: "Tratado",
-    caries: "Caries",
-    ausente: "Ausente",
-  };
-
-  return (
-    <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-muted-foreground text-sm">Total de dentes</p>
-            <p className="text-2xl font-bold">32</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-muted-foreground text-sm">Saudaveis</p>
-            <p className="text-2xl font-bold text-green-600">22</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-muted-foreground text-sm">Em tratamento</p>
-            <p className="text-2xl font-bold text-blue-600">4</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-muted-foreground text-sm">Com caries</p>
-            <p className="text-2xl font-bold text-red-600">3</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Odontograma — Maria Silva</CardTitle>
-            <Button size="sm" className="gap-2">
-              <Edit className="size-4" />
-              Atualizar
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-4 flex flex-wrap gap-4">
-            {Object.entries(statusLabels).map(([key, label]) => (
-              <div key={key} className="flex items-center gap-2 text-sm">
-                <div className={`size-3 rounded-full ${statusColors[key]}`} />
-                <span>{label}</span>
+                  <option value="">Selecionar...</option>
+                  {Array.from({ length: 32 }, (_, i) => {
+                    const id =
+                      i < 8
+                        ? 18 - i
+                        : i < 16
+                          ? i - 7
+                          : i < 24
+                            ? 31 + (i - 16)
+                            : 48 - (i - 24);
+                    return (
+                      <option key={id} value={id}>
+                        Dente {id}
+                      </option>
+                    );
+                  })}
+                </select>
               </div>
-            ))}
-          </div>
+              <div>
+                <label className="text-sm font-medium">Valor (R$)</label>
+                <input
+                  type="number"
+                  value={form.value}
+                  onChange={(e) => setForm({ ...form, value: e.target.value })}
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="text-sm font-medium">Procedimento</label>
+                <input
+                  type="text"
+                  value={form.procedure}
+                  onChange={(e) =>
+                    setForm({ ...form, procedure: e.target.value })
+                  }
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                  placeholder="Ex: Restauracao em resina"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Sessoes previstas</label>
+                <input
+                  type="number"
+                  value={form.sessions}
+                  onChange={(e) =>
+                    setForm({ ...form, sessions: e.target.value })
+                  }
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                  min="1"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Observacoes</label>
+                <input
+                  type="text"
+                  value={form.notes}
+                  onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                />
+              </div>
+            </div>
+            <div className="mt-4 flex gap-2">
+              <Button
+                onClick={handleSave}
+                disabled={!form.toothId || !form.procedure}
+              >
+                <Save className="mr-2 size-4" />{" "}
+                {editingItem ? "Salvar" : "Adicionar"}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowForm(false);
+                  setEditingItem(null);
+                }}
+              >
+                Cancelar
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
-          <div className="space-y-3">
-            <p className="text-muted-foreground text-sm font-medium">
-              Arcada Superior
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {teeth
-                .filter((t) => t.id >= 11 && t.id <= 18)
-                .map((tooth) => (
-                  <button
-                    key={tooth.id}
-                    className={`hover:ring-primary/50 flex size-10 items-center justify-center rounded-lg border text-xs font-medium text-white transition-colors hover:ring-2 ${statusColors[tooth.status]}`}
-                    title={`${tooth.name} — ${statusLabels[tooth.status]}`}
-                  >
-                    {tooth.name}
-                  </button>
-                ))}
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {teeth
-                .filter((t) => t.id >= 21 && t.id <= 28)
-                .map((tooth) => (
-                  <button
-                    key={tooth.id}
-                    className={`hover:ring-primary/50 flex size-10 items-center justify-center rounded-lg border text-xs font-medium text-white transition-colors hover:ring-2 ${statusColors[tooth.status]}`}
-                    title={`${tooth.name} — ${statusLabels[tooth.status]}`}
-                  >
-                    {tooth.name}
-                  </button>
-                ))}
-            </div>
-
-            <p className="text-muted-foreground mt-4 text-sm font-medium">
-              Arcada Inferior
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {teeth
-                .filter((t) => t.id >= 31 && t.id <= 38)
-                .map((tooth) => (
-                  <button
-                    key={tooth.id}
-                    className={`hover:ring-primary/50 flex size-10 items-center justify-center rounded-lg border text-xs font-medium text-white transition-colors hover:ring-2 ${statusColors[tooth.status]}`}
-                    title={`${tooth.name} — ${statusLabels[tooth.status]}`}
-                  >
-                    {tooth.name}
-                  </button>
-                ))}
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {teeth
-                .filter((t) => t.id >= 41 && t.id <= 48)
-                .map((tooth) => (
-                  <button
-                    key={tooth.id}
-                    className={`hover:ring-primary/50 flex size-10 items-center justify-center rounded-lg border text-xs font-medium text-white transition-colors hover:ring-2 ${statusColors[tooth.status]}`}
-                    title={`${tooth.name} — ${statusLabels[tooth.status]}`}
-                  >
-                    {tooth.name}
-                  </button>
-                ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="space-y-3">
+        {plan.map((item) => {
+          const record = toothRecords.find((r) => r.toothId === item.toothId);
+          return (
+            <Card key={item.id}>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={`flex size-10 items-center justify-center rounded-lg text-sm font-bold text-white ${record ? conditionColors[record.condition] : "bg-green-500"}`}
+                    >
+                      {item.toothId}
+                    </div>
+                    <div>
+                      <p className="font-medium">{item.procedure}</p>
+                      <p className="text-muted-foreground text-sm">
+                        Sessoes: {item.completedSessions}/{item.sessions} | R${" "}
+                        {item.value.toLocaleString("pt-BR")}
+                      </p>
+                      {item.notes && (
+                        <p className="text-muted-foreground mt-0.5 text-xs">
+                          {item.notes}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge className={statusColors[item.status]}>
+                      {item.status.replace("_", " ")}
+                    </Badge>
+                    {item.status !== "concluido" && (
+                      <select
+                        value={item.status}
+                        onChange={(e) =>
+                          handleStatusChange(
+                            item.id,
+                            e.target.value as TreatmentItem["status"],
+                          )
+                        }
+                        className="bg-muted rounded border px-2 py-1 text-xs"
+                      >
+                        <option value="pendente">Pendente</option>
+                        <option value="aprovado">Aprovado</option>
+                        <option value="em_execucao">Em execucao</option>
+                        <option value="concluido">Concluido</option>
+                      </select>
+                    )}
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleEdit(item)}
+                    >
+                      <Edit className="size-3" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleDelete(item.id)}
+                    >
+                      <Trash2 className="size-3" />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
     </div>
   );
 }
 
-function LembretesModule() {
-  const reminders = [
-    {
-      id: 1,
-      patient: "Maria Silva",
+// ---------------------------------------------------------------------------
+// LembretesModule (Interactive)
+// ---------------------------------------------------------------------------
+
+function LembretesModule({
+  lembretes,
+  setLembretes,
+  patients,
+}: {
+  lembretes: Lembrete[];
+  setLembretes: React.Dispatch<React.SetStateAction<Lembrete[]>>;
+  patients: Patient[];
+}) {
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({
+    patientId: "",
+    type: "retorno",
+    date: "",
+    time: "09:00",
+    message: "",
+    channel: "whatsapp" as Lembrete["channel"],
+  });
+
+  const handleSave = () => {
+    const patient = patients.find((p) => p.id === Number(form.patientId));
+    if (!patient) return;
+    setLembretes((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        patientId: patient.id,
+        patientName: patient.name,
+        type: form.type,
+        date: form.date,
+        time: form.time,
+        message: form.message,
+        status: "pendente",
+        channel: form.channel,
+      },
+    ]);
+    setShowForm(false);
+    setForm({
+      patientId: "",
       type: "retorno",
-      date: "2026-08-15",
+      date: "",
       time: "09:00",
-      message: "Retorno para controle de periodontite",
-      status: "pendente",
+      message: "",
       channel: "whatsapp",
-    },
-    {
-      id: 2,
-      patient: "Joao Santos",
-      type: "limpeza",
-      date: "2026-08-10",
-      time: "14:30",
-      message: "Lembrete de limpeza semestral",
-      status: "enviado",
-      channel: "sms",
-    },
-    {
-      id: 3,
-      patient: "Ana Costa",
-      type: "protese",
-      date: "2026-08-20",
-      time: "10:00",
-      message: "Ajuste de protese — 3a sessao",
-      status: "pendente",
-      channel: "whatsapp",
-    },
-    {
-      id: 4,
-      patient: "Pedro Lima",
-      type: "avaliacao",
-      date: "2026-08-08",
-      time: "11:00",
-      message: "Avaliacao ortodontica inicial",
-      status: "confirmado",
-      channel: "whatsapp",
-    },
-    {
-      id: 5,
-      patient: "Fernanda Alves",
-      type: "clareamento",
-      date: "2026-08-12",
-      time: "16:00",
-      message: "2a sessao de clareamento",
-      status: "enviado",
-      channel: "email",
-    },
-  ];
+    });
+  };
+
+  const handleSend = (id: number) => {
+    setLembretes((prev) =>
+      prev.map((l) => (l.id === id ? { ...l, status: "enviado" as const } : l)),
+    );
+  };
+
+  const handleConfirm = (id: number) => {
+    setLembretes((prev) =>
+      prev.map((l) =>
+        l.id === id ? { ...l, status: "confirmado" as const } : l,
+      ),
+    );
+  };
+
+  const handleDelete = (id: number) => {
+    setLembretes((prev) => prev.filter((l) => l.id !== id));
+  };
 
   return (
     <div className="space-y-6">
@@ -2053,88 +3646,249 @@ function LembretesModule() {
         <Card>
           <CardContent className="p-4">
             <p className="text-muted-foreground text-sm">Hoje</p>
-            <p className="text-2xl font-bold">3</p>
+            <p className="text-2xl font-bold">
+              {lembretes.filter((l) => l.date === "2026-08-05").length}
+            </p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <p className="text-muted-foreground text-sm">Pendentes</p>
-            <p className="text-2xl font-bold text-orange-500">2</p>
+            <p className="text-2xl font-bold text-orange-500">
+              {lembretes.filter((l) => l.status === "pendente").length}
+            </p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <p className="text-muted-foreground text-sm">Enviados</p>
-            <p className="text-2xl font-bold text-blue-500">2</p>
+            <p className="text-2xl font-bold text-blue-500">
+              {lembretes.filter((l) => l.status === "enviado").length}
+            </p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <p className="text-muted-foreground text-sm">Confirmados</p>
-            <p className="text-2xl font-bold text-green-600">1</p>
+            <p className="text-2xl font-bold text-green-600">
+              {lembretes.filter((l) => l.status === "confirmado").length}
+            </p>
           </CardContent>
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Lembretes</CardTitle>
-            <Button size="sm" className="gap-2">
-              <Plus className="size-4" />
-              Novo lembrete
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {reminders.map((reminder) => (
-              <div
-                key={reminder.id}
-                className="flex items-center justify-between rounded-lg border p-4"
+      <div className="flex items-center justify-between">
+        <p className="text-muted-foreground text-sm">
+          {lembretes.length} lembretes
+        </p>
+        <Button
+          onClick={() => {
+            setForm({
+              patientId: "",
+              type: "retorno",
+              date: "",
+              time: "09:00",
+              message: "",
+              channel: "whatsapp",
+            });
+            setShowForm(true);
+          }}
+          className="gap-2"
+        >
+          <Bell className="size-4" /> Novo lembrete
+        </Button>
+      </div>
+
+      {showForm && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Novo lembrete</CardTitle>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowForm(false)}
               >
-                <div className="flex items-center gap-4">
-                  <div className="bg-primary/10 flex size-10 items-center justify-center rounded-full">
-                    <Bell className="text-primary size-5" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium">{reminder.patient}</p>
-                      <Badge variant="outline" className="text-xs">
-                        {reminder.type}
-                      </Badge>
-                    </div>
-                    <p className="text-muted-foreground mt-1 text-sm">
-                      {reminder.message}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="text-right">
-                    <p className="text-sm">
-                      {new Date(reminder.date).toLocaleDateString("pt-BR")}
-                    </p>
-                    <p className="text-muted-foreground text-xs">
-                      {reminder.time}
-                    </p>
-                  </div>
-                  <Badge
-                    variant={
-                      reminder.status === "pendente"
-                        ? "secondary"
-                        : reminder.status === "enviado"
-                          ? "default"
-                          : "outline"
-                    }
-                  >
-                    {reminder.status}
-                  </Badge>
-                </div>
+                <X className="size-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <label className="text-sm font-medium">Paciente</label>
+                <select
+                  value={form.patientId}
+                  onChange={(e) =>
+                    setForm({ ...form, patientId: e.target.value })
+                  }
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                >
+                  <option value="">Selecionar...</option>
+                  {patients
+                    .filter((p) => p.status === "ativo")
+                    .map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                </select>
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+              <div>
+                <label className="text-sm font-medium">Tipo</label>
+                <select
+                  value={form.type}
+                  onChange={(e) => setForm({ ...form, type: e.target.value })}
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                >
+                  <option value="retorno">Retorno</option>
+                  <option value="limpeza">Limpeza</option>
+                  <option value="exame">Exame</option>
+                  <option value="aniversario">Aniversario</option>
+                  <option value="pagamento">Pagamento</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Data</label>
+                <input
+                  type="date"
+                  value={form.date}
+                  onChange={(e) => setForm({ ...form, date: e.target.value })}
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Horario</label>
+                <input
+                  type="time"
+                  value={form.time}
+                  onChange={(e) => setForm({ ...form, time: e.target.value })}
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="text-sm font-medium">Mensagem</label>
+                <input
+                  type="text"
+                  value={form.message}
+                  onChange={(e) =>
+                    setForm({ ...form, message: e.target.value })
+                  }
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Canal</label>
+                <select
+                  value={form.channel}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      channel: e.target.value as Lembrete["channel"],
+                    })
+                  }
+                  className="bg-muted mt-1 w-full rounded border px-3 py-2 text-sm"
+                >
+                  <option value="whatsapp">WhatsApp</option>
+                  <option value="sms">SMS</option>
+                  <option value="email">Email</option>
+                </select>
+              </div>
+            </div>
+            <div className="mt-4 flex gap-2">
+              <Button
+                onClick={handleSave}
+                disabled={!form.patientId || !form.date || !form.message}
+              >
+                <Save className="mr-2 size-4" /> Criar
+              </Button>
+              <Button variant="outline" onClick={() => setShowForm(false)}>
+                Cancelar
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="space-y-3">
+        {lembretes
+          .sort((a, b) => a.date.localeCompare(b.date))
+          .map((l) => (
+            <Card key={l.id}>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-primary/10 flex size-10 items-center justify-center rounded-full">
+                      <Bell className="text-primary size-5" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium">{l.patientName}</p>
+                        <Badge variant="outline" className="text-xs">
+                          {l.type}
+                        </Badge>
+                        <Badge variant="outline" className="text-xs capitalize">
+                          {l.channel}
+                        </Badge>
+                      </div>
+                      <p className="text-muted-foreground mt-1 text-sm">
+                        {l.message}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <p className="text-sm">
+                        {new Date(l.date + "T00:00:00").toLocaleDateString(
+                          "pt-BR",
+                        )}
+                      </p>
+                      <p className="text-muted-foreground text-xs">{l.time}</p>
+                    </div>
+                    <Badge
+                      variant={
+                        l.status === "pendente"
+                          ? "secondary"
+                          : l.status === "enviado"
+                            ? "default"
+                            : "outline"
+                      }
+                    >
+                      {l.status}
+                    </Badge>
+                    {l.status === "pendente" && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="gap-1"
+                        onClick={() => handleSend(l.id)}
+                      >
+                        <Send className="size-3" /> Enviar
+                      </Button>
+                    )}
+                    {l.status === "enviado" && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="gap-1 text-green-600"
+                        onClick={() => handleConfirm(l.id)}
+                      >
+                        <Check className="size-3" /> Confirmado
+                      </Button>
+                    )}
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleDelete(l.id)}
+                    >
+                      <Trash2 className="size-3" />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+      </div>
     </div>
   );
 }
