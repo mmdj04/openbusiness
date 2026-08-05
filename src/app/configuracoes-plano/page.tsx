@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,8 +23,26 @@ import {
   Shield,
   Lock,
   Sparkles,
+  Stethoscope,
+  Smile,
+  Scissors,
+  Dumbbell,
+  PawPrint,
+  Car,
+  Wrench,
+  ShoppingBag,
+  UtensilsCrossed,
+  Pizza,
+  Coffee,
+  Pill,
+  Glasses,
+  Shirt,
+  Building,
+  Scale,
+  Calculator,
 } from "lucide-react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 const BASE_PRICE = 497;
 
@@ -121,6 +139,117 @@ const additionalModules = [
   },
 ];
 
+const segments = [
+  {
+    id: "clinica-medica",
+    name: "Clínica médica",
+    icon: Stethoscope,
+    modules: ["prontuario", "whatsapp", "lembretes"],
+  },
+  {
+    id: "clinica-odontologica",
+    name: "Clínica odontológica",
+    icon: Smile,
+    modules: ["prontuario", "whatsapp", "lembretes"],
+  },
+  {
+    id: "salao",
+    name: "Salão de beleza",
+    icon: Scissors,
+    modules: ["pdv", "assinaturas", "whatsapp"],
+  },
+  {
+    id: "barbearia",
+    name: "Barbearia",
+    icon: Scissors,
+    modules: ["pdv", "assinaturas", "whatsapp"],
+  },
+  {
+    id: "academia",
+    name: "Academia",
+    icon: Dumbbell,
+    modules: ["assinaturas", "usuarios", "relatorios"],
+  },
+  {
+    id: "petshop",
+    name: "Pet shop",
+    icon: PawPrint,
+    modules: ["estoque", "whatsapp", "lembretes"],
+  },
+  {
+    id: "autoescola",
+    name: "Autoescola",
+    icon: Car,
+    modules: ["usuarios", "relatorios", "whatsapp"],
+  },
+  {
+    id: "oficina",
+    name: "Oficina mecânica",
+    icon: Wrench,
+    modules: ["estoque", "relatorios", "pdv"],
+  },
+  {
+    id: "autopecas",
+    name: "Autopeças",
+    icon: ShoppingBag,
+    modules: ["estoque", "pdv", "relatorios"],
+  },
+  {
+    id: "restaurante",
+    name: "Restaurante",
+    icon: UtensilsCrossed,
+    modules: ["pdv", "estoque", "relatorios"],
+  },
+  {
+    id: "pizzaria",
+    name: "Pizzaria",
+    icon: Pizza,
+    modules: ["pdv", "estoque", "whatsapp"],
+  },
+  {
+    id: "lanchonete",
+    name: "Lanchonete",
+    icon: Coffee,
+    modules: ["pdv", "estoque", "relatorios"],
+  },
+  {
+    id: "farmacia",
+    name: "Farmácia",
+    icon: Pill,
+    modules: ["estoque", "pdv", "relatorios"],
+  },
+  {
+    id: "otica",
+    name: "Ótica",
+    icon: Glasses,
+    modules: ["estoque", "pdv", "relatorios"],
+  },
+  {
+    id: "loja-roupas",
+    name: "Loja de roupas",
+    icon: Shirt,
+    modules: ["estoque", "pdv", "relatorios"],
+  },
+  {
+    id: "material-construcao",
+    name: "Material de construção",
+    icon: Building,
+    modules: ["estoque", "pdv", "relatorios"],
+  },
+  {
+    id: "advocacia",
+    name: "Escritório de advocacia",
+    icon: Scale,
+    modules: ["prontuario", "relatorios", "usuarios"],
+  },
+  {
+    id: "contabilidade",
+    name: "Contabilidade",
+    icon: Calculator,
+    modules: ["relatorios", "usuarios", "whatsapp"],
+  },
+];
+
 const paymentMethods = [
   {
     id: "credit",
@@ -143,8 +272,33 @@ const paymentMethods = [
 ];
 
 export default function ConfiguracoesPlanoPage() {
-  const [selectedModules, setSelectedModules] = useState<string[]>([]);
+  const searchParams = useSearchParams();
+  const segmentParam = searchParams.get("segmento");
+
+  const initialSegment =
+    segmentParam && segments.find((s) => s.id === segmentParam)
+      ? segmentParam
+      : null;
+  const initialModules = initialSegment
+    ? segments.find((s) => s.id === initialSegment)?.modules || []
+    : [];
+
+  const [selectedSegment, setSelectedSegment] = useState<string | null>(
+    initialSegment,
+  );
+  const [selectedModules, setSelectedModules] =
+    useState<string[]>(initialModules);
   const [paymentMethod, setPaymentMethod] = useState("credit");
+
+  const handleSegmentChange = (segmentId: string) => {
+    setSelectedSegment(segmentId);
+    const segment = segments.find((s) => s.id === segmentId);
+    if (segment) {
+      setSelectedModules(segment.modules);
+    } else {
+      setSelectedModules([]);
+    }
+  };
 
   const toggleModule = (moduleId: string) => {
     setSelectedModules((prev) =>
@@ -178,8 +332,8 @@ export default function ConfiguracoesPlanoPage() {
             Configurar seu plano
           </h1>
           <p className="text-muted-foreground mt-2">
-            Seu plano já vem com tudo que precisa para começar. Adicione mais
-            conforme sua necessidade.
+            Selecione seu segmento para auto-preencher os módulos ideais, ou
+            monte seu plano personalizado.
           </p>
         </div>
 
@@ -190,6 +344,41 @@ export default function ConfiguracoesPlanoPage() {
                 <CardTitle className="flex items-center gap-2">
                   <span className="bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-full text-sm font-bold">
                     1
+                  </span>
+                  Qual é o seu negócio?
+                </CardTitle>
+                <CardDescription>
+                  Selecione seu segmento para preencher automaticamente os
+                  módulos ideais.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {segments.map((segment) => (
+                    <button
+                      key={segment.id}
+                      onClick={() => handleSegmentChange(segment.id)}
+                      className={`flex items-center gap-3 rounded-lg border p-3 text-left transition-all ${
+                        selectedSegment === segment.id
+                          ? "bg-primary/5 border-primary/30 ring-primary/20 ring-1"
+                          : "bg-muted/30 hover:bg-muted/50 hover:shadow-sm"
+                      }`}
+                    >
+                      <segment.icon className="text-muted-foreground size-5" />
+                      <span className="text-sm font-medium">
+                        {segment.name}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <span className="bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-full text-sm font-bold">
+                    2
                   </span>
                   Seus módulos inclusos
                 </CardTitle>
@@ -222,7 +411,7 @@ export default function ConfiguracoesPlanoPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <span className="bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-full text-sm font-bold">
-                    2
+                    3
                   </span>
                   Módulos adicionais
                 </CardTitle>
@@ -289,7 +478,7 @@ export default function ConfiguracoesPlanoPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <span className="bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-full text-sm font-bold">
-                    3
+                    4
                   </span>
                   Forma de pagamento
                 </CardTitle>
