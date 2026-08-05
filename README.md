@@ -1,36 +1,113 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<div align="center">
 
-## Getting Started
+# OpenBaaS
 
-First, run the development server:
+**Open Source Backend as a Service**
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![CI](https://github.com/seu-usuario/openbaas/actions/workflows/ci.yml/badge.svg)](https://github.com/seu-usuario/openbaas/actions)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![Commit Convention](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
+
+[Português](README.md) | [English](README.en.md)
+
+</div>
+
+---
+
+## Sobre o OpenBaaS
+
+O OpenBaaS é uma plataforma open-source de Backend as a Service construída com tecnologias modernas. Fornece uma API completa para autenticação, gerenciamento de dados e muito mais.
+
+## Stack Tecnológica
+
+| Tecnologia                                    | Descrição                        |
+| --------------------------------------------- | -------------------------------- |
+| [Next.js 16](https://nextjs.org/)             | Framework React full-stack       |
+| [TypeScript](https://www.typescriptlang.org/) | Tipagem estática para JavaScript |
+| [Tailwind CSS 4](https://tailwindcss.com/)    | Utility-first CSS                |
+| [shadcn/ui](https://ui.shadcn.com/)           | Componentes UI acessíveis        |
+| [Zustand](https://zustand-demo.pmnd.rs/)      | Gerenciamento de estado          |
+| [Axios](https://axios-http.com/)              | Cliente HTTP                     |
+| [date-fns](https://date-fns.org/)             | Utilitários de data              |
+
+## Funcionalidades
+
+- Autenticação completa (Login, Registro, Recuperação de Senha)
+- CRUD de recursos
+- API RESTful
+- Testes unitários e E2E
+- CI/CD com GitHub Actions (gratuito)
+- Deploy automático na Vercel
+- Design responsivo
+- Tema claro/escuro
+- Acessibilidade (WCAG 2.1)
+
+## Pré-requisitos
+
+- [Node.js 20+](https://nodejs.org/)
+- [npm](https://www.npmjs.com/) ou [pnpm](https://pnpm.io/)
+
+## Instalação
 
 ```bash
+# Clone o repositório
+git clone https://github.com/seu-usuario/openbaas.git
+
+# Entre na pasta do projeto
+cd openbaas
+
+# Instale as dependências
+npm install
+
+# Inicie o servidor de desenvolvimento
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Acesse [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Comandos Disponíveis
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Comando             | Descrição                   |
+| ------------------- | --------------------------- |
+| `npm run dev`       | Servidor de desenvolvimento |
+| `npm run build`     | Build de produção           |
+| `npm run start`     | Iniciar em produção         |
+| `npm run lint`      | Verificar lint              |
+| `npm run lint:fix`  | Corrigir lint               |
+| `npm run format`    | Formatar com Prettier       |
+| `npm run typecheck` | Verificar tipos             |
+| `npm run test`      | Testes unitários            |
+| `npm run test:e2e`  | Testes E2E                  |
+| `npm run validate`  | Rodar todas as verificações |
 
-## Learn More
+## Estrutura do Projeto
 
-To learn more about Next.js, take a look at the following resources:
+```
+openbaas/
+├── .github/
+│   ├── ISSUE_TEMPLATE/    # Templates de issues
+│   └── workflows/         # GitHub Actions CI/CD
+├── src/
+│   ├── app/               # App Router (Next.js)
+│   ├── components/
+│   │   └── ui/            # Componentes shadcn/ui
+│   ├── lib/               # Utilitários
+│   └── hooks/             # Custom hooks
+├── CONTRIBUTING.md
+├── CODE_OF_CONDUCT.md
+├── SECURITY.md
+└── LICENSE
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Contribuindo
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Contribuições são muito bem-vindas! Leia nosso [Guia de Contribuição](CONTRIBUTING.md) para começar.
 
-## Deploy on Vercel
+## Licença
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Este projeto está sob a licença MIT. Veja o [LICENSE](LICENSE) para mais detalhes.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Apoio
+
+Se este projeto te ajudou, considere deixar uma ⭐ no repositório!
