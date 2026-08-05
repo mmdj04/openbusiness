@@ -48,20 +48,18 @@ export function Pricing() {
             <CardHeader className="text-center">
               <CardTitle className="text-xl">OpenBusiness</CardTitle>
               <CardDescription>
-                Tudo que seu negócio precisa em um só lugar
+                Monte seu plano ideal em poucos passos
               </CardDescription>
               <div className="mt-4">
-                <span className="text-muted-foreground text-sm line-through">
-                  R$ 997
-                </span>
                 <div className="flex items-baseline justify-center gap-1">
                   <span className="text-foreground text-5xl font-bold">
-                    R$ 497
+                    Monte seu plano
                   </span>
-                  <span className="text-muted-foreground">/mês</span>
                 </div>
-                <p className="text-muted-foreground mt-2 text-sm">
-                  3 módulos inclusos. Adicione mais conforme necessidade.
+                <p className="text-muted-foreground mt-3 text-sm">
+                  Preço calculado pelo uso real do seu negócio.
+                  <br />
+                  Responda poucas perguntas e descubra seu valor.
                 </p>
               </div>
             </CardHeader>

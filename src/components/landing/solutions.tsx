@@ -21,134 +21,174 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+const BASE_PRICE = 497;
+
+const modulePrices: Record<string, number> = {
+  agenda: 60,
+  financeiro: 80,
+  estoque: 70,
+  whatsapp: 120,
+  pdv: 100,
+  crm: 70,
+  relatorios: 80,
+  ia: 180,
+  assinaturas: 90,
+  prontuario: 130,
+  lembretes: 70,
+  "multi-unidades": 200,
+};
+
 const solutions = [
   {
     icon: Stethoscope,
     title: "Clínicas médicas",
     benefit: "Menos faltas, mais pacientes atendidos",
-    price: "R$ 497–900",
+    modules: [
+      "agenda",
+      "financeiro",
+      "crm",
+      "prontuario",
+      "whatsapp",
+      "lembretes",
+    ],
     segment: "clinica-medica",
   },
   {
     icon: Smile,
     title: "Clínicas odontológicas",
     benefit: "Agenda lotada e pacientes felizes",
-    price: "R$ 497–900",
+    modules: [
+      "agenda",
+      "financeiro",
+      "crm",
+      "prontuario",
+      "whatsapp",
+      "lembretes",
+    ],
     segment: "clinica-odontologica",
   },
   {
     icon: Scissors,
     title: "Salões de beleza",
     benefit: "Fila de espera e fidelidade automática",
-    price: "R$ 497–700",
+    modules: ["agenda", "financeiro", "crm", "whatsapp", "assinaturas"],
     segment: "salao",
   },
   {
     icon: Scissors,
     title: "Barbearias",
     benefit: "Assinaturas recorrentes e agenda cheia",
-    price: "R$ 497–700",
+    modules: ["agenda", "financeiro", "crm", "whatsapp", "assinaturas"],
     segment: "barbearia",
   },
   {
     icon: Dumbbell,
     title: "Academias",
     benefit: "Controle total de alunos e pagamentos",
-    price: "R$ 497–700",
+    modules: ["agenda", "financeiro", "crm", "assinaturas", "relatorios"],
     segment: "academia",
   },
   {
     icon: PawPrint,
     title: "Pet shops",
     benefit: "Agendamentos organizados e clientes fiéis",
-    price: "R$ 497–700",
+    modules: ["agenda", "financeiro", "crm", "estoque", "whatsapp"],
     segment: "petshop",
   },
   {
     icon: Car,
     title: "Autoescolas",
     benefit: "Horários otimizados e alunos satisfeitos",
-    price: "R$ 497–700",
+    modules: ["agenda", "financeiro", "crm", "relatorios", "whatsapp"],
     segment: "autoescola",
   },
   {
     icon: Wrench,
     title: "Oficinas mecânicas",
     benefit: "Ordens de serviço sem papel e estoque controlado",
-    price: "R$ 497–900",
+    modules: ["agenda", "financeiro", "crm", "estoque", "relatorios"],
     segment: "oficina",
   },
   {
     icon: ShoppingBag,
     title: "Autopeças",
     benefit: "Estoque correto e vendas organizadas",
-    price: "R$ 497–700",
+    modules: ["financeiro", "crm", "estoque", "pdv", "relatorios"],
     segment: "autopecas",
   },
   {
     icon: UtensilsCrossed,
     title: "Restaurantes",
     benefit: "Pedidos sem erro e caixa organizado",
-    price: "R$ 497–900",
+    modules: ["financeiro", "pdv", "estoque", "relatorios"],
     segment: "restaurante",
   },
   {
     icon: Pizza,
     title: "Pizzarias",
     benefit: "Delivery rápido e clientes repetem",
-    price: "R$ 497–700",
+    modules: ["financeiro", "pdv", "estoque", "whatsapp"],
     segment: "pizzaria",
   },
   {
     icon: Coffee,
     title: "Lanchonetes",
     benefit: "Delivery próprio e pedidos organizados",
-    price: "R$ 497–700",
+    modules: ["financeiro", "pdv", "estoque", "relatorios"],
     segment: "lanchonete",
   },
   {
     icon: Pill,
     title: "Farmácias",
     benefit: "Estoque sempre disponível e vendas rastreadas",
-    price: "R$ 497–700",
+    modules: ["financeiro", "crm", "estoque", "pdv", "relatorios"],
     segment: "farmacia",
   },
   {
     icon: Glasses,
     title: "Óticas",
     benefit: "Clientes cadastrados e vendas aumentam",
-    price: "R$ 497–700",
+    modules: ["financeiro", "crm", "estoque", "pdv", "relatorios"],
     segment: "otica",
   },
   {
     icon: Shirt,
     title: "Lojas de roupas",
     benefit: "Estoque organizado e vendas crescem",
-    price: "R$ 497–700",
+    modules: ["financeiro", "crm", "estoque", "pdv", "relatorios"],
     segment: "loja-roupas",
   },
   {
     icon: Building,
     title: "Material de construção",
     benefit: "Orçamentos rápidos e entregas no prazo",
-    price: "R$ 497–900",
+    modules: ["financeiro", "crm", "estoque", "pdv", "relatorios"],
     segment: "material-construcao",
   },
   {
     icon: Scale,
     title: "Escritórios de advocacia",
     benefit: "Processos organizados e prazos em dia",
-    price: "R$ 497–900",
+    modules: ["agenda", "financeiro", "crm", "relatorios", "prontuario"],
     segment: "advocacia",
   },
   {
     icon: Calculator,
     title: "Contabilidades",
     benefit: "Vencimentos controlados e clientes satisfeitos",
-    price: "R$ 497–700",
+    modules: ["agenda", "financeiro", "crm", "relatorios", "whatsapp"],
     segment: "contabilidade",
   },
 ];
+
+function getSegmentTotal(modules: string[]): number {
+  const extra = modules.reduce((sum, id) => sum + (modulePrices[id] || 0), 0);
+  return BASE_PRICE + extra;
+}
+
+function formatPrice(value: number): string {
+  return value.toLocaleString("pt-BR");
+}
 
 export function Solutions() {
   return (
@@ -168,29 +208,34 @@ export function Solutions() {
         </div>
 
         <div className="mx-auto mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {solutions.map((solution) => (
-            <Link
-              key={solution.title}
-              href={`/configuracoes-plano?segmento=${solution.segment}`}
-            >
-              <Card className="group hover:ring-primary/20 relative h-full overflow-hidden transition-all hover:shadow-md hover:ring-1">
-                <CardHeader className="pb-3">
-                  <div className="bg-primary/10 mb-2 flex size-10 items-center justify-center rounded-lg">
-                    <solution.icon className="text-primary size-5" />
-                  </div>
-                  <CardTitle className="text-base">{solution.title}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <p className="text-muted-foreground text-sm">
-                    {solution.benefit}
-                  </p>
-                  <div className="text-primary text-sm font-semibold">
-                    A partir de {solution.price}/mês
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+          {solutions.map((solution) => {
+            const total = getSegmentTotal(solution.modules);
+            return (
+              <Link
+                key={solution.title}
+                href={`/configuracoes-plano?segmento=${solution.segment}`}
+              >
+                <Card className="group hover:ring-primary/20 relative h-full overflow-hidden transition-all hover:shadow-md hover:ring-1">
+                  <CardHeader className="pb-3">
+                    <div className="bg-primary/10 mb-2 flex size-10 items-center justify-center rounded-lg">
+                      <solution.icon className="text-primary size-5" />
+                    </div>
+                    <CardTitle className="text-base">
+                      {solution.title}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <p className="text-muted-foreground text-sm">
+                      {solution.benefit}
+                    </p>
+                    <div className="text-primary text-sm font-semibold">
+                      A partir de R$ {formatPrice(total)}/mês
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            );
+          })}
         </div>
       </div>
     </section>
