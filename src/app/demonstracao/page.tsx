@@ -312,11 +312,13 @@ export default function DemonstracaoPage() {
   const currentSegment = segmentConfigs.find((s) => s.id === selectedSegment);
 
   const toggleModule = (module: Module) => {
-    setEnabledModules((prev) =>
-      prev.includes(module)
-        ? prev.filter((m) => m !== module)
-        : [...prev, module],
-    );
+    setEnabledModules((prev) => {
+      if (prev.includes(module)) {
+        if (prev.length === 1) return prev;
+        return prev.filter((m) => m !== module);
+      }
+      return [...prev, module];
+    });
   };
 
   const handleSegmentChange = (segment: Segment) => {
@@ -404,7 +406,7 @@ export default function DemonstracaoPage() {
 
       <main className="ml-64 flex-1 overflow-hidden">
         <header className="bg-card border-border border-b">
-          <div className="flex flex-wrap items-center gap-3 p-4">
+          <div className="flex items-center gap-4 p-4">
             <div className="min-w-0 shrink-0">
               <h1 className="text-xl font-semibold">
                 {currentModule === "dashboard" && "Painel de Controle"}
@@ -423,12 +425,12 @@ export default function DemonstracaoPage() {
               </p>
             </div>
 
-            <div className="bg-border h-6 w-px" />
+            <div className="bg-border h-8 w-px" />
 
             <select
               value={selectedSegment}
               onChange={(e) => handleSegmentChange(e.target.value as Segment)}
-              className="bg-muted rounded border px-2 py-1 text-sm"
+              className="bg-muted rounded border px-2 py-1.5 text-sm"
             >
               {segmentConfigs.map((seg) => (
                 <option key={seg.id} value={seg.id}>
@@ -437,14 +439,12 @@ export default function DemonstracaoPage() {
               ))}
             </select>
 
-            <div className="bg-border h-6 w-px" />
-
-            <div className="relative">
-              <Search className="text-muted-foreground absolute top-1/2 left-2 size-3.5 -translate-y-1/2" />
+            <div className="relative min-w-0 flex-1">
+              <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Buscar..."
-                className="bg-muted w-32 rounded border py-1.5 pr-2 pl-7 text-sm"
+                className="bg-muted w-full rounded border py-2 pr-4 pl-9 text-sm"
               />
             </div>
 
@@ -466,6 +466,10 @@ export default function DemonstracaoPage() {
                   }
                   size="sm"
                   onClick={() => toggleModule(mod.id)}
+                  disabled={
+                    enabledModules.includes(mod.id) &&
+                    enabledModules.length === 1
+                  }
                   className="h-6 px-2 text-xs"
                 >
                   {mod.label}
