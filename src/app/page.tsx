@@ -1,10 +1,8 @@
 import {
   Hero,
   Solutions,
-  HowItWorks,
   Modules,
   Pricing,
-  Testimonials,
   FAQ,
   CTA,
   Footer,
@@ -15,10 +13,8 @@ export default function Home() {
     <div className="flex min-h-screen flex-col">
       <Hero />
       <Solutions />
-      <HowItWorks />
       <Modules />
       <Pricing />
-      <Testimonials />
       <FAQ />
       <CTA />
       <Footer />
