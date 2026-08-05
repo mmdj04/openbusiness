@@ -2155,20 +2155,19 @@ function DashboardModule({
             <CardTitle>Faturamento semanal</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex h-56 items-end justify-center gap-3">
+            <div className="flex h-48 items-end justify-center gap-3">
               {weeklyData.map((d) => (
-                <div
-                  key={d.day}
-                  className="flex w-12 flex-col items-center gap-1"
-                >
+                <div key={d.day} className="flex w-12 flex-col items-center">
                   <span className="text-muted-foreground text-xs">
                     R$ {d.revenue}
                   </span>
                   <div
-                    className="w-full rounded-t bg-emerald-500"
-                    style={{ height: `${(d.revenue / maxRevenue) * 120}px` }}
+                    className="mt-1 w-full rounded-t bg-emerald-500"
+                    style={{ height: `${(d.revenue / maxRevenue) * 100}px` }}
                   />
-                  <span className="text-muted-foreground text-xs">{d.day}</span>
+                  <span className="text-muted-foreground mt-1 text-xs">
+                    {d.day}
+                  </span>
                 </div>
               ))}
             </div>
@@ -3507,20 +3506,19 @@ function RelatoriosModule({
           <CardTitle>Faturamento semanal</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex h-56 items-end justify-center gap-3">
+          <div className="flex h-48 items-end justify-center gap-3">
             {weeklyData.map((d) => (
-              <div
-                key={d.day}
-                className="flex w-12 flex-col items-center gap-1"
-              >
+              <div key={d.day} className="flex w-12 flex-col items-center">
                 <span className="text-muted-foreground text-xs">
                   R$ {d.revenue}
                 </span>
                 <div
-                  className="w-full rounded-t bg-emerald-500"
-                  style={{ height: `${(d.revenue / maxRevenue) * 120}px` }}
+                  className="mt-1 w-full rounded-t bg-emerald-500"
+                  style={{ height: `${(d.revenue / maxRevenue) * 100}px` }}
                 />
-                <span className="text-muted-foreground text-xs">{d.day}</span>
+                <span className="text-muted-foreground mt-1 text-xs">
+                  {d.day}
+                </span>
               </div>
             ))}
           </div>
