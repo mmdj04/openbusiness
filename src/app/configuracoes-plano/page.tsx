@@ -23,7 +23,6 @@ import {
   Shield,
   Lock,
   Sparkles,
-  TrendingDown,
   Zap,
 } from "lucide-react";
 import Link from "next/link";
